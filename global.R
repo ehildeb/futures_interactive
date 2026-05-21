@@ -60,11 +60,12 @@ dta_agg <- dta_agg %>% left_join(un_countries, by = "actor")
 raw_nodes <- read_csv(file.path(gephi_dir, "nodes.csv"), show_col_types = FALSE)
 raw_edges <- read_csv(file.path(gephi_dir, "edges.csv"), show_col_types = FALSE)
 
-# Vision pole coordinates: EC left, MR right, SI bottom
+# Vision pole coordinates: roughly balanced triangle (middle ground between original and equilateral)
+# EC left, MR right, SI bottom
 pole_coords <- tibble(
   id = c("mr",  "si",  "ec"),
-  px = c( 700,    0,  -700),
-  py = c(   0,  600,     0)
+  px = c( 600,    0,  -600),
+  py = c(   0,  720,     0)
 )
 
 # Actor positions: barycentric weighted by edge weights to each vision pole, plus jitter
@@ -125,31 +126,35 @@ net_nodes <- raw_nodes %>%
   filter(id != "international_tribunal_for_the_law_of_the_sea") %>%
   left_join(pole_coords,                           by = "id") %>%
   left_join(actor_pos %>% rename(ax = x, ay = y), by = "id") %>%
+  # Join actor type from dta_agg for shape encoding
+  left_join(
+    dta_agg %>% transmute(id = str_replace_all(actor, " ", "_"), actor_type_eh2),
+    by = "id"
+  ) %>%
   mutate(
     x = if_else(type == "vision", px, ax),
     y = if_else(type == "vision", py, ay)
   ) %>%
   select(-px, -py, -ax, -ay) %>%
   mutate(
-    size      = if_else(type == "vision", 36, 14),
-    shape     = case_when(
-      type == "vision" ~ "diamond",
-      cluster5 == 1    ~ "dot",
-      cluster5 == 2    ~ "square",
-      cluster5 == 3    ~ "triangle",
-      cluster5 == 4    ~ "triangleDown",
-      cluster5 == 5    ~ "diamond",
-      TRUE             ~ "dot"
+    size  = if_else(type == "vision", 36, 14),
+    # Shape by actor type; vision nodes stay as diamond
+    shape = case_when(
+      type == "vision"                                        ~ "diamond",
+      actor_type_eh2 == "member state" | id == "african_group" ~ "dot",
+      actor_type_eh2 == "observer ngo"                        ~ "square",
+      actor_type_eh2 == "isa"                                 ~ "diamond",
+      TRUE                                                    ~ "triangle"
     ),
-    # Greyscale shuffled for contrast; right side (squares vs down-triangles) gets max gap
+    # Muted cluster colours (same palette as 3D scatter)
     color = case_when(
-      type     == "vision" ~ "#FFFFFF",
-      cluster5 == 1        ~ "#3C3C3C",  # circles: dark
-      cluster5 == 3        ~ "#ABABAB",  # triangles: light
-      cluster5 == 5        ~ "#686868",  # diamonds: medium
-      cluster5 == 2        ~ "#C8C8C8",  # squares: lightest
-      cluster5 == 4        ~ "#242424",  # down-triangles: darkest
-      TRUE                 ~ "#999999"
+      type == "vision" ~ "#FFFFFF",
+      cluster5 == 1    ~ "#6DB589",
+      cluster5 == 2    ~ "#BC7798",
+      cluster5 == 3    ~ "#5BAAB6",
+      cluster5 == 4    ~ "#CC8A52",
+      cluster5 == 5    ~ "#8A7ABF",
+      TRUE             ~ "#999999"
     ),
     font.size        = if_else(type == "vision", 18, 10),
     font.color       = "#111111",

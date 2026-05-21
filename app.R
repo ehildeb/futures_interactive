@@ -459,7 +459,7 @@ ui <- page_navbar(
         "Actor positions in vision space"
       ),
       div(class = "net-canvas-box",
-        plotlyOutput("scatter3d_plot", height = "580px")
+        plotlyOutput("scatter3d_plot", height = "760px")
       )
     ),
 
@@ -468,13 +468,19 @@ ui <- page_navbar(
       div(class = "net-canvas-box",
         visNetworkOutput("network_plot", height = "640px"),
         div(class = "net-legend-bottom",
-          div(class = "ctrl-label", style = "width:100%; margin-bottom:0.3rem;", "Clusters"),
-          tags$div(HTML('<span style="color:#FFFFFF;text-shadow:-1px -1px 0 #555,1px -1px 0 #555,-1px 1px 0 #555,1px 1px 0 #555; font-size:1.1rem;">&#9670;</span> Vision node')),
-          tags$div(HTML('<span style="color:#3C3C3C; font-size:1.1rem;">&#9679;</span> Cluster 1')),
-          tags$div(HTML('<span style="color:#ABABAB; font-size:1.1rem;">&#9650;</span> Cluster 2')),
-          tags$div(HTML('<span style="color:#686868; font-size:1.1rem;">&#9670;</span> Cluster 3')),
-          tags$div(HTML('<span style="color:#C8C8C8;text-shadow:0 0 2px #999; font-size:1.1rem;">&#9632;</span> Cluster 4')),
-          tags$div(HTML('<span style="color:#242424; font-size:1.1rem;">&#9660;</span> Cluster 5'))
+          div(class = "ctrl-label", style = "width:100%; margin-bottom:0.3rem;", "Cluster"),
+          tags$div(HTML('<span style="color:#FFFFFF;text-shadow:-1px -1px 0 #555,1px -1px 0 #555,-1px 1px 0 #555,1px 1px 0 #555; font-size:1.1rem;">&#9670;</span> Vision pole')),
+          tags$div(HTML('<span style="color:#6DB589; font-size:1.1rem;">&#9679;</span> Env. Custodian')),
+          tags$div(HTML('<span style="color:#BC7798; font-size:1.1rem;">&#9679;</span> MSR + Env. Cust.')),
+          tags$div(HTML('<span style="color:#5BAAB6; font-size:1.1rem;">&#9679;</span> Mixed')),
+          tags$div(HTML('<span style="color:#CC8A52; font-size:1.1rem;">&#9679;</span> Mining + Env.')),
+          tags$div(HTML('<span style="color:#8A7ABF; font-size:1.1rem;">&#9679;</span> Mining Reg.')),
+          div(style = "width:100%; border-top:1px solid #eee; margin:0.45rem 0 0.35rem;"),
+          div(class = "ctrl-label", style = "width:100%; margin-bottom:0.3rem;", "Actor type"),
+          tags$div(HTML('<span style="color:#888; font-size:1.1rem;">&#9679;</span> Member State')),
+          tags$div(HTML('<span style="color:#888; font-size:1.1rem;">&#9632;</span> Observer NGO')),
+          tags$div(HTML('<span style="color:#888; font-size:1.1rem;">&#9670;</span> ISA')),
+          tags$div(HTML('<span style="color:#888; font-size:1.1rem;">&#9650;</span> Other'))
         )
       ),
       div(class = "net-bottom-controls",
@@ -606,16 +612,27 @@ server <- function(input, output, session) {
   # 3D vision-space scatter
   output$scatter3d_plot <- renderPlotly({
 
+    cluster_cols  <- c("1" = "#6DB589", "2" = "#BC7798", "3" = "#5BAAB6",
+                       "4" = "#CC8A52", "5" = "#8A7ABF")
+    cluster_names <- c("1" = "Env. Custodian", "2" = "MSR + Env. Cust.",
+                       "3" = "Mixed", "4" = "Mining + Env.", "5" = "Mining Reg.")
+    type_syms     <- c("Member State" = "circle", "Observer NGO" = "square",
+                       "ISA"          = "diamond", "Other"        = "cross")
+
     df <- dta_agg %>%
       filter(!is.na(mean_mr2), !is.na(mean_si2), !is.na(mean_ec2)) %>%
+      mutate(actor_id = str_replace_all(actor, " ", "_")) %>%
+      left_join(raw_nodes %>% select(id, cluster5), by = c("actor_id" = "id")) %>%
       mutate(
-        label = str_to_title(actor),
-        type_clean = case_when(
+        cluster_key = as.character(if_else(is.na(cluster5), 1L, as.integer(cluster5))),
+        label       = str_to_title(actor),
+        type_clean  = case_when(
           actor_type_eh2 == "member state" | actor == "african group" ~ "Member State",
           actor_type_eh2 == "observer ngo"                            ~ "Observer NGO",
           actor_type_eh2 == "isa"                                     ~ "ISA",
           TRUE                                                         ~ "Other"
         ),
+        point_sym = type_syms[type_clean],
         hover = paste0(
           "<b>", str_to_title(actor), "</b><br>",
           "Mining Reg.: <b>", round(mean_mr2, 3), "</b><br>",
@@ -624,57 +641,104 @@ server <- function(input, output, session) {
         )
       )
 
-    type_colours <- c(
-      "Member State" = "#2C3E6B",
-      "Observer NGO" = "#888888",
-      "ISA"          = "#B63F7B",
-      "Other"        = "#aaaaaa"
-    )
+    p <- plot_ly()
 
-    plot_ly(
-      data   = df,
-      x      = ~mean_mr2,
-      y      = ~mean_si2,
-      z      = ~mean_ec2,
-      color  = ~type_clean,
-      colors = type_colours,
-      type   = "scatter3d",
-      mode   = "markers",
-      text   = ~hover,
-      hoverinfo = "text",
-      marker = list(size = 5, opacity = 0.82, line = list(width = 0))
+    # One trace per cluster: colour from cluster, symbol from actor type
+    for (cl in c("1", "2", "3", "4", "5")) {
+      cl_df <- df %>% filter(cluster_key == cl)
+      if (nrow(cl_df) == 0) next
+      p <- p %>% add_trace(
+        data          = cl_df,
+        x = ~mean_mr2, y = ~mean_si2, z = ~mean_ec2,
+        type          = "scatter3d",
+        mode          = "markers",
+        name          = cluster_names[cl],
+        legendgroup   = paste0("cl", cl),
+        marker        = list(
+          color   = cluster_cols[cl],
+          symbol  = ~point_sym,
+          size    = 10,
+          opacity = 0.88,
+          line    = list(width = 0.8, color = "rgba(255,255,255,0.5)")
+        ),
+        text          = ~label,
+        textposition  = "top center",
+        textfont      = list(size = 10, color = "#333333", family = "Lora, serif"),
+        hovertext     = ~hover,
+        hoverinfo     = "text",
+        showlegend    = TRUE
+      )
+    }
+
+    # Dummy traces for actor-type shape legend (grey, no data)
+    for (tp in names(type_syms)) {
+      p <- p %>% add_trace(
+        x = NA_real_, y = NA_real_, z = NA_real_,
+        type        = "scatter3d",
+        mode        = "markers",
+        name        = tp,
+        legendgroup = tp,
+        marker      = list(color = "#777", symbol = type_syms[tp], size = 9),
+        hoverinfo   = "none",
+        showlegend  = TRUE
+      )
+    }
+
+    p %>% layout(
+      scene = list(
+        xaxis = list(title = "Mining Reg.", range = c(1, 0),
+                     tickfont = list(size = 10), titlefont = list(size = 11),
+                     gridcolor = "#e8e8e8", zerolinecolor = "#cccccc"),
+        yaxis = list(title = "MSR Inst.",   range = c(1, 0),
+                     tickfont = list(size = 10), titlefont = list(size = 11),
+                     gridcolor = "#e8e8e8", zerolinecolor = "#cccccc"),
+        zaxis = list(title = "Env. Cust.",  range = c(0, 1),
+                     tickfont = list(size = 10), titlefont = list(size = 11),
+                     gridcolor = "#e8e8e8", zerolinecolor = "#cccccc"),
+        bgcolor = "#ffffff",
+        camera  = list(eye = list(x = 1.5, y = 1.5, z = 0.8))
+      ),
+      legend = list(
+        x = 0.01, y = 0.99,
+        tracegroupgap = 12,
+        font          = list(size = 11, family = "Lora, serif"),
+        bgcolor       = "rgba(255,255,255,0.85)",
+        bordercolor   = "#dddddd", borderwidth = 1
+      ),
+      margin        = list(l = 0, r = 0, t = 0, b = 80),
+      paper_bgcolor = "#ffffff",
+      font          = list(family = "Lora, serif", color = "#333333")
     ) %>%
-      layout(
-        scene = list(
-          xaxis = list(
-            title = "Mining Reg.", range = c(0, 1),
-            tickfont = list(size = 10), titlefont = list(size = 11),
-            gridcolor = "#e8e8e8", zerolinecolor = "#cccccc"
-          ),
-          yaxis = list(
-            title = "MSR Inst.", range = c(0, 1),
-            tickfont = list(size = 10), titlefont = list(size = 11),
-            gridcolor = "#e8e8e8", zerolinecolor = "#cccccc"
-          ),
-          zaxis = list(
-            title = "Env. Cust.", range = c(0, 1),
-            tickfont = list(size = 10), titlefont = list(size = 11),
-            gridcolor = "#e8e8e8", zerolinecolor = "#cccccc"
-          ),
-          bgcolor = "#ffffff",
-          camera  = list(eye = list(x = 1.5, y = 1.5, z = 0.8))
-        ),
-        legend = list(
-          x = 0.01, y = 0.99,
-          font = list(size = 11, family = "Lora, serif"),
-          bgcolor = "rgba(255,255,255,0.85)",
-          bordercolor = "#dddddd", borderwidth = 1
-        ),
-        margin       = list(l = 0, r = 0, t = 0, b = 0),
-        paper_bgcolor = "#ffffff",
-        font = list(family = "Lora, serif", color = "#333333")
-      ) %>%
-      config(displayModeBar = FALSE)
+    config(displayModeBar = FALSE) %>%
+    htmlwidgets::onRender("
+      function(el, x) {
+        var nCluster = 5;
+        var updating = false;
+        var lastShow = null;
+        function updateLabels() {
+          if (updating) return;
+          var scene = el._fullLayout && el._fullLayout.scene;
+          if (!scene || !scene.camera) return;
+          var eye = scene.camera.eye;
+          var dist = Math.sqrt(eye.x*eye.x + eye.y*eye.y + eye.z*eye.z);
+          var show = dist < 1.8;
+          if (show === lastShow) return;
+          lastShow = show;
+          var modes = [], idx = [];
+          for (var i = 0; i < nCluster; i++) {
+            if (el.data[i] && el.data[i].x && el.data[i].x.length > 0) {
+              modes.push(show ? 'markers+text' : 'markers');
+              idx.push(i);
+            }
+          }
+          if (idx.length > 0) {
+            updating = true;
+            Plotly.restyle(el.id, {mode: modes}, idx).then(function() { updating = false; });
+          }
+        }
+        el.on('plotly_relayout', updateLabels);
+      }
+    ")
   })
 
   # Network: render once with all nodes; proxy updates hidden property on slider change
