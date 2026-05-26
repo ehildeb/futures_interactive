@@ -76,17 +76,48 @@ body, html { background: #FFFFFF; }
 .net-canvas-box {
   border: 1px solid #ddd;
   border-radius: 3px;
-  padding: 0.4rem 0.4rem 0.6rem;
   background: #fff;
-}
-.net-legend-bottom {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0 1.4rem;
-  padding: 0.55rem 0.4rem 0.1rem;
-  border-top: 1px solid #eee;
-  margin-top: 0.3rem;
+  align-items: stretch;
 }
+.net-plot-area {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  padding: 0.4rem;
+}
+.net-legend-side {
+  width: 148px;
+  flex-shrink: 0;
+  border-left: 1px solid #eee;
+  padding: 0.8rem 0.7rem 0.8rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+}
+.net-legend-side .legend-section-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: 0.25rem;
+}
+.net-legend-side > div { font-size: 0.82rem; color: #444; line-height: 1.7; }
+.view-toggle-btn {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 100;
+  font-size: 0.72rem;
+  padding: 0.22rem 0.65rem;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  cursor: pointer;
+  color: #555;
+  font-family: inherit;
+}
+.view-toggle-btn:hover { background: #f5f5f5; }
 .net-bottom-controls { padding: 0.8rem 0.2rem 0; }
 .net-ctrl-header {
   font-size: 0.68rem;
@@ -112,7 +143,6 @@ body, html { background: #FFFFFF; }
   margin-bottom: 0.4rem;
 }
 .net-vision-lbl { font-size: 0.72rem; font-weight: 700; margin-bottom: 1px; color: #444; }
-.net-legend-bottom div { font-size: 0.82rem; color: #444; line-height: 1.6; }
 
 /* Section divider */
 .sec-divider { border: none; border-top: 1px solid #ddd; margin: 2.5rem 0; }
@@ -453,36 +483,40 @@ ui <- page_navbar(
       )
     ),
 
-    # 3D vision-space scatter
+    # Combined network / 3D view
     div(class = "network-section",
-      div(class = "net-ctrl-header", style = "margin-bottom: 0.6rem;",
-        "Actor positions in vision space"
-      ),
       div(class = "net-canvas-box",
-        plotlyOutput("scatter3d_plot", height = "760px")
-      )
-    ),
 
-    # Full-width network (breaks out of paper column)
-    div(class = "network-section",
-      div(class = "net-canvas-box",
-        visNetworkOutput("network_plot", height = "640px"),
-        div(class = "net-legend-bottom",
-          div(class = "ctrl-label", style = "width:100%; margin-bottom:0.3rem;", "Cluster"),
+        # Plot area (flex: 1, holds both plots + toggle button)
+        div(class = "net-plot-area",
+          tags$button(id = "view-toggle-btn", class = "view-toggle-btn", "Switch to 3D"),
+          div(id = "net-plot-wrap",
+            visNetworkOutput("network_plot", height = "660px")
+          ),
+          div(id = "sc3-plot-wrap", style = "display:none;",
+            plotlyOutput("scatter3d_plot", height = "660px")
+          )
+        ),
+
+        # Shared legend: right-hand side, two stacked sections
+        div(class = "net-legend-side",
+          div(class = "legend-section-label", "Cluster"),
           tags$div(HTML('<span style="color:#FFFFFF;text-shadow:-1px -1px 0 #555,1px -1px 0 #555,-1px 1px 0 #555,1px 1px 0 #555; font-size:1.1rem;">&#9670;</span> Vision pole')),
-          tags$div(HTML('<span style="color:#6DB589; font-size:1.1rem;">&#9679;</span> Env. Custodian')),
-          tags$div(HTML('<span style="color:#BC7798; font-size:1.1rem;">&#9679;</span> MSR + Env. Cust.')),
-          tags$div(HTML('<span style="color:#5BAAB6; font-size:1.1rem;">&#9679;</span> Mixed')),
-          tags$div(HTML('<span style="color:#CC8A52; font-size:1.1rem;">&#9679;</span> Mining + Env.')),
-          tags$div(HTML('<span style="color:#8A7ABF; font-size:1.1rem;">&#9679;</span> Mining Reg.')),
-          div(style = "width:100%; border-top:1px solid #eee; margin:0.45rem 0 0.35rem;"),
-          div(class = "ctrl-label", style = "width:100%; margin-bottom:0.3rem;", "Actor type"),
+          tags$div(HTML('<span style="color:#6DB589; font-size:1.1rem;">&#9679;</span> Env. Cust.')),
+          tags$div(HTML('<span style="color:#5BAAB6; font-size:1.1rem;">&#9679;</span> Env. Cust. + MSR')),
+          tags$div(HTML('<span style="color:#8A7ABF; font-size:1.1rem;">&#9679;</span> Mixed')),
+          tags$div(HTML('<span style="color:#BC7798; font-size:1.1rem;">&#9679;</span> MR + Env. Cust.')),
+          tags$div(HTML('<span style="color:#CC8A52; font-size:1.1rem;">&#9679;</span> Mining Reg.')),
+          div(style = "border-top:1px solid #eee; margin:0.5rem 0 0.4rem;"),
+          div(class = "legend-section-label", "Actor type"),
           tags$div(HTML('<span style="color:#888; font-size:1.1rem;">&#9679;</span> Member State')),
           tags$div(HTML('<span style="color:#888; font-size:1.1rem;">&#9632;</span> Observer NGO')),
           tags$div(HTML('<span style="color:#888; font-size:1.1rem;">&#9670;</span> ISA')),
           tags$div(HTML('<span style="color:#888; font-size:1.1rem;">&#9650;</span> Other'))
         )
       ),
+
+      # Shared filter sliders below the canvas
       div(class = "net-bottom-controls",
         div(class = "net-ctrl-header", "Min. score"),
         div(class = "net-ctrl-grid",
@@ -504,6 +538,31 @@ ui <- page_navbar(
         )
       )
     ),
+
+    # Toggle JS: client-side switch between network and 3D views
+    tags$script(HTML("
+      document.addEventListener('DOMContentLoaded', function() {
+        var btn = document.getElementById('view-toggle-btn');
+        var net = document.getElementById('net-plot-wrap');
+        var sc3 = document.getElementById('sc3-plot-wrap');
+        if (!btn) return;
+        btn.addEventListener('click', function() {
+          if (sc3.style.display === 'none') {
+            net.style.display = 'none';
+            sc3.style.display = '';
+            btn.textContent = 'Switch to Network';
+            setTimeout(function() {
+              var plotEl = document.getElementById('scatter3d_plot');
+              if (plotEl && window.Plotly) Plotly.Plots.resize(plotEl);
+            }, 50);
+          } else {
+            sc3.style.display = 'none';
+            net.style.display = '';
+            btn.textContent = 'Switch to 3D';
+          }
+        });
+      });
+    ")),
 
     # Findings in paper column
     div(class = "paper",
@@ -614,13 +673,18 @@ server <- function(input, output, session) {
 
     cluster_cols  <- c("1" = "#6DB589", "2" = "#BC7798", "3" = "#5BAAB6",
                        "4" = "#CC8A52", "5" = "#8A7ABF")
-    cluster_names <- c("1" = "Env. Custodian", "2" = "MSR + Env. Cust.",
-                       "3" = "Mixed", "4" = "Mining + Env.", "5" = "Mining Reg.")
+    cluster_names <- c("1" = "Env. Custodian", "2" = "MR + Env. Cust.",
+                       "3" = "EC + MSR", "4" = "Mining Reg.", "5" = "Mixed")
     type_syms     <- c("Member State" = "circle", "Observer NGO" = "square",
                        "ISA"          = "diamond", "Other"        = "cross")
 
     df <- dta_agg %>%
       filter(!is.na(mean_mr2), !is.na(mean_si2), !is.na(mean_ec2)) %>%
+      filter(
+        mean_mr2 >= input$net_mr_min,
+        mean_si2 >= input$net_si_min,
+        mean_ec2 >= input$net_ec_min
+      ) %>%
       mutate(actor_id = str_replace_all(actor, " ", "_")) %>%
       left_join(raw_nodes %>% select(id, cluster5), by = c("actor_id" = "id")) %>%
       mutate(
@@ -651,7 +715,7 @@ server <- function(input, output, session) {
         data          = cl_df,
         x = ~mean_mr2, y = ~mean_si2, z = ~mean_ec2,
         type          = "scatter3d",
-        mode          = "markers",
+        mode          = "markers+text",
         name          = cluster_names[cl],
         legendgroup   = paste0("cl", cl),
         marker        = list(
@@ -698,48 +762,14 @@ server <- function(input, output, session) {
         bgcolor = "#ffffff",
         camera  = list(eye = list(x = 1.5, y = 1.5, z = 0.8))
       ),
-      legend = list(
-        x = 0.01, y = 0.99,
-        tracegroupgap = 12,
-        font          = list(size = 11, family = "Lora, serif"),
-        bgcolor       = "rgba(255,255,255,0.85)",
-        bordercolor   = "#dddddd", borderwidth = 1
-      ),
+      showlegend = FALSE,
       margin        = list(l = 0, r = 0, t = 0, b = 80),
       paper_bgcolor = "#ffffff",
       font          = list(family = "Lora, serif", color = "#333333")
     ) %>%
-    config(displayModeBar = FALSE) %>%
-    htmlwidgets::onRender("
-      function(el, x) {
-        var nCluster = 5;
-        var updating = false;
-        var lastShow = null;
-        function updateLabels() {
-          if (updating) return;
-          var scene = el._fullLayout && el._fullLayout.scene;
-          if (!scene || !scene.camera) return;
-          var eye = scene.camera.eye;
-          var dist = Math.sqrt(eye.x*eye.x + eye.y*eye.y + eye.z*eye.z);
-          var show = dist < 1.8;
-          if (show === lastShow) return;
-          lastShow = show;
-          var modes = [], idx = [];
-          for (var i = 0; i < nCluster; i++) {
-            if (el.data[i] && el.data[i].x && el.data[i].x.length > 0) {
-              modes.push(show ? 'markers+text' : 'markers');
-              idx.push(i);
-            }
-          }
-          if (idx.length > 0) {
-            updating = true;
-            Plotly.restyle(el.id, {mode: modes}, idx).then(function() { updating = false; });
-          }
-        }
-        el.on('plotly_relayout', updateLabels);
-      }
-    ")
+    config(displayModeBar = FALSE)
   })
+  outputOptions(output, "scatter3d_plot", suspendWhenHidden = FALSE)
 
   # Network: render once with all nodes; proxy updates hidden property on slider change
   # (avoids zoom reset that a full re-render would cause)

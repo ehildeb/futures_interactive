@@ -1,0 +1,103 @@
+id,label,type,cluster5,colour
+mr,Mining Regulator,vision,NA,#ffffff
+si,Scientific Institution,vision,NA,#ffffff
+ec,Environmental Custodian,vision,NA,#ffffff
+advisory_committee_on_the_protection_of_the_sea,Advisory Committee on the Protection of the Sea,actor,5,#7AA8E0
+african_group,African Group,actor,2,#DFA3CC
+antigua_and_barbuda,Antigua and Barbuda,actor,2,#DFA3CC
+argentina,Argentina,actor,2,#DFA3CC
+australia,Australia,actor,1,#C0F3BF
+austria,Austria,actor,5,#7AA8E0
+bahamas,Bahamas,actor,2,#DFA3CC
+bangladesh,Bangladesh,actor,5,#7AA8E0
+barbados,Barbados,actor,2,#DFA3CC
+belgium,Belgium,actor,2,#DFA3CC
+brazil,Brazil,actor,2,#DFA3CC
+cameroon,Cameroon,actor,2,#DFA3CC
+canada,Canada,actor,5,#7AA8E0
+centre_for_community_and_oceanic_law,Centre For Community and Oceanic Law,actor,4,#F6BC9D
+chair_legal_and_technical_commission,Chair Legal and Technical Commission,actor,2,#DFA3CC
+chair_of_finance_committee,Chair of Finance Committee,actor,4,#F6BC9D
+chile,Chile,actor,5,#7AA8E0
+china,China,actor,2,#DFA3CC
+cook_islands,Cook Islands,actor,4,#F6BC9D
+costa_rica,Costa Rica,actor,5,#7AA8E0
+council,Council,actor,2,#DFA3CC
+croatia,Croatia,actor,3,#8FD4EB
+cuba,Cuba,actor,5,#7AA8E0
+denmark,Denmark,actor,1,#C0F3BF
+dosi,DOSI,actor,3,#8FD4EB
+dscc,DSCC,actor,3,#8FD4EB
+ecuador,Ecuador,actor,3,#8FD4EB
+federated_states_of_micronesia,Federated States of Micronesia,actor,1,#C0F3BF
+fiji,Fiji,actor,2,#DFA3CC
+france,France,actor,5,#7AA8E0
+germany,Germany,actor,5,#7AA8E0
+ghana,Ghana,actor,4,#F6BC9D
+greece,Greece,actor,1,#C0F3BF
+greenpeace,Greenpeace,actor,1,#C0F3BF
+india,India,actor,2,#DFA3CC
+indonesia,Indonesia,actor,2,#DFA3CC
+interim_director_general_of_the_enterprise,Interim Director General of the Enterprise,actor,2,#DFA3CC
+international_telecommunication_union,International Telecommunication Union,actor,1,#C0F3BF
+international_tribunal_for_the_law_of_the_sea,International Tribunal For the Law of the Sea,actor,4,#F6BC9D
+ireland,Ireland,actor,2,#DFA3CC
+italy,Italy,actor,5,#7AA8E0
+iucn,IUCN,actor,3,#8FD4EB
+ivory_coast,Ivory Coast,actor,1,#C0F3BF
+jamaica,Jamaica,actor,2,#DFA3CC
+japan,Japan,actor,2,#DFA3CC
+kenya,Kenya,actor,5,#7AA8E0
+legal_counsel,Legal Counsel,actor,4,#F6BC9D
+lesotho,Lesotho,actor,5,#7AA8E0
+madagascar,Madagascar,actor,5,#7AA8E0
+malta,Malta,actor,5,#7AA8E0
+marshall_islands,Marshall Islands,actor,3,#8FD4EB
+mauritius,Mauritius,actor,4,#F6BC9D
+mexico,Mexico,actor,2,#DFA3CC
+monaco,Monaco,actor,3,#8FD4EB
+morocco,Morocco,actor,5,#7AA8E0
+mozambique,Mozambique,actor,1,#C0F3BF
+nauru,Nauru,actor,2,#DFA3CC
+netherlands,Netherlands,actor,5,#7AA8E0
+new_zealand,New Zealand,actor,2,#DFA3CC
+nigeria,Nigeria,actor,2,#DFA3CC
+norway,Norway,actor,5,#7AA8E0
+oceans_north,Oceans North,actor,1,#C0F3BF
+opes_oceani_foundation,Opes Oceani Foundation,actor,4,#F6BC9D
+pakistan,Pakistan,actor,5,#7AA8E0
+palau,Palau,actor,3,#8FD4EB
+panama,Panama,actor,1,#C0F3BF
+pew,Pew,actor,5,#7AA8E0
+philippines,Philippines,actor,5,#7AA8E0
+poland,Poland,actor,2,#DFA3CC
+portugal,Portugal,actor,2,#DFA3CC
+quatar,Quatar,actor,5,#7AA8E0
+republic_of_korea,Republic of Korea,actor,3,#8FD4EB
+russia,Russia,actor,2,#DFA3CC
+samoa,Samoa,actor,5,#7AA8E0
+saudi_arabia,Saudi Arabia,actor,4,#F6BC9D
+secretary_general,Secretary General,actor,2,#DFA3CC
+senegal,Senegal,actor,5,#7AA8E0
+sierra_leone,Sierra Leone,actor,2,#DFA3CC
+singapore,Singapore,actor,2,#DFA3CC
+slovenia,Slovenia,actor,3,#8FD4EB
+south_africa,South Africa,actor,5,#7AA8E0
+spain,Spain,actor,5,#7AA8E0
+sri_lanka,Sri Lanka,actor,3,#8FD4EB
+sustainable_ocean_alliance,Sustainable Ocean Alliance,actor,3,#8FD4EB
+switzerland,Switzerland,actor,5,#7AA8E0
+tanzania,Tanzania,actor,2,#DFA3CC
+te_ipukarea_society,Te Ipukarea Society,actor,1,#C0F3BF
+tetiaroa_society,Tetiaroa Society,actor,1,#C0F3BF
+the_ocean_and_us,the Ocean and Us,actor,3,#8FD4EB
+tonga,Tonga,actor,5,#7AA8E0
+trinidad_and_tobago,Trinidad and Tobago,actor,2,#DFA3CC
+tuvalu,Tuvalu,actor,3,#8FD4EB
+uganda,Uganda,actor,4,#F6BC9D
+uk,UK,actor,2,#DFA3CC
+usa,USA,actor,4,#F6BC9D
+viet_nam,Viet Nam,actor,2,#DFA3CC
+wwf,WWF,actor,3,#8FD4EB
+zambia,Zambia,actor,1,#C0F3BF
+zimbabwe,Zimbabwe,actor,2,#DFA3CC

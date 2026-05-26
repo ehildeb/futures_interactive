@@ -7,9 +7,9 @@ library(bslib)
 library(bsicons)
 
 # Paths
-data_dir  <- file.path("..", "paper_code", "working_data")
-gephi_dir <- file.path("..", "paper_code", "gephi")
-gpt_dir   <- file.path("..", "paper_code", "gpt_results")
+data_dir  <- file.path("data", "working_data")
+gephi_dir <- file.path("data", "gephi")
+gpt_dir   <- file.path("data", "gpt_results")
 
 # Actor aggregate data
 dta_agg <- read_csv(
@@ -126,9 +126,12 @@ net_nodes <- raw_nodes %>%
   filter(id != "international_tribunal_for_the_law_of_the_sea") %>%
   left_join(pole_coords,                           by = "id") %>%
   left_join(actor_pos %>% rename(ax = x, ay = y), by = "id") %>%
-  # Join actor type from dta_agg for shape encoding
+  # Join actor type and vision scores from dta_agg for shape encoding and hover tooltips
   left_join(
-    dta_agg %>% transmute(id = str_replace_all(actor, " ", "_"), actor_type_eh2),
+    dta_agg %>% transmute(
+      id = str_replace_all(actor, " ", "_"),
+      actor_type_eh2, mean_mr2, mean_si2, mean_ec2
+    ),
     by = "id"
   ) %>%
   mutate(
@@ -160,7 +163,15 @@ net_nodes <- raw_nodes %>%
     font.color       = "#111111",
     font.strokeWidth = 2,
     font.strokeColor = "#ffffff",
-    title            = label
+    title = case_when(
+      type == "vision" ~ label,
+      TRUE ~ paste0(
+        "<b>", label, "</b><br>",
+        "Mining Reg.: <b>", round(mean_mr2, 3), "</b><br>",
+        "MSR Inst.: <b>",   round(mean_si2, 3), "</b><br>",
+        "Env. Cust.: <b>",  round(mean_ec2, 3), "</b>"
+      )
+    )
   ) %>%
   nudge_apart(min_dist = 45, iters = 120)
 
@@ -169,8 +180,7 @@ net_edges <- raw_edges %>%
   rename(from = source, to = target) %>%
   mutate(
     width = weight * 1.8,
-    color = "rgba(0,0,0,0.07)",
-    title = paste0("Weight: ", round(weight, 3))
+    color = "rgba(0,0,0,0.07)"
   )
 
 # GPT model output
