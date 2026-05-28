@@ -85,10 +85,9 @@ body, html { background: #FFFFFF; }
   line-height: 1.4;
 }
 
-/* Network: capped-width outer container, responsive flex */
+/* Network: full-width outer container (slight side margins), responsive flex */
 .network-section {
-  max-width: 1440px;
-  margin: 2rem auto 0;
+  margin: 2rem 1.5rem 0;
   display: flex;
   align-items: stretch;
   border: 1px solid #ddd;
@@ -224,10 +223,38 @@ body, html { background: #FFFFFF; }
 }
 .reset-view-btn:hover,
 .fullscreen-btn:hover { background: #f5f5f5; }
-/* Fullscreen mode: let the network section fill the screen */
-.network-section:-webkit-full-screen { max-width: 100%; border-radius: 0; }
-.network-section:-moz-full-screen    { max-width: 100%; border-radius: 0; }
-.network-section:fullscreen          { max-width: 100%; border-radius: 0; }
+/* Dim backdrop behind the fullscreen popup (injected by JS) */
+.fs-backdrop {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 9998;
+  background: rgba(0,0,0,0.30);
+  cursor: default;
+}
+.fs-backdrop.active { display: block; }
+/* Fullscreen popup: fills the viewport (minus margin), plots resize to fit */
+.net-canvas-box.is-fullscreen {
+  position: fixed !important;
+  top: 2.5rem !important; left: 2.5rem !important;
+  right: 2.5rem !important; bottom: 2.5rem !important;
+  width: auto !important;
+  height: auto !important;
+  z-index: 9999;
+  border: 1px solid #bbb !important;
+  border-radius: 4px !important;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.10) !important;
+  overflow: hidden;
+  background: #fff;
+}
+/* Inner flex chain must fill the popup height */
+.net-canvas-box.is-fullscreen .net-plot-area { overflow: hidden; }
+.net-canvas-box.is-fullscreen #net-plot-wrap,
+.net-canvas-box.is-fullscreen #sc3-plot-wrap { overflow: hidden; }
+/* Fullscreen button icon swaps to inward arrows when popup is open */
+.net-canvas-box.is-fullscreen .fs-icon-open  { display: none !important; }
+.net-canvas-box.is-fullscreen .fs-icon-close { display: inline-flex !important; }
+/* Fullscreen button stays visible in fullscreen (acts as exit toggle) */
 .ctrl-label {
   font-size: 0.68rem;
   font-weight: 800;
@@ -401,19 +428,25 @@ body, html { background: #FFFFFF; }
   border-radius: 2px;
   flex-shrink: 0;
 }
-.slot-a-badge { background: rgba(44,62,107,0.10); color: #2C3E6B; }
-.slot-b-badge { background: rgba(182,63,123,0.10); color: #B63F7B; }
+/* slot-a-badge / slot-b-badge colors now rendered server-side via uiOutput */
 
 /* Data tab: no internal card scroll — let the page scroll */
 .data-tab {
   padding: 2rem 1.5rem 4rem;
 }
-.data-tab .card,
-.data-tab .card-body,
-.data-tab .bslib-card {
+.data-tab .bslib-card,
+.data-tab .card {
   overflow: visible !important;
   max-height: none !important;
   height: auto !important;
+  flex: none !important;
+  display: block !important;
+}
+.data-tab .card-body {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+  flex: none !important;
 }
 /* Stop bslib tab pane from clipping content */
 .tab-content > .tab-pane,
@@ -520,9 +553,16 @@ body, html { background: #FFFFFF; }
   background-color: #f7f7f7 !important;
   color: #333 !important;
 }
-.data-tab table.dataTable tbody tr.selected > td,
-.data-tab table.dataTable tbody tr.selected {
-  background-color: #f0f0f0 !important;
+/* Selected rows: match their odd/even background so clicks leave no colour trace */
+.data-tab table.dataTable tbody tr.odd.selected > td,
+.data-tab table.dataTable tbody tr.odd.selected {
+  background-color: #fafafa !important;
+  color: #333 !important;
+  box-shadow: none !important;
+}
+.data-tab table.dataTable tbody tr.even.selected > td,
+.data-tab table.dataTable tbody tr.even.selected {
+  background-color: #fff !important;
   color: #333 !important;
   box-shadow: none !important;
 }
@@ -608,6 +648,40 @@ body, html { background: #FFFFFF; }
   color: #ccc !important;
 }
 .data-tab .dataTables_wrapper { padding-bottom: 1.5rem; }
+
+/* visNetwork tooltip: match paper aesthetic */
+div.vis-tooltip {
+  background: #ffffff !important;
+  border: 1px solid #ddd !important;
+  border-radius: 3px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
+  font-family: 'Lora', Georgia, serif !important;
+  font-size: 0.82rem !important;
+  color: #222 !important;
+  padding: 0.4rem 0.65rem !important;
+  max-width: 240px !important;
+  line-height: 1.5 !important;
+}
+
+/* View-statements link in comp score block */
+.comp-stmts-link {
+  font-size: 0.68rem;
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  padding: 0.2rem 0 0;
+  text-align: left;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  letter-spacing: 0.04em;
+  margin-top: 0.05rem;
+  transition: color 0.12s;
+}
+.comp-stmts-link:hover { color: #555; }
 "
 
 
@@ -631,7 +705,7 @@ ui <- page_navbar(
     div(class = "paper",
       div(class = "paper-header",
         tags$h1("Negotiating futures: Three visions for the International Seabed Authority"),
-        p(class = "subtitle", "Paper by Emil W. Hildebrand and Alice B. M. Vadrot | ERC TwinPolitics project, 2026")
+        tags$p(class = "subtitle", HTML('Paper by Emil W. Hildebrand and Alice B. M. Vadrot | <a href="http://twinpolitics.eu" target="_blank" style="color:inherit;">ERC TwinPolitics project</a>, 2026'))
       ),
       tags$p(HTML(
         'You are looking at the interactive web version of our paper <strong>Negotiating futures: Three visions for the International Seabed Authority</strong>.
@@ -715,12 +789,16 @@ ui <- page_navbar(
     div(class = "network-section",
       div(class = "net-canvas-box",
 
-        # Plot area (flex column: plots on top, filter strip on bottom)
+        # Plot area
         div(class = "net-plot-area",
           div(class = "view-btn-group",
-            tags$button(id = "reset-view-btn",  class = "reset-view-btn",  title = "Reset view",       bs_icon("aspect-ratio")),
-            tags$button(id = "fullscreen-btn",  class = "fullscreen-btn",  title = "Fullscreen",       bs_icon("arrows-fullscreen")),
-            tags$button(id = "view-toggle-btn", class = "view-toggle-btn", title = "Switch view", "Switch to 3D")
+            tags$button(id = "reset-view-btn",  class = "reset-view-btn",  title = "Reset view",  bs_icon("aspect-ratio")),
+            tags$button(id = "view-toggle-btn", class = "view-toggle-btn", title = "Switch view", "Switch to 3D"),
+            # Dual-icon fullscreen button: open icon swaps to contract icon when popup is active
+            tags$button(id = "fullscreen-btn", class = "fullscreen-btn", title = "Fullscreen",
+              tags$span(class = "fs-icon-open",  style = "display:inline-flex;", bs_icon("arrows-fullscreen")),
+              tags$span(class = "fs-icon-close", style = "display:none;",        bs_icon("arrows-angle-contract"))
+            )
           ),
           div(id = "net-plot-wrap",
             visNetworkOutput("network_plot", height = "600px")
@@ -804,7 +882,7 @@ ui <- page_navbar(
           div(class = "comp-section-label", "Actor Comparison"),
           div(class = "comp-hint", "Click actors in the graph, or choose below"),
           div(class = "comp-slot",
-            span(class = "comparison-slot-badge slot-a-badge", "A"),
+            uiOutput("badge_a"),
             div(style = "flex:1;",
               selectizeInput(
                 "comp_actor_a", NULL,
@@ -821,7 +899,7 @@ ui <- page_navbar(
           ),
           uiOutput("comp_scores_a"),
           div(class = "comp-slot",
-            span(class = "comparison-slot-badge slot-b-badge", "B"),
+            uiOutput("badge_b"),
             div(style = "flex:1;",
               selectizeInput(
                 "comp_actor_b", NULL,
@@ -848,6 +926,17 @@ ui <- page_navbar(
 
     # Toggle JS: client-side switch between network and 3D views
     tags$script(HTML("
+      Shiny.addCustomMessageHandler('goto_statements', function(msg) {
+        // Navigate to the Data top-level tab
+        var dataTab = document.querySelector('[data-bs-toggle=\"tab\"][data-value=\"Data\"]');
+        if (dataTab) dataTab.click();
+        // Then switch to the Statements sub-tab (after a short delay for the tab to render)
+        setTimeout(function() {
+          var stmtTab = document.querySelector('[data-bs-toggle=\"tab\"][data-value=\"Statements\"]');
+          if (stmtTab) stmtTab.click();
+        }, 200);
+      });
+
       function toggleLegend(category, key, el) {
         el.classList.toggle('inactive');
         Shiny.setInputValue('legend_toggle', {category: category, key: key}, {priority: 'event'});
@@ -873,17 +962,77 @@ ui <- page_navbar(
           // Reset network zoom/pan via Shiny
           Shiny.setInputValue('reset_view', Math.random(), {priority: 'event'});
         });
+        // Backdrop div: clicking it exits fullscreen (default cursor, no hand)
+        var backdrop = document.createElement('div');
+        backdrop.className = 'fs-backdrop';
+        document.body.appendChild(backdrop);
+
+        var savedPlotHeight = '600px';
+        var PLOT_RATIO = 0.70; // height = 70% of plot-area width (≈ 600px at original sizes)
+
+        function setPlotHeights(h) {
+          var netDiv = document.getElementById('network_plot');
+          if (netDiv) netDiv.style.height = h;
+          var sc3Div = document.getElementById('scatter3d_plot');
+          if (sc3Div) {
+            sc3Div.style.height = h;
+            if (window.Plotly) Plotly.Plots.resize(sc3Div);
+          }
+        }
+
+        // Recalculate height proportionally from current plot-area width
+        function updateNetworkHeight() {
+          var canvas = document.querySelector('.net-canvas-box');
+          if (!canvas || canvas.classList.contains('is-fullscreen')) return;
+          var plotArea = document.querySelector('.net-plot-area');
+          if (!plotArea) return;
+          var w = plotArea.clientWidth;
+          if (w <= 0) return;
+          var h = Math.max(320, Math.round(w * PLOT_RATIO)) + 'px';
+          savedPlotHeight = h;
+          setPlotHeights(h);
+        }
+
+        // Debounced resize listener
+        var resizeTimer;
+        window.addEventListener('resize', function() {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(updateNetworkHeight, 100);
+        });
+
+        function exitFullscreen() {
+          var canvas = document.querySelector('.net-canvas-box');
+          canvas.classList.remove('is-fullscreen');
+          backdrop.classList.remove('active');
+          // Recalculate proportional height rather than restoring a stale value
+          updateNetworkHeight();
+        }
+        function enterFullscreen() {
+          var canvas = document.querySelector('.net-canvas-box');
+          canvas.classList.add('is-fullscreen');
+          backdrop.classList.add('active');
+          // Stretch plots to fill the popup once CSS has settled
+          setTimeout(function() {
+            setPlotHeights(canvas.clientHeight + 'px');
+          }, 50);
+        }
+        backdrop.addEventListener('click', exitFullscreen);
+
         var fsBtn = document.getElementById('fullscreen-btn');
         if (fsBtn) {
           fsBtn.addEventListener('click', function() {
-            var section = document.querySelector('.network-section');
-            if (!document.fullscreenElement) {
-              section.requestFullscreen().catch(function() {});
+            var canvas = document.querySelector('.net-canvas-box');
+            if (canvas.classList.contains('is-fullscreen')) {
+              exitFullscreen();
             } else {
-              document.exitFullscreen();
+              enterFullscreen();
             }
           });
         }
+        // Exit on Escape key
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') exitFullscreen();
+        });
         btn.addEventListener('click', function() {
           if (sc3.style.display === 'none') {
             net.style.display = 'none';
@@ -963,7 +1112,10 @@ ui <- page_navbar(
   ),
 
 
-  # ── Tab 2: Data =============================================================
+  # ── Tab 2: Documentation ====================================================
+  nav_panel("Documentation", icon = bs_icon("book")),
+
+  # ── Tab 3: Data =============================================================
   nav_panel("Data", icon = bs_icon("database"),
     div(class = "data-tab",
       navset_tab(
@@ -1011,6 +1163,7 @@ server <- function(input, output, session) {
     visNetworkProxy("network_plot") %>% visFit(animation = FALSE)
   })
 
+
   # Reset all filters (sliders + legend toggles + comparison)
   observeEvent(input$reset_filter, {
     legend_state$clusters   <- setNames(rep(TRUE, 5), as.character(1:5))
@@ -1022,6 +1175,18 @@ server <- function(input, output, session) {
     comp_state$next_slot    <- "a"
     updateSelectizeInput(session, "comp_actor_a", selected = "")
     updateSelectizeInput(session, "comp_actor_b", selected = "")
+  })
+
+  # Navigate to Statements tab filtered by actor
+  observeEvent(input$goto_stmts, {
+    actor_nm <- input$goto_stmts
+    if (!is.null(actor_nm) && actor_nm != "") {
+      # Match case-insensitively so dta_agg and gpt_results actor names always line up
+      matched <- gpt_results$actor[tolower(gpt_results$actor) == tolower(actor_nm)]
+      sel <- if (length(matched) > 0) matched[1] else "All"
+      updateSelectizeInput(session, "gpt_actor", selected = sel)
+      session$sendCustomMessage("goto_statements", list())
+    }
   })
 
   # Legend toggle state
@@ -1046,6 +1211,14 @@ server <- function(input, output, session) {
     g <- strtoi(substr(hex, 4, 5), base = 16L)
     b <- strtoi(substr(hex, 6, 7), base = 16L)
     paste0("rgba(", r, ",", g, ",", b, ",", alpha, ")")
+  }
+
+  # Helper: darken a hex color by multiplying RGB channels by factor
+  darken_hex <- function(hex, factor = 0.6) {
+    r <- min(255L, round(strtoi(substr(hex, 2, 3), base = 16L) * factor))
+    g <- min(255L, round(strtoi(substr(hex, 4, 5), base = 16L) * factor))
+    b <- min(255L, round(strtoi(substr(hex, 6, 7), base = 16L) * factor))
+    sprintf("#%02X%02X%02X", r, g, b)
   }
 
   # Helper: look up the muted cluster color for an actor from net_nodes
@@ -1158,11 +1331,11 @@ server <- function(input, output, session) {
             color = col_a, size = 8,
             line  = list(color = "#ffffff", width = 1.5)
           ),
-          text      = paste0(
-            "<b>", str_to_title(actor_a), "</b><br>",
-            "Env. Cust.: ",  round(ec_a, 3), "<br>",
-            "Mining Reg.: ", round(mr_a, 3), "<br>",
-            "MSR Inst.: ",   round(si_a, 3)
+          text = c(
+            paste0("<b>", str_to_title(actor_a), "</b><br>Env. Cust.: ",  round(ec_a, 3)),
+            paste0("<b>", str_to_title(actor_a), "</b><br>Mining Reg.: ", round(mr_a, 3)),
+            paste0("<b>", str_to_title(actor_a), "</b><br>MSR Inst.: ",   round(si_a, 3)),
+            paste0("<b>", str_to_title(actor_a), "</b><br>Env. Cust.: ",  round(ec_a, 3))
           ),
           hoverinfo  = "text",
           showlegend = FALSE
@@ -1191,11 +1364,11 @@ server <- function(input, output, session) {
             color = col_b, size = 8,
             line  = list(color = "#ffffff", width = 1.5)
           ),
-          text      = paste0(
-            "<b>", str_to_title(actor_b), "</b><br>",
-            "Env. Cust.: ",  round(ec_b, 3), "<br>",
-            "Mining Reg.: ", round(mr_b, 3), "<br>",
-            "MSR Inst.: ",   round(si_b, 3)
+          text = c(
+            paste0("<b>", str_to_title(actor_b), "</b><br>Env. Cust.: ",  round(ec_b, 3)),
+            paste0("<b>", str_to_title(actor_b), "</b><br>Mining Reg.: ", round(mr_b, 3)),
+            paste0("<b>", str_to_title(actor_b), "</b><br>MSR Inst.: ",   round(si_b, 3)),
+            paste0("<b>", str_to_title(actor_b), "</b><br>Env. Cust.: ",  round(ec_b, 3))
           ),
           hoverinfo  = "text",
           showlegend = FALSE
@@ -1247,7 +1420,12 @@ server <- function(input, output, session) {
           ),
           span(class = "comp-score-val", s$val)
         )
-      })
+      }),
+      tags$button(
+        class   = "comp-stmts-link",
+        onclick = paste0("Shiny.setInputValue('goto_stmts','", actor_name, "',{priority:'event'});"),
+        bs_icon("arrow-right-short"), "View statements"
+      )
     )
   }
 
@@ -1258,6 +1436,20 @@ server <- function(input, output, session) {
   output$comp_scores_b <- renderUI({
     col <- comp_state$color_b
     make_score_ui(comp_state$actor_b, col, hex_to_rgba(col, 0.45))
+  })
+
+  # Dynamic A/B slot badges — adopt the actor's cluster color
+  output$badge_a <- renderUI({
+    col <- comp_state$color_a
+    tags$span(class = "comparison-slot-badge",
+      style = paste0("background:", hex_to_rgba(col, 0.15), "; color:", col, ";"),
+      "A")
+  })
+  output$badge_b <- renderUI({
+    col <- comp_state$color_b
+    tags$span(class = "comparison-slot-badge",
+      style = paste0("background:", hex_to_rgba(col, 0.15), "; color:", col, ";"),
+      "B")
   })
 
   # ── End comparison module ─────────────────────────────────────────────────
@@ -1306,76 +1498,53 @@ server <- function(input, output, session) {
         )
       )
 
-    # Expose comparison state as reactive dependency so highlights re-render
-    comp_a <- comp_state$actor_a
-    comp_b <- comp_state$actor_b
-
+    # NOTE: comp_state is NOT a reactive dep here — comparison highlights are
+    # updated separately via plotlyProxy so actor clicks never reset the camera.
     p <- plot_ly(source = "scatter3d_src")
 
-    # One trace per cluster: colour from cluster, symbol from actor type
+    # Traces 0-4: one per cluster, always emitted (even if empty after filtering).
+    # Fixed trace count is required so plotlyProxy restyle can target stable indices.
     for (cl in c("1", "2", "3", "4", "5")) {
       cl_df <- df %>% filter(cluster_key == cl)
-      if (nrow(cl_df) == 0) next
-      p <- p %>% add_trace(
-        data          = cl_df,
-        x = ~mean_mr2, y = ~mean_si2, z = ~mean_ec2,
-        type          = "scatter3d",
-        mode          = "markers+text",
-        name          = cluster_names[cl],
-        legendgroup   = paste0("cl", cl),
-        customdata    = ~actor,
-        marker        = list(
-          color   = cluster_cols[cl],
-          symbol  = ~point_sym,
-          size    = 10,
-          opacity = 0.88,
-          line    = list(width = 0.8, color = "rgba(255,255,255,0.5)")
-        ),
-        text          = ~label,
-        textposition  = "top center",
-        textfont      = list(size = 10, color = "#333333", family = "Lora, serif"),
-        hovertext     = ~hover,
-        hoverinfo     = "text",
-        showlegend    = TRUE
-      )
-    }
-
-    # Highlighted traces for comparison actors (drawn on top, visible even if filtered)
-    comp_highlight_list <- list(
-      list(actor = comp_a, color = comp_state$color_a),
-      list(actor = comp_b, color = comp_state$color_b)
-    )
-    for (hl in comp_highlight_list) {
-      if (!is.null(hl$actor) && hl$actor != "") {
-        hl_row <- dta_agg %>%
-          filter(actor == hl$actor, !is.na(mean_mr2), !is.na(mean_si2), !is.na(mean_ec2))
-        if (nrow(hl_row) > 0) {
-          hl_sym <- case_when(
-            hl_row$actor_type_eh2[1] == "member state" | hl_row$actor[1] == "african group" ~ "circle",
-            hl_row$actor_type_eh2[1] == "observer ngo" ~ "square",
-            hl_row$actor_type_eh2[1] == "isa"          ~ "diamond",
-            TRUE                                        ~ "cross"
-          )
-          p <- p %>% add_trace(
-            x = hl_row$mean_mr2, y = hl_row$mean_si2, z = hl_row$mean_ec2,
-            type      = "scatter3d",
-            mode      = "markers",
-            marker    = list(
-              color   = hl$color,
-              symbol  = hl_sym,
-              size    = 15,
-              opacity = 1,
-              line    = list(width = 3, color = "#ffffff")
-            ),
-            hovertext = paste0("<b>", str_to_title(hl_row$actor[1]), "</b>"),
-            hoverinfo = "text",
-            showlegend = FALSE
-          )
-        }
+      if (nrow(cl_df) == 0) {
+        # Empty placeholder — invisible but holds the index
+        p <- p %>% add_trace(
+          x = NA_real_, y = NA_real_, z = NA_real_,
+          type        = "scatter3d",
+          mode        = "markers",
+          name        = cluster_names[cl],
+          legendgroup = paste0("cl", cl),
+          marker      = list(color = cluster_cols[cl], size = 10, opacity = 0),
+          hoverinfo   = "none",
+          showlegend  = FALSE
+        )
+      } else {
+        p <- p %>% add_trace(
+          data          = cl_df,
+          x = ~mean_mr2, y = ~mean_si2, z = ~mean_ec2,
+          type          = "scatter3d",
+          mode          = "markers+text",
+          name          = cluster_names[cl],
+          legendgroup   = paste0("cl", cl),
+          customdata    = ~actor,
+          marker        = list(
+            color   = cluster_cols[cl],
+            symbol  = ~point_sym,
+            size    = 10,
+            opacity = 0.88,
+            line    = list(width = 0.8, color = "rgba(255,255,255,0.5)")
+          ),
+          text          = ~label,
+          textposition  = "top center",
+          textfont      = list(size = 10, color = "#333333", family = "Lora, serif"),
+          hovertext     = ~hover,
+          hoverinfo     = "text",
+          showlegend    = TRUE
+        )
       }
     }
 
-    # Dummy traces for actor-type shape legend (grey, no data)
+    # Traces 5-8: dummy actor-type shape legend entries (grey, no data)
     for (tp in names(type_syms)) {
       p <- p %>% add_trace(
         x = NA_real_, y = NA_real_, z = NA_real_,
@@ -1386,6 +1555,20 @@ server <- function(input, output, session) {
         marker      = list(color = "#777", symbol = type_syms[tp], size = 9),
         hoverinfo   = "none",
         showlegend  = TRUE
+      )
+    }
+
+    # Traces 9-10: comparison highlight placeholders (initially invisible).
+    # Updated by the plotlyProxy observe below without triggering a full re-render.
+    for (i in seq_len(2)) {
+      p <- p %>% add_trace(
+        x = NA_real_, y = NA_real_, z = NA_real_,
+        type       = "scatter3d",
+        mode       = "markers",
+        marker     = list(color = "#888888", symbol = "circle", size = 15, opacity = 0,
+                          line = list(width = 2, color = "#ffffff")),
+        hoverinfo  = "none",
+        showlegend = FALSE
       )
     }
 
@@ -1400,10 +1583,10 @@ server <- function(input, output, session) {
         zaxis = list(title = "Env. Cust.",  range = c(0, 1),
                      tickfont = list(size = 10), titlefont = list(size = 11),
                      gridcolor = "#e8e8e8", zerolinecolor = "#cccccc"),
-        bgcolor = "#ffffff",
-        camera  = list(eye = list(x = 1.5, y = 1.5, z = 0.8))
+        bgcolor     = "#ffffff",
+        camera      = list(eye = list(x = 1.5, y = 1.5, z = 0.8)),
+        uirevision  = "stable"
       ),
-      uirevision  = "stable",
       showlegend = FALSE,
       margin        = list(l = 0, r = 0, t = 0, b = 80),
       paper_bgcolor = "#ffffff",
@@ -1412,6 +1595,70 @@ server <- function(input, output, session) {
     config(displayModeBar = FALSE)
   })
   outputOptions(output, "scatter3d_plot", suspendWhenHidden = FALSE)
+
+  # Update 3D comparison highlights (traces 9-10) via proxy — no camera reset
+  observe({
+    comp_a <- comp_state$actor_a
+    comp_b <- comp_state$actor_b
+    col_a  <- comp_state$color_a
+    col_b  <- comp_state$color_b
+
+    type_syms_hl <- c(
+      "member state" = "circle", "observer ngo" = "square",
+      "isa"          = "diamond", "other"        = "cross"
+    )
+
+    actor_sym <- function(actor_name) {
+      row <- dta_agg %>% filter(actor == actor_name)
+      if (nrow(row) == 0) return("circle")
+      key <- case_when(
+        row$actor_type_eh2[1] == "member state" | row$actor[1] == "african group" ~ "member state",
+        row$actor_type_eh2[1] == "observer ngo" ~ "observer ngo",
+        row$actor_type_eh2[1] == "isa"          ~ "isa",
+        TRUE                                     ~ "other"
+      )
+      type_syms_hl[key]
+    }
+
+    hl_vals <- function(actor_name, color) {
+      if (is.null(actor_name) || actor_name == "") {
+        return(list(x = NA_real_, y = NA_real_, z = NA_real_,
+                    color = color, sym = "circle", opacity = 0, ht = ""))
+      }
+      row <- dta_agg %>% filter(actor == actor_name, !is.na(mean_mr2))
+      if (nrow(row) == 0) {
+        return(list(x = NA_real_, y = NA_real_, z = NA_real_,
+                    color = color, sym = "circle", opacity = 0, ht = ""))
+      }
+      list(
+        x       = row$mean_mr2[1],
+        y       = row$mean_si2[1],
+        z       = row$mean_ec2[1],
+        color   = color,
+        sym     = unname(actor_sym(actor_name)),
+        opacity = 1,
+        ht      = paste0("<b>", str_to_title(actor_name), "</b>")
+      )
+    }
+
+    a <- hl_vals(comp_a, col_a)
+    b <- hl_vals(comp_b, col_b)
+
+    plotlyProxy("scatter3d_plot", session) %>%
+      plotlyProxyInvoke("restyle",
+        list(
+          x                = list(list(a$x), list(b$x)),
+          y                = list(list(a$y), list(b$y)),
+          z                = list(list(a$z), list(b$z)),
+          "marker.color"   = list(a$color,   b$color),
+          "marker.symbol"  = list(a$sym,     b$sym),
+          "marker.opacity" = list(a$opacity, b$opacity),
+          hovertext        = list(a$ht,      b$ht),
+          hoverinfo        = list("text",    "text")
+        ),
+        list(9L, 10L)
+      )
+  })
 
   # Network: render once with all nodes; proxy updates hidden property on slider change
   # (avoids zoom reset that a full re-render would cause)
@@ -1479,12 +1726,13 @@ server <- function(input, output, session) {
       visUpdateNodes(nodes = nodes_update)
   })
 
-  # Highlight comparison-selected actors in network with cluster-coloured borders
+  # Highlight comparison-selected actors in network with darkened cluster-coloured borders
   observe({
     a_id  <- if (!is.null(comp_state$actor_a)) str_replace_all(comp_state$actor_a, " ", "_") else ""
     b_id  <- if (!is.null(comp_state$actor_b)) str_replace_all(comp_state$actor_b, " ", "_") else ""
-    col_a <- comp_state$color_a
-    col_b <- comp_state$color_b
+    # Darken the cluster color so the border stands out against the node fill
+    col_a <- darken_hex(comp_state$color_a, 0.55)
+    col_b <- darken_hex(comp_state$color_b, 0.55)
 
     nodes_hl <- net_nodes %>%
       transmute(
@@ -1596,6 +1844,7 @@ server <- function(input, output, session) {
         ),
         initComplete = JS("function(settings, json) {
           var $ctrl = $('#gpt-hdr-ctrl');
+          $ctrl.find('.dataTables_filter').remove();
           var $wrap = $(this.api().table().container());
           $ctrl.append($wrap.find('.dataTables_filter').detach());
         }")

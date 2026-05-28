@@ -97,7 +97,14 @@ Each actor plotted at `(mean_mr2, mean_si2, mean_ec2)`. Built as **one trace per
 | ISA | diamond |
 | Other | cross |
 
-**Implementation pattern:** build with `plot_ly()` + `add_trace()` loop (one trace per cluster), then append dummy `NA` traces per actor type for shape legend entries. `tracegroupgap` separates the two legend sections. `config(displayModeBar = FALSE)` hides the plotly toolbar.
+**Implementation pattern:** build with `plot_ly()` + `add_trace()` loop. Always emits exactly **11 traces** in fixed order to support proxy updates:
+- Traces 0-4: one per cluster (always present; empty clusters get an invisible NA placeholder)
+- Traces 5-8: 4 dummy type-legend entries (NA data, grey)
+- Traces 9-10: comparison highlight placeholders (invisible on init, updated by `plotlyProxy`)
+
+`comp_state` is **not** a reactive dependency inside `renderPlotly` — this prevents camera resets. Instead, a separate `observe` calls `plotlyProxyInvoke("restyle", update, list(9L, 10L))` to update just the comparison traces without re-rendering.
+
+**Camera persistence:** `uirevision = "stable"` is set **inside** `scene = list(...)`, not at the top level. Top-level `uirevision` breaks 3D drag interactions.
 
 **Cluster join:** `dta_agg` joined to `raw_nodes` on `str_replace_all(actor, " ", "_") == id`.
 

@@ -8,7 +8,7 @@ library(bsicons)
 
 # Paths
 data_dir  <- file.path("data", "working_data")
-gephi_dir <- file.path("data", "gephi")
+network_dir <- file.path("data", "network")
 gpt_dir   <- file.path("data", "gpt_results")
 
 # Actor aggregate data
@@ -57,8 +57,8 @@ un_countries <- read_csv(
 dta_agg <- dta_agg %>% left_join(un_countries, by = "actor")
 
 # Network data
-raw_nodes <- read_csv(file.path(gephi_dir, "nodes.csv"), show_col_types = FALSE)
-raw_edges <- read_csv(file.path(gephi_dir, "edges.csv"), show_col_types = FALSE)
+raw_nodes <- read_csv(file.path(network_dir, "nodes.csv"), show_col_types = FALSE)
+raw_edges <- read_csv(file.path(network_dir, "edges.csv"), show_col_types = FALSE)
 
 # Vision pole coordinates: roughly balanced triangle (middle ground between original and equilateral)
 # EC left, MR right, SI bottom
