@@ -13,7 +13,7 @@ gpt_dir   <- file.path("data", "gpt_results")
 
 # Actor aggregate data
 dta_agg <- read_csv(
-  file.path(data_dir, "dta_agg_SUBMITTED.csv"),
+  file.path(data_dir, "dta_agg.csv"),
   show_col_types = FALSE
 ) %>%
   select(-1)
@@ -46,7 +46,7 @@ un_countries <- read_csv(
     actor == "micronesia (federated states of)" ~ "federated states of micronesia",
     actor == "cote d'ivoire"                    ~ "ivory coast",
     actor == "netherlands (kingdom of the)"     ~ "netherlands",
-    actor == "qatar"                            ~ "quatar",
+    actor == "qatar"                            ~ "qatar",
     actor == "russian federation"               ~ "russia",
     actor == "united republic of tanzania"      ~ "tanzania",
     actor == "united kingdom"                   ~ "uk",
@@ -84,7 +84,7 @@ actor_pos <- raw_edges %>%
 #   Phase 1 (min_dist > 0): push overlapping pairs apart until all gaps >= min_dist
 #   Phase 2 (jitter > 0):   add an independent random offset to each actor node
 # Both at 0 is an exact no-op: returns raw barycentric positions.
-nudge_apart <- function(nodes, min_dist = 25, jitter = 35, iters = 120) {
+nudge_apart <- function(nodes, min_dist = 50, jitter = 35, iters = 120) {
   if (min_dist <= 0 && jitter <= 0) return(nodes)
   ai <- which(nodes$type != "vision")
   x  <- nodes$x

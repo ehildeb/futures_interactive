@@ -134,6 +134,26 @@ function(td, cellData, rowData, row, col) {
 - Statement text truncated at 280 chars via DT `render` JS (preserves full text for search)
 - Row click → `showModal` with full statement, three scores, and model explanation
 - DO NOT use `display: -webkit-box` on `td` — overrides `display: table-cell` and breaks layout
+- **Inline links in prose:** htmltools adds a space between every sibling child in a tag, so `tags$a("text"), "."` renders as `text .` with an unwanted space. Always use `tags$p(HTML('prose with <a href="...">link</a>. more prose'))` for any paragraph that contains inline links or punctuation adjacent to a tag.
+
+### Actor Comparison Module
+
+Sits inside `.network-section` as a sibling to `.net-canvas-box`.
+
+**Layout (responsive):**
+- `>= 1200px`: `.network-section` is `flex-direction: row` — comparison panel is a 272px right column
+- `< 1200px`: `.network-section` is `flex-direction: column` — comparison panel is below, with `.comp-controls` (210px, left) and `.comp-chart-area` (flex:1, right) side by side
+
+**Components:**
+- `.comp-controls`: title label + hint + two `.comp-slot` rows (badge + selectizeInput)
+- `.comp-chart-area`: holds `plotlyOutput("comp_plot_combined")`
+- Server: `comp_state` reactiveValues (`actor_a`, `actor_b`, `next_slot`)
+
+**Click-to-compare:** visNetwork fires `input$network_node_click` via `visEvents`. 3D scatter uses `source = "scatter3d_src"` + `customdata = ~actor`; server uses `event_data("plotly_click", source = "scatter3d_src")`. Clicks alternate between slots A and B.
+
+**Highlighting:** `visNetworkProxy` + `visUpdateNodes` sets coloured borders (`#2C3E6B` for A, `#B63F7B` for B, `borderWidth = 4`) on selected nodes. 3D scatter adds extra highlighted traces on top of cluster traces.
+
+**Reset:** `observeEvent(input$reset_filter, ...)` also clears `comp_state` and updates both selectize dropdowns.
 
 ### CSS Architecture
 
@@ -143,10 +163,12 @@ All CSS in the `css` string at the top of app.R.
 |-------|---------|
 | `.paper` | Centred paper column (max-width: 860px) |
 | `.paper-header` | Title block with bottom border |
-| `.network-section` | Full-width breakout (max-width: 1440px), used for both 3D scatter and 2D network |
-| `.net-canvas-box` | Border box around canvas + legend |
-| `.net-legend-bottom` | Horizontal flex legend inside `.net-canvas-box` |
-| `.net-bottom-controls` | Slider grid below the 2D network box |
+| `.network-section` | Responsive flex container with outer border — row on >= 1200px, column below |
+| `.net-canvas-box` | Plot area + legend, flex: 1, border-right on wide screens |
+| `.net-legend-side` | 158px right-side legend with CSS-swatch items (`.lgd-sw`, `.lgd-circle`, `.lgd-square`, `.lgd-diamond`, `.lgd-tri`) |
+| `.comparison-section` | Actor comparison — right column (272px) on wide, below-row on narrow |
+| `.comp-controls` | Left/top panel: title, hint, two slot dropdowns |
+| `.comp-chart-area` | Flex:1 area holding the combined polar chart |
 | `.visions-grid` | 3-column grid for vision explainer cards |
 | `.data-tab` | Data tab wrapper with padding |
 | `.dt-hdr-ctrl` | Flex container for controls injected into card headers |
@@ -164,6 +186,8 @@ All CSS in the `css` string at the top of app.R.
 - [x] Statements browser (fixed-height rows, click-to-modal, actor filter + search in header)
 - [x] Paper-aesthetic styling (Lora font, navy/white, custom pagination)
 - [x] Findings tab skeleton (lorem ipsum text, floated chart placeholders)
+- [x] Actor comparison module (polar overlay chart, click-to-select, network/3D highlights, responsive layout)
+- [x] Legend overhaul (CSS swatches replacing Unicode symbols)
 - [ ] World maps tab
 - [ ] Replace lorem ipsum with actual paper content
 - [ ] Wire floated chart placeholders to actual plotly bar charts
