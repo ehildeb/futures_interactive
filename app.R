@@ -38,9 +38,10 @@ body, html { background: #FFFFFF; }
 .paper {
   max-width: 860px;
   margin: 0 auto;
-  padding: 2.5rem 1.5rem 1.5rem;
+  padding: 2.5rem 1.5rem 3.5rem;
 }
 .paper-last {
+  padding-top: 3.5rem;
   padding-bottom: 5rem;
 }
 
@@ -208,8 +209,7 @@ body, html { background: #FFFFFF; }
   font-family: inherit;
 }
 .view-toggle-btn:hover { background: #f5f5f5; }
-.reset-view-btn,
-.fullscreen-btn {
+.reset-view-btn {
   padding: 0.2rem 0.38rem;
   background: #fff;
   border: 1px solid #ccc;
@@ -221,40 +221,51 @@ body, html { background: #FFFFFF; }
   justify-content: center;
   line-height: 1;
 }
-.reset-view-btn:hover,
-.fullscreen-btn:hover { background: #f5f5f5; }
-/* Dim backdrop behind the fullscreen popup (injected by JS) */
-.fs-backdrop {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 9998;
-  background: rgba(0,0,0,0.30);
-  cursor: default;
+.reset-view-btn:hover { background: #f5f5f5; }
+/* Collapse tab: thin strip on the inner edge of the comparison panel */
+.comp-collapse-tab {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 0.75rem;
+  cursor: pointer;
+  color: #d0d0d0;
+  background: transparent;
+  transition: color 0.15s, background 0.15s;
+  user-select: none;
 }
-.fs-backdrop.active { display: block; }
-/* Fullscreen popup: fills the viewport (minus margin), plots resize to fit */
-.net-canvas-box.is-fullscreen {
-  position: fixed !important;
-  top: 2.5rem !important; left: 2.5rem !important;
-  right: 2.5rem !important; bottom: 2.5rem !important;
-  width: auto !important;
-  height: auto !important;
-  z-index: 9999;
-  border: 1px solid #bbb !important;
-  border-radius: 4px !important;
-  box-shadow: 0 12px 48px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.10) !important;
-  overflow: hidden;
-  background: #fff;
+.comp-collapse-tab:hover { color: #888; background: rgba(0,0,0,0.02); }
+/* Wide: vertical strip on the left edge */
+@media (min-width: 1200px) {
+  .comp-collapse-tab { width: 18px; border-right: 1px solid #eee; }
 }
-/* Inner flex chain must fill the popup height */
-.net-canvas-box.is-fullscreen .net-plot-area { overflow: hidden; }
-.net-canvas-box.is-fullscreen #net-plot-wrap,
-.net-canvas-box.is-fullscreen #sc3-plot-wrap { overflow: hidden; }
-/* Fullscreen button icon swaps to inward arrows when popup is open */
-.net-canvas-box.is-fullscreen .fs-icon-open  { display: none !important; }
-.net-canvas-box.is-fullscreen .fs-icon-close { display: inline-flex !important; }
-/* Fullscreen button stays visible in fullscreen (acts as exit toggle) */
+/* Narrow: horizontal strip across the top */
+@media (max-width: 1199px) {
+  .comp-collapse-tab {
+    width: 100%;
+    height: 20px;
+    padding-top: 0;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 0.85rem;
+    border-bottom: 1px solid #eee;
+  }
+}
+/* Chevron direction: right = collapse panel, left = expand */
+.comp-tab-icon { display: inline-flex; font-size: 0.7rem; }
+.comp-tab-expand { display: none; }
+.comparison-section.is-collapsed .comp-tab-collapse { display: none; }
+.comparison-section.is-collapsed .comp-tab-expand   { display: inline-flex; }
+/* Collapsed: only the tab strip remains */
+.comparison-section.is-collapsed .comp-controls,
+.comparison-section.is-collapsed .comp-chart-area { display: none; }
+@media (min-width: 1200px) {
+  .comparison-section.is-collapsed { width: 18px; }
+}
+@media (max-width: 1199px) {
+  .comparison-section.is-collapsed { overflow: hidden; }
+}
 .ctrl-label {
   font-size: 0.68rem;
   font-weight: 800;
@@ -709,9 +720,9 @@ ui <- page_navbar(
       ),
       tags$p(HTML(
         'You are looking at the interactive web version of our paper <strong>Negotiating futures: Three visions for the International Seabed Authority</strong>.
-        The full published version of it can be <a href="https://doi.org" target="_blank">found here</a>. Use the visualisations to explore our main findings, and visit
+        The full published version of it can be <a href="https://doi.org" target="_blank">found here</a>. Use the visualisations below to explore our main findings, and visit
         <a href="#" onclick="document.querySelector(\'[data-bs-toggle=tab][data-value=Data]\').click(); return false;">the data tab</a>
-        to browse the underlying data. For questions or feedback, please contact Emil W. Hildebrand.'
+        to browse the underlying data. For questions or feedback, please contact [Emil W. Hildebrand].'
       )),
       
       tags$hr(class = "sec-divider"),
@@ -724,23 +735,24 @@ ui <- page_navbar(
         of the deep seabed. But the prospect of deep-sea mining is facing multiple challenges:
         40 countries, more than 900 scientists, and major global firms have called for a moratorium
         or precautionary pause on deep-sea mining amidst mounting concerns over environmental impacts,
-        knowledge gaps, and economic uncertainty. Facing external pressures, new leadership, and a delayed
-        periodic review, the ISA as an institution stands at a critical juncture – a moment of institutional
-        flux where negotiators are debating not just the Mining Code, but the very purpose and future of the institution itself."
+        knowledge gaps, and economic uncertainty. State and non-state actors at the ISA increasingly find themselves
+        negotiating not just the Mining Code, but the very", HTML("<i>raison d’être</i>"), " of the ISA itself"
       ),
       tags$p(
         "During these negotiations, delegates articulate, debate, and negotiate different understandings of the ISA’s
         role, purpose, and future priorities. We treat these ideas as they surface in the negotiations as the
-        ‘discursive seeds’ of potential futures – explicit or implicit visions for the ISA’s future that
+        ‘discursive seeds’ of potential futures – explicit or implicit visions of the ISA’s future that
         may reshape the institution from within."
       ),
       tags$p(
-        "To map these discursive seeds, we explore alternative paths for the ISA by constructing three distinct visions
-        based on selected legal responsibilities of the ISA under UNCLOS: the ISA as a ", HTML("<strong>Mining Regulator</strong>"), " a ",
-        HTML("<strong>Marine Scientific Research (MSR) Institution</strong>"), " and an ", HTML("<strong>Environmental Custodian</strong>."), " We then systematically analyse
-        how different actors invoke these three visions during ISA negotiations. Using an LLM-based content analysis
+        "To map these discursive seeds, we explore alternative paths for the ISA by constructing three distinct visions,
+        based on selected legal responsibilities of the ISA under UNCLOS: the ISA as a ", HTML("<strong>Mining Regulator</strong>,"), " a ",
+        HTML("<strong>Marine Scientific Research (MSR) Institution</strong>,"), " and an ", HTML("<strong>Environmental Custodian</strong>."), " We then systematically analyse
+        how and how strongly different actors invoke these three visions during ISA negotiations. Using an LLM-based content analysis
         of a comprehensive dataset from the ISA’s 30th Session (2025) – collected via Collaborative Event Ethnography
-        across more than 150 hours of negotiations – we map when and how strongly actors invoke each of the three visions."
+        across more than 150 hours of negotiations – we map each actor in a semantic space between the three visions.
+        In addition, we explore factors that may help explain the observed patterns, especially keeping in mind the pervasiveness
+        of a North-South divide in global environmental politics and the uneven distribution of power in shaping potential futures."
       ),
       
       tags$hr(class = "sec-divider"),
@@ -792,13 +804,8 @@ ui <- page_navbar(
         # Plot area
         div(class = "net-plot-area",
           div(class = "view-btn-group",
-            tags$button(id = "reset-view-btn",  class = "reset-view-btn",  title = "Reset view",  bs_icon("aspect-ratio")),
-            tags$button(id = "view-toggle-btn", class = "view-toggle-btn", title = "Switch view", "Switch to 3D"),
-            # Dual-icon fullscreen button: open icon swaps to contract icon when popup is active
-            tags$button(id = "fullscreen-btn", class = "fullscreen-btn", title = "Fullscreen",
-              tags$span(class = "fs-icon-open",  style = "display:inline-flex;", bs_icon("arrows-fullscreen")),
-              tags$span(class = "fs-icon-close", style = "display:none;",        bs_icon("arrows-angle-contract"))
-            )
+            tags$button(id = "reset-view-btn",  class = "reset-view-btn",  title = "Reset view", bs_icon("aspect-ratio")),
+            tags$button(id = "view-toggle-btn", class = "view-toggle-btn", title = "Switch view", "Switch to 3D")
           ),
           div(id = "net-plot-wrap",
             visNetworkOutput("network_plot", height = "600px")
@@ -877,6 +884,12 @@ ui <- page_navbar(
       # ── Actor comparison (right column on wide screens, below on narrow) ──
       div(class = "comparison-section",
 
+        # Collapse/expand tab — always visible on the inner edge of the panel
+        div(class = "comp-collapse-tab", id = "comp-collapse-tab",
+          tags$span(class = "comp-tab-icon comp-tab-collapse", bs_icon("chevron-right")),
+          tags$span(class = "comp-tab-icon comp-tab-expand",   bs_icon("chevron-left"))
+        ),
+
         # Controls: title, hint, two dropdowns
         div(class = "comp-controls",
           div(class = "comp-section-label", "Actor Comparison"),
@@ -948,29 +961,48 @@ ui <- page_navbar(
         Shiny.setInputValue('reset_filter', Math.random(), {priority: 'event'});
       }
       document.addEventListener('DOMContentLoaded', function() {
-        var btn     = document.getElementById('view-toggle-btn');
-        var rstBtn  = document.getElementById('reset-view-btn');
-        var net     = document.getElementById('net-plot-wrap');
-        var sc3     = document.getElementById('sc3-plot-wrap');
+        var btn    = document.getElementById('view-toggle-btn');
+        var rstBtn = document.getElementById('reset-view-btn');
+        var net    = document.getElementById('net-plot-wrap');
+        var sc3    = document.getElementById('sc3-plot-wrap');
         if (!btn) return;
+
+        // Reset view buttons
         rstBtn.addEventListener('click', function() {
-          // Reset plotly camera
           var plotEl = document.getElementById('scatter3d_plot');
           if (plotEl && window.Plotly) {
             Plotly.relayout(plotEl, {'scene.camera': {eye: {x:1.5, y:1.5, z:0.8}}});
           }
-          // Reset network zoom/pan via Shiny
           Shiny.setInputValue('reset_view', Math.random(), {priority: 'event'});
         });
-        // Backdrop div: clicking it exits fullscreen (default cursor, no hand)
-        var backdrop = document.createElement('div');
-        backdrop.className = 'fs-backdrop';
-        document.body.appendChild(backdrop);
 
-        var savedPlotHeight = '600px';
-        var PLOT_RATIO = 0.70; // height = 70% of plot-area width (≈ 600px at original sizes)
+        var PLOT_RATIO    = 0.70;
+        var lastPlotWidth = 0;
 
+        // Get the vis.js Network instance (null if not ready)
+        function getVisNetwork() {
+          var w = window.HTMLWidgets && HTMLWidgets.find && HTMLWidgets.find('#network_plot');
+          return (w && w.instance && w.instance.network) ? w.instance.network : null;
+        }
+
+        // Resize plots to height h and restore vis.js view position after resize.
+        // Hooks into vis.js 'resize' event so moveTo fires at full canvas resolution.
         function setPlotHeights(h) {
+          var visNet = getVisNetwork();
+          var savedScale = null, savedPos = null;
+          if (visNet) {
+            savedScale = visNet.getScale();
+            savedPos   = visNet.getViewPosition();
+            var moved = false;
+            var restoreView = function() {
+              if (moved) return;
+              moved = true;
+              visNet.off('resize', restoreView);
+              visNet.moveTo({ position: savedPos, scale: savedScale, animation: false });
+            };
+            visNet.on('resize', restoreView);
+            setTimeout(restoreView, 300); // fallback
+          }
           var netDiv = document.getElementById('network_plot');
           if (netDiv) netDiv.style.height = h;
           var sc3Div = document.getElementById('scatter3d_plot');
@@ -980,59 +1012,38 @@ ui <- page_navbar(
           }
         }
 
-        // Recalculate height proportionally from current plot-area width
+        // Recalculate height from plot-area width; skip if width unchanged.
         function updateNetworkHeight() {
-          var canvas = document.querySelector('.net-canvas-box');
-          if (!canvas || canvas.classList.contains('is-fullscreen')) return;
           var plotArea = document.querySelector('.net-plot-area');
           if (!plotArea) return;
           var w = plotArea.clientWidth;
-          if (w <= 0) return;
-          var h = Math.max(320, Math.round(w * PLOT_RATIO)) + 'px';
-          savedPlotHeight = h;
+          if (w <= 0 || w === lastPlotWidth) return;
+          lastPlotWidth = w;
+          var byWidth = Math.round(w * PLOT_RATIO);
+          var byVP    = Math.round(window.innerHeight * 0.72);
+          var h = Math.max(320, Math.min(byWidth, byVP)) + 'px';
           setPlotHeights(h);
         }
 
-        // Debounced resize listener
+        // Debounced window resize
         var resizeTimer;
         window.addEventListener('resize', function() {
           clearTimeout(resizeTimer);
           resizeTimer = setTimeout(updateNetworkHeight, 100);
         });
 
-        function exitFullscreen() {
-          var canvas = document.querySelector('.net-canvas-box');
-          canvas.classList.remove('is-fullscreen');
-          backdrop.classList.remove('active');
-          // Recalculate proportional height rather than restoring a stale value
-          updateNetworkHeight();
-        }
-        function enterFullscreen() {
-          var canvas = document.querySelector('.net-canvas-box');
-          canvas.classList.add('is-fullscreen');
-          backdrop.classList.add('active');
-          // Stretch plots to fill the popup once CSS has settled
-          setTimeout(function() {
-            setPlotHeights(canvas.clientHeight + 'px');
-          }, 50);
-        }
-        backdrop.addEventListener('click', exitFullscreen);
-
-        var fsBtn = document.getElementById('fullscreen-btn');
-        if (fsBtn) {
-          fsBtn.addEventListener('click', function() {
-            var canvas = document.querySelector('.net-canvas-box');
-            if (canvas.classList.contains('is-fullscreen')) {
-              exitFullscreen();
-            } else {
-              enterFullscreen();
-            }
+        // Compare panel collapse tab
+        var compTab     = document.getElementById('comp-collapse-tab');
+        var compSection = document.querySelector('.comparison-section');
+        if (compTab && compSection) {
+          compTab.addEventListener('click', function() {
+            compSection.classList.toggle('is-collapsed');
+            lastPlotWidth = 0; // force width recalculation after layout reflow
+            setTimeout(updateNetworkHeight, 50);
           });
         }
-        // Exit on Escape key
-        document.addEventListener('keydown', function(e) {
-          if (e.key === 'Escape') exitFullscreen();
-        });
+
+        // View switch (Network / 3D)
         btn.addEventListener('click', function() {
           if (sc3.style.display === 'none') {
             net.style.display = 'none';
@@ -1048,6 +1059,8 @@ ui <- page_navbar(
             btn.textContent = 'Switch to 3D';
           }
         });
+
+        setTimeout(updateNetworkHeight, 300);
       });
     ")),
 
