@@ -103,10 +103,6 @@ body, html { background: #FFFFFF; }
   align-items: stretch;
   border-right: 1px solid #ddd;
 }
-@media (max-width: 1199px) {
-  .network-section { flex-direction: column; }
-  .net-canvas-box { border-right: none; border-bottom: 1px solid #ddd; }
-}
 .net-plot-area {
   flex: 1;
   min-width: 0;
@@ -222,50 +218,26 @@ body, html { background: #FFFFFF; }
   line-height: 1;
 }
 .reset-view-btn:hover { background: #f5f5f5; }
-/* Collapse tab: thin strip on the inner edge of the comparison panel */
+/* Collapse tab: handle strip on the inner edge of the comparison panel */
 .comp-collapse-tab {
   flex-shrink: 0;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding-top: 0.75rem;
   cursor: pointer;
-  color: #d0d0d0;
-  background: transparent;
+  color: #aaa;
+  background: #f5f5f5;
   transition: color 0.15s, background 0.15s;
   user-select: none;
 }
-.comp-collapse-tab:hover { color: #888; background: rgba(0,0,0,0.02); }
-/* Wide: vertical strip on the left edge */
-@media (min-width: 1200px) {
-  .comp-collapse-tab { width: 18px; border-right: 1px solid #eee; }
-}
-/* Narrow: horizontal strip across the top */
-@media (max-width: 1199px) {
-  .comp-collapse-tab {
-    width: 100%;
-    height: 20px;
-    padding-top: 0;
-    align-items: center;
-    justify-content: flex-start;
-    padding-left: 0.85rem;
-    border-bottom: 1px solid #eee;
-  }
-}
-/* Chevron direction: right = collapse panel, left = expand */
-.comp-tab-icon { display: inline-flex; font-size: 0.7rem; }
+.comp-collapse-tab:hover { color: #444; background: #ebebeb; }
+/* Collapse tab: vertical strip on the left edge of the comparison panel */
+.comp-collapse-tab { width: 22px; border-right: 1px solid #ddd; }
+/* Chevron: right = collapse panel, left = expand */
+.comp-tab-icon { display: inline-flex; font-size: 0.78rem; }
 .comp-tab-expand { display: none; }
 .comparison-section.is-collapsed .comp-tab-collapse { display: none; }
 .comparison-section.is-collapsed .comp-tab-expand   { display: inline-flex; }
-/* Collapsed: only the tab strip remains */
-.comparison-section.is-collapsed .comp-controls,
-.comparison-section.is-collapsed .comp-chart-area { display: none; }
-@media (min-width: 1200px) {
-  .comparison-section.is-collapsed { width: 18px; }
-}
-@media (max-width: 1199px) {
-  .comparison-section.is-collapsed { overflow: hidden; }
-}
 .ctrl-label {
   font-size: 0.68rem;
   font-weight: 800;
@@ -341,18 +313,20 @@ body, html { background: #FFFFFF; }
   flex-shrink: 0;
   background: #fff;
 }
-/* Wide: right column, controls stacked above chart */
-@media (min-width: 1200px) {
-  .comparison-section { width: 340px; flex-direction: column; }
-  .comp-controls { border-bottom: 1px solid #eee; flex-shrink: 0; }
-  .comp-chart-area { flex: 1; min-height: 0; }
+/* Comparison: fixed right column — row so the collapse tab runs full height */
+.comparison-section { width: 340px; flex-direction: row; }
+/* Inner column: controls stacked above chart, fills remaining width */
+.comp-inner {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
-/* Narrow: below, controls on left, chart on right */
-@media (max-width: 1199px) {
-  .comparison-section { flex-direction: row; width: 100%; }
-  .comp-controls { width: 210px; flex-shrink: 0; border-right: 1px solid #eee; }
-  .comp-chart-area { flex: 1; min-width: 0; }
-}
+.comp-controls { border-bottom: 1px solid #eee; flex-shrink: 0; }
+.comp-chart-area { flex: 1; min-height: 0; }
+/* Collapsed: hide the inner column, shrink section to just the tab */
+.comparison-section.is-collapsed .comp-inner { display: none; }
+.comparison-section.is-collapsed { width: 22px; }
 .comp-controls {
   display: flex;
   flex-direction: column;
@@ -886,11 +860,13 @@ ui <- page_navbar(
 
         # Collapse/expand tab — always visible on the inner edge of the panel
         div(class = "comp-collapse-tab", id = "comp-collapse-tab",
+          title = "Collapse comparison panel",
           tags$span(class = "comp-tab-icon comp-tab-collapse", bs_icon("chevron-right")),
           tags$span(class = "comp-tab-icon comp-tab-expand",   bs_icon("chevron-left"))
         ),
 
-        # Controls: title, hint, two dropdowns
+        # Inner column: controls + chart (hidden when collapsed)
+        div(class = "comp-inner",
         div(class = "comp-controls",
           div(class = "comp-section-label", "Actor Comparison"),
           div(class = "comp-hint", "Click actors in the graph, or choose below"),
@@ -934,6 +910,7 @@ ui <- page_navbar(
         div(class = "comp-chart-area",
           plotlyOutput("comp_plot_combined", height = "400px")
         )
+        ) # end comp-inner
       )
     ),
 
@@ -1038,6 +1015,9 @@ ui <- page_navbar(
         if (compTab && compSection) {
           compTab.addEventListener('click', function() {
             compSection.classList.toggle('is-collapsed');
+            compTab.title = compSection.classList.contains('is-collapsed')
+              ? 'Expand comparison panel'
+              : 'Collapse comparison panel';
             lastPlotWidth = 0; // force width recalculation after layout reflow
             setTimeout(updateNetworkHeight, 50);
           });
@@ -1572,14 +1552,22 @@ server <- function(input, output, session) {
     }
 
     # Traces 9-10: comparison highlight placeholders (initially invisible).
-    # Updated by the plotlyProxy observe below without triggering a full re-render.
+    # Rendered as hollow rings + text labels; updated via plotlyProxy without camera reset.
     for (i in seq_len(2)) {
       p <- p %>% add_trace(
         x = NA_real_, y = NA_real_, z = NA_real_,
-        type       = "scatter3d",
-        mode       = "markers",
-        marker     = list(color = "#888888", symbol = "circle", size = 15, opacity = 0,
-                          line = list(width = 2, color = "#ffffff")),
+        type     = "scatter3d",
+        mode     = "markers+text",
+        text     = "",
+        textposition = "top center",
+        textfont = list(size = 12, family = "Lora, serif", color = "#333333"),
+        marker   = list(
+          color  = "rgba(0,0,0,0)",        # hollow fill
+          symbol = "circle",
+          size   = 20,
+          opacity = 0,
+          line   = list(width = 3, color = "#888888")
+        ),
         hoverinfo  = "none",
         showlegend = FALSE
       )
@@ -1633,16 +1621,13 @@ server <- function(input, output, session) {
       type_syms_hl[key]
     }
 
-    hl_vals <- function(actor_name, color) {
-      if (is.null(actor_name) || actor_name == "") {
-        return(list(x = NA_real_, y = NA_real_, z = NA_real_,
-                    color = color, sym = "circle", opacity = 0, ht = ""))
-      }
+    hl_vals <- function(actor_name, color, slot_label) {
+      empty <- list(x = NA_real_, y = NA_real_, z = NA_real_,
+                    color = color, sym = "circle", opacity = 0,
+                    label = "", ht = "")
+      if (is.null(actor_name) || actor_name == "") return(empty)
       row <- dta_agg %>% filter(actor == actor_name, !is.na(mean_mr2))
-      if (nrow(row) == 0) {
-        return(list(x = NA_real_, y = NA_real_, z = NA_real_,
-                    color = color, sym = "circle", opacity = 0, ht = ""))
-      }
+      if (nrow(row) == 0) return(empty)
       list(
         x       = row$mean_mr2[1],
         y       = row$mean_si2[1],
@@ -1650,24 +1635,36 @@ server <- function(input, output, session) {
         color   = color,
         sym     = unname(actor_sym(actor_name)),
         opacity = 1,
-        ht      = paste0("<b>", str_to_title(actor_name), "</b>")
+        label   = paste0(slot_label, ": ", str_to_title(actor_name)),
+        ht      = paste0("<b>", str_to_title(actor_name), "</b><br>",
+                         "Mining Reg.: ", round(row$mean_mr2[1], 3), "<br>",
+                         "MSR Inst.: ",   round(row$mean_si2[1], 3), "<br>",
+                         "Env. Cust.: ",  round(row$mean_ec2[1], 3))
       )
     }
 
-    a <- hl_vals(comp_a, col_a)
-    b <- hl_vals(comp_b, col_b)
+    a <- hl_vals(comp_a, col_a, "A")
+    b <- hl_vals(comp_b, col_b, "B")
 
     plotlyProxy("scatter3d_plot", session) %>%
       plotlyProxyInvoke("restyle",
         list(
-          x                = list(list(a$x), list(b$x)),
-          y                = list(list(a$y), list(b$y)),
-          z                = list(list(a$z), list(b$z)),
-          "marker.color"   = list(a$color,   b$color),
-          "marker.symbol"  = list(a$sym,     b$sym),
-          "marker.opacity" = list(a$opacity, b$opacity),
-          hovertext        = list(a$ht,      b$ht),
-          hoverinfo        = list("text",    "text")
+          x                       = list(list(a$x),     list(b$x)),
+          y                       = list(list(a$y),     list(b$y)),
+          z                       = list(list(a$z),     list(b$z)),
+          # Hollow ring in slot color wraps around the existing cluster dot
+          "marker.color"          = list("rgba(0,0,0,0)", "rgba(0,0,0,0)"),
+          "marker.symbol"         = list(a$sym,     b$sym),
+          "marker.opacity"        = list(a$opacity, b$opacity),
+          "marker.size"           = list(20,        20),
+          "marker.line.width"     = list(3,         3),
+          "marker.line.color"     = list(a$color,   b$color),
+          # Text label above the marker in slot color
+          text                    = list(a$label,   b$label),
+          "textfont.color"        = list(a$color,   b$color),
+          "textfont.size"         = list(11,        11),
+          hovertext               = list(a$ht,      b$ht),
+          hoverinfo               = list("text",    "text")
         ),
         list(9L, 10L)
       )

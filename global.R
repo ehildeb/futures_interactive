@@ -175,6 +175,19 @@ net_nodes <- raw_nodes %>%
   ) %>%
   nudge_apart(min_dist = 45, iters = 120)
 
+# Apply manual position overrides saved from node_editor.R (if present)
+.manual_pos_file <- "node_positions_manual.csv"
+if (file.exists(.manual_pos_file)) {
+  .manual_pos <- read_csv(.manual_pos_file, show_col_types = FALSE)
+  net_nodes <- net_nodes %>%
+    left_join(.manual_pos %>% select(id, x_m = x, y_m = y), by = "id") %>%
+    mutate(x = coalesce(x_m, x), y = coalesce(y_m, y)) %>%
+    select(-x_m, -y_m)
+  message("global.R: applied manual node positions for ",
+          sum(!is.na(.manual_pos$x)), " nodes")
+  rm(.manual_pos, .manual_pos_file)
+}
+
 net_edges <- raw_edges %>%
   filter(target %in% c("mr", "si", "ec"), weight >= 0.05) %>%
   rename(from = source, to = target) %>%
