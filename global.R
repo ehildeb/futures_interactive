@@ -7,6 +7,7 @@ library(bslib)
 library(bsicons)
 library(patchwork)
 library(rlang)
+library(leaflet)
 
 # Paths
 data_dir  <- file.path("data", "working_data")
@@ -456,7 +457,7 @@ make_vision_plotly <- function(data, x_col, x_tickangle = -35,
       text             = as.character(y),
       textposition     = "inside",
       insidetextanchor = "middle",
-      textfont         = list(color = "white", size = 10),
+      textfont         = list(color = "white", size = 12, family = "Lora, serif"),
       hoverinfo        = "text",
       hovertext        = htxt,
       showlegend       = FALSE
@@ -467,8 +468,8 @@ make_vision_plotly <- function(data, x_col, x_tickangle = -35,
   p2 <- mk("mean_si2", col_msr)
   p3 <- mk("mean_ec2", col_ec)
 
-  # Annotation x-midpoints for 3 equal panels at gap = 0.05
-  gap <- 0.05
+  # Annotation x-midpoints for 3 equal panels at gap = 0.03
+  gap <- 0.03
   w   <- (1 - 2 * gap) / 3
   xm  <- c(w / 2, w + gap + w / 2, 2 * (w + gap) + w / 2)
 
@@ -478,26 +479,31 @@ make_vision_plotly <- function(data, x_col, x_tickangle = -35,
          xref      = "paper", yref = "paper",
          xanchor   = "center", yanchor = "bottom",
          showarrow = FALSE,
-         font      = list(size = 11, color = "#1a1a2e")))
+         font      = list(size = 14, color = "#1a1a2e", family = "Lora, serif")))
 
   subplot(p1, p2, p3, shareY = TRUE, titleX = TRUE, margin = gap) %>%
     layout(
       showlegend   = FALSE,
       annotations  = annots,
+      bargap    = 0.35,
+      font      = list(family = "Lora, serif", size = 12, color = "#333333"),
+      dragmode  = FALSE,
       yaxis  = list(range = c(0, 0.87), title = "Average score",
-                    gridcolor = "#f0f0f0", tickfont = list(size = 9),
+                    gridcolor = "#f0f0f0", fixedrange = TRUE,
+                    tickfont  = list(size = 12, family = "Lora, serif"),
+                    titlefont = list(size = 12, family = "Lora, serif"),
                     zerolinecolor = "#e0e0e0"),
       yaxis2 = list(range = c(0, 0.87), gridcolor = "#f0f0f0",
-                    showticklabels = FALSE),
+                    fixedrange = TRUE, showticklabels = FALSE),
       yaxis3 = list(range = c(0, 0.87), gridcolor = "#f0f0f0",
-                    showticklabels = FALSE),
-      xaxis  = list(tickangle = x_tickangle, tickfont = list(size = 9),
-                    fixedrange = TRUE),
-      xaxis2 = list(tickangle = x_tickangle, tickfont = list(size = 9),
-                    fixedrange = TRUE),
-      xaxis3 = list(tickangle = x_tickangle, tickfont = list(size = 9),
-                    fixedrange = TRUE),
-      margin        = list(l = 50, r = 5, t = 30, b = 70),
+                    fixedrange = TRUE, showticklabels = FALSE),
+      xaxis  = list(tickangle = x_tickangle, fixedrange = TRUE,
+                    tickfont = list(size = 13, family = "Lora, serif")),
+      xaxis2 = list(tickangle = x_tickangle, fixedrange = TRUE,
+                    tickfont = list(size = 13, family = "Lora, serif")),
+      xaxis3 = list(tickangle = x_tickangle, fixedrange = TRUE,
+                    tickfont = list(size = 13, family = "Lora, serif")),
+      margin        = list(l = 60, r = 5, t = 40, b = 100),
       plot_bgcolor  = "rgba(0,0,0,0)",
       paper_bgcolor = "rgba(0,0,0,0)"
     ) %>%
@@ -626,7 +632,7 @@ make_vision_toggle <- function(data, x_col, active_vis = "mr",
       actor == "cote divoire"           ~ "ivory coast",
       TRUE                              ~ actor
     )) %>%
-    filter(actor_type_eh2 == "member state",
+    filter(actor_type_eh2 %in% c("member state", "observer state"),
            sovereignt %in% .world$sovereignt) %>%
     select(sovereignt, mean_mr2, mean_si2, mean_ec2)
 
@@ -657,3 +663,40 @@ make_vision_toggle <- function(data, x_col, active_vis = "mr",
   world_map_sf <<- NULL
   FALSE
 })
+
+
+# ── Map palette config + pre-computed labels (computed once at startup) ========
+# All three vision layers are pre-rendered in renderLeaflet; switching visions
+# uses showGroup/hideGroup (instant) rather than re-rendering polygons.
+
+map_pal_cfg <- list(
+  mr = list(name = "Mining reg.", col = "mean_mr2",
+            pal  = c("#FEF0DC","#E8B87A","#CC8A52","#9E5E2E","#5C2D0A")),
+  si = list(name = "MSR inst.",  col = "mean_si2",
+            pal  = c("#E3F4F7","#9DD2DA","#5BAAB6","#357A89","#144B57")),
+  ec = list(name = "Env. cust.", col = "mean_ec2",
+            pal  = c("#E8F7EE","#A4D9B5","#6DB589","#3D8A5A","#14502F"))
+)
+
+if (!is.null(world_map_sf)) {
+  map_color_fns <- lapply(map_pal_cfg, function(cfg)
+    colorNumeric(cfg$pal, domain = c(0, 1), na.color = "#eeeeee"))
+
+  .fmt <- function(x) ifelse(is.na(x), "—", sprintf("%.3f", x))
+
+  map_labels <- lapply(seq_len(nrow(world_map_sf)), function(i) {
+    r <- world_map_sf[i, ]
+    htmltools::HTML(paste0(
+      "<div style='font-family:Lora,serif;line-height:1.75;font-size:12px'>",
+      "<b>", r$sovereignt, "</b><br>",
+      "Mining reg.: <b>", .fmt(r$mean_mr2), "</b><br>",
+      "MSR inst.:&nbsp;&nbsp; <b>", .fmt(r$mean_si2), "</b><br>",
+      "Env. cust.:&nbsp;&nbsp; <b>", .fmt(r$mean_ec2), "</b>",
+      "</div>"
+    ))
+  })
+  rm(.fmt)
+} else {
+  map_color_fns <- NULL
+  map_labels    <- NULL
+}

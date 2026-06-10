@@ -162,6 +162,14 @@ Sits inside `.network-section` as a sibling to `.net-canvas-box`.
 
 **Reset:** `observeEvent(input$reset_filter, ...)` also clears `comp_state` and updates both selectize dropdowns.
 
+### Plotly Interactivity Rules
+
+**CRITICAL — drag-to-zoom must NEVER be enabled on bar charts or any static 2D plot.**
+Always set `dragmode = FALSE` in `layout()` for every `plot_ly` / `subplot` call that is not intentionally zoomable (bar charts, polar/radar charts).
+Also set `fixedrange = TRUE` on ALL axes (x and y) in those charts.
+Exceptions (intentionally interactive): visNetwork (drag/pan), leaflet map (zoom/pan), 3D scatter (rotate/zoom).
+This rule applies globally — every new Plotly chart added to this project must include `dragmode = FALSE` unless it is an explicitly zoomable/pannable visualisation.
+
 ### CSS Architecture
 
 All CSS in the `css` string at the top of app.R.

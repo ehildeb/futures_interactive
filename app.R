@@ -252,53 +252,119 @@ body, html { background: #FFFFFF; }
 /* Section divider */
 .sec-divider { border: none; border-top: 1px solid #bbb; margin: 1.6rem 0; }
 
-/* Finding sections: text wraps around floated placeholder */
+/* Finding sections: stacked layout (label → heading → text → chart) */
 .finding { margin-bottom: 0.5rem; }
-.finding::after { content: ''; display: table; clear: both; }
-
-.chart-float-right {
-  float: right;
-  width: 48%;
-  margin: 0.4rem 0 1rem 2rem;
-}
-.chart-float-left {
-  float: left;
-  width: 48%;
-  margin: 0.4rem 2rem 1rem 0;
+.finding-chart-wrap {
+  margin-left: 8%;
+  margin-right: 8%;
 }
 
-/* Finding 2: two charts floated to opposite sides below the text */
-.finding-dual-float {
-  overflow: hidden;
+/* Two-column grid for Finding 2 side-by-side charts */
+.finding-chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 2rem;
   margin-top: 1rem;
 }
-.finding-dual-float .chart-float-left,
-.finding-dual-float .chart-float-right {
-  width: 47%;
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
-}
-
-/* Full-width map section below Finding 1 text */
-.finding-map-full {
-  clear: both;
-  margin-top: 0.8rem;
-  padding-top: 0.6rem;
-  border-top: 1px solid #eee;
-}
-
-/* Inline radio buttons for map vision toggle */
-.map-toggle .shiny-input-container { margin-bottom: 0.3rem; }
-.map-toggle label.control-label    { display: none; }
-.map-toggle .radio-inline {
-  font-size: 0.75rem;
+.finding-chart-panel {}
+.chart-sublabel {
+  font-size: 0.72rem;
   font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #bbb;
+  margin: 0 0 0.3rem;
+}
+
+/* Map section */
+.finding-map-container {
+  margin-top: 1.2rem;
+  margin-left: -1.5rem;
+  margin-right: -1.5rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
+  /* no overflow:hidden — it clips Leaflet tile loading and label tooltips */
+}
+
+/* White ocean background */
+.leaflet-container { background: #ffffff !important; }
+
+/* Flat zoom control */
+.leaflet-control-zoom {
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 3px !important;
+  box-shadow: none !important;
+}
+.leaflet-control-zoom a {
+  color: #555 !important;
+  font-family: inherit;
+  line-height: 26px !important;
+  border-bottom-color: #e0e0e0 !important;
+}
+.leaflet-control-zoom a:hover { background: #f5f5f5 !important; }
+
+/* Flat legend */
+.leaflet-control.info.legend {
+  background: rgba(255,255,255,0.96) !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 3px !important;
+  box-shadow: none !important;
+  padding: 0.45rem 0.7rem 0.5rem !important;
+  font-family: Lora, serif !important;
+  font-size: 0.76rem !important;
+  color: #444 !important;
+  line-height: 1.5 !important;
+}
+.leaflet-control.info.legend .legend-title {
+  font-weight: 700 !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0.09em !important;
+  text-transform: uppercase !important;
+  color: #999 !important;
+  display: block !important;
+  margin-bottom: 0.3rem !important;
+}
+/* Hide CARTO attribution link color */
+.leaflet-control-attribution a { color: #aaa !important; }
+.leaflet-control-attribution { font-size: 0.65rem !important; color: #bbb !important; }
+
+/* Pill-style vision toggle buttons for the map */
+.map-toggle {
+  padding: 0.6rem 0.9rem 0;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+.map-toggle .shiny-input-container { margin: 0; }
+.map-toggle label.control-label    { display: none; }
+.map-toggle .shiny-options-group   { display: flex; gap: 0; }
+.map-toggle label.radio-inline {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
   letter-spacing: 0.03em;
   color: #999;
-  margin-right: 1rem;
+  border: 1px solid #e0e0e0;
   cursor: pointer;
+  background: #fff;
+  transition: color 0.12s, background 0.12s;
+  margin: 0 0 0.6rem;
+  line-height: 1.6;
 }
-.map-toggle .radio-inline input[type=radio]:checked ~ span { color: #1a1a2e; }
+.map-toggle label.radio-inline:first-child { border-radius: 3px 0 0 3px; }
+.map-toggle label.radio-inline:last-child  { border-radius: 0 3px 3px 0; }
+.map-toggle label.radio-inline + label.radio-inline { border-left: none; }
+.map-toggle label.radio-inline:has(input[type=radio]:checked) {
+  background: #ebebeb;
+  color: #444;
+  border-color: #c8c8c8;
+}
+.map-toggle label.radio-inline:hover:not(:has(input[type=radio]:checked)) {
+  background: #f5f5f5;
+  color: #555;
+}
+.map-toggle input[type=radio] { display: none; }
 
 .finding-label {
   font-size: 0.7rem;
@@ -326,6 +392,13 @@ body, html { background: #FFFFFF; }
 .vision-card {
   border-left: 3px solid #ddd;
   padding: 0.5rem 0 0.5rem 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  border-radius: 0 2px 2px 0;
+}
+.vision-card:hover {
+  border-left-color: #1a1a2e;
+  background: #f9f9f9;
 }
 .vision-card h4 {
   font-size: 0.78rem;
@@ -335,6 +408,13 @@ body, html { background: #FFFFFF; }
   color: #1a1a2e;
   margin: 0 0 0.35rem;
 }
+.vision-card .read-more-hint {
+  font-size: 0.7rem;
+  color: #bbb;
+  margin-top: 0.3rem;
+  letter-spacing: 0.03em;
+}
+.vision-card:hover .read-more-hint { color: #888; }
 .vision-card p {
   font-size: 0.82rem;
   line-height: 1.65;
@@ -745,7 +825,10 @@ ui <- page_navbar(
         40 countries, more than 900 scientists, and major global firms have called for a moratorium
         or precautionary pause on deep-sea mining amidst mounting concerns over environmental impacts,
         knowledge gaps, and economic uncertainty. State and non-state actors at the ISA increasingly find themselves
-        negotiating not just the Mining Code, but the very", HTML("<i>raison d’être</i>"), " of the ISA itself"
+        negotiating not just the Mining Code, but the very", HTML("<i>raison d’être</i>"), " of the ISA itself."
+      ),
+      tags$p(
+        "We argue that this moment offers an opportunity to imagine ", HTML("<strong>radically different futures</strong>,"), " for the ISA as an institution."
       ),
       tags$p(
         "During these negotiations, delegates articulate, debate, and negotiate different understandings of the ISA’s
@@ -774,25 +857,38 @@ ui <- page_navbar(
       ),
       div(class = "visions-grid",
         div(class = "vision-card",
+          onclick = "Shiny.setInputValue('vision_modal_open', 'mr', {priority:'event'})",
           tags$h4("Mining regulator"),
           tags$p(
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud."
-          )
+            "The ISA functions primarily as an industry enabler and regulator, developing and
+            enforcing the legal and regulatory framework for deep-sea mining activities. Focus
+            on regulation, resource extraction, and facilitating commercial mineral exploitation
+            of the international seabed."
+          ),
+          tags$p(class = "read-more-hint", "Read more →")
         ),
         div(class = "vision-card",
+          onclick = "Shiny.setInputValue('vision_modal_open', 'si', {priority:'event'})",
           tags$h4("MSR institution"),
           tags$p(
-            "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
-            doloremque laudantium, totam rem aperiam eaque ipsa quae ab illo inventore."
-          )
+            "The ISA serves as a multilateral scientific body that coordinates, promotes, and
+            disseminates deep-sea research and science diplomacy. It facilitates international
+            expeditions, operates data infrastructure and research platforms, brokers knowledge
+            and technology transfer between states, and builds scientific capacity independent
+            of mining activities."
+          ),
+          tags$p(class = "read-more-hint", "Read more →")
         ),
         div(class = "vision-card",
+          onclick = "Shiny.setInputValue('vision_modal_open', 'ec', {priority:'event'})",
           tags$h4("Environmental custodian"),
           tags$p(
-            "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis
-            praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias."
-          )
+            "The ISA acts as steward and protector of the deep-sea environment, prioritizing
+            conservation of seabed biodiversity and ecosystem integrity. Focus on precautionary
+            measures, environmental protection standards, area-based management, and preventing
+            harm to marine environments for present and future generations."
+          ),
+          tags$p(class = "read-more-hint", "Read more →")
         )
       ),
       
@@ -1081,6 +1177,7 @@ ui <- page_navbar(
         });
 
         setTimeout(updateNetworkHeight, 300);
+
       });
     ")),
 
@@ -1088,11 +1185,8 @@ ui <- page_navbar(
     div(class = "paper paper-last",
       tags$hr(class = "sec-divider"),
 
-      # Finding 1: dev status bars (float right) + full-width reactive map below
+      # Finding 1: dev status bars below text, interactive leaflet map below
       div(class = "finding",
-        div(class = "chart-float-right",
-          plotlyOutput("finding1_bars", height = "350px")
-        ),
         div(class = "finding-label", "Finding 1"),
         tags$h3("Lorem ipsum dolor sit amet, consectetur adipiscing elit"),
         tags$p(
@@ -1107,22 +1201,23 @@ ui <- page_navbar(
           voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa quae ab
           illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo."
         ),
-        div(class = "finding-map-full",
+        div(class = "finding-chart-wrap", plotlyOutput("finding1_bars", height = "500px")),
+        div(class = "finding-map-container",
           div(class = "map-toggle",
             radioButtons("map_vision", NULL,
               choices  = c("Mining reg." = "mr",
                            "MSR institution" = "si",
                            "Env. custodian"  = "ec"),
-              selected = "ec", inline = TRUE
+              selected = "mr", inline = TRUE
             )
           ),
-          plotOutput("finding1_map", height = "380px")
+          leafletOutput("finding1_map", height = "580px")
         )
       ),
 
       tags$hr(class = "sec-divider"),
 
-      # Finding 2: mora/sponsor (float left) + SIDS (float right), text above
+      # Finding 2: mora/sponsor + SIDS in equal grid below text
       div(class = "finding",
         div(class = "finding-label", "Finding 2"),
         tags$h3("Sed do eiusmod tempor incididunt ut labore et dolore magna"),
@@ -1132,29 +1227,20 @@ ui <- page_navbar(
           excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui
           officia deserunt mollitia animi, id est laborum et dolorum fuga."
         ),
+        div(class = "finding-chart-wrap", plotlyOutput("finding2_mora_bars", height = "500px")),
         tags$p(
           "Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo
           minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis
           dolor repellendus. Temporibus autem quibusdam et aut officiis debitis rerum
           necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae."
         ),
-        div(class = "finding-dual-float",
-          div(class = "chart-float-left",
-            plotlyOutput("finding2_mora_bars", height = "350px")
-          ),
-          div(class = "chart-float-right",
-            plotlyOutput("finding2_sids_bars", height = "350px")
-          )
-        )
+        div(class = "finding-chart-wrap", plotlyOutput("finding2_sids_bars", height = "500px"))
       ),
 
       tags$hr(class = "sec-divider"),
 
-      # Finding 3: actor type bars (float right), text wraps left
+      # Findings 3 & 4 combined: text-chart-text-chart
       div(class = "finding",
-        div(class = "chart-float-right",
-          plotlyOutput("finding3_bars", height = "350px")
-        ),
         div(class = "finding-label", "Finding 3"),
         tags$h3("Ut enim ad minim veniam, quis nostrud exercitation ullamco"),
         tags$p(
@@ -1163,29 +1249,20 @@ ui <- page_navbar(
           voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
           occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit."
         ),
+        div(class = "finding-chart-wrap", plotlyOutput("finding3_bars", height = "500px")),
         tags$p(
           "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
           doloremque laudantium, totam rem aperiam eaque ipsa quae ab illo inventore
           veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim
           ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit."
-        )
-      ),
-
-      tags$hr(class = "sec-divider"),
-
-      # Finding 4: council membership bars (float left), text wraps right
-      div(class = "finding",
-        div(class = "chart-float-left",
-          plotlyOutput("finding4_bars", height = "350px")
         ),
-        div(class = "finding-label", "Finding 4"),
-        tags$h3("Nemo enim ipsam voluptatem quia voluptas sit aspernatur"),
         tags$p(
           "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit,
           sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
           Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur,
           adipisci velit, sed quia non numquam eius modi tempora incidunt."
         ),
+        div(class = "finding-chart-wrap", plotlyOutput("finding4_bars", height = "500px")),
         tags$p(
           "Ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima
           veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi
@@ -1242,6 +1319,66 @@ ui <- page_navbar(
 
 # ── Server ====================================================================
 server <- function(input, output, session) {
+
+  # Vision card modals
+  vision_content <- list(
+
+    mr = list(
+      title = "The ISA as a Mining Regulator",
+      body  = tagList(
+        tags$p("UNCLOS and the 1994 Agreement established the ISA to develop the mineral resources in the Area for the benefit of humankind. Article 150 states that activities in the Area shall be carried out 'with a view to ensuring the development of the resources of the Area'. This orientation has so far shaped the ISA's work, with the development of a regulatory framework for mineral exploitation as its primary focus."),
+        tags$p("The Mining Code, comprising regulations, standards and guidelines for deep-sea mining, forms the core of the mining regulator vision. The Mining Code is what will enable commercial mining of the deep sea, but also what will determine its boundaries, including environmental protection, scientific data and monitoring regulations, and equity provision to ensure the participation of developing states. Despite intense negotiations following Nauru's 2021 triggering of the 'two-year rule', and missed deadlines in both 2023 and 2025, the Mining Code remains unfinished. The ISA Council is now pursuing a 'thematic approach' to completing the Mining Code, without a fixed deadline."),
+        tags$p("Finishing the Mining Code is not the only outstanding step in realising the ISA as a mining regulator. The ISA's 'evolutionary approach' of implementation envisions additional elements: establishing a benefit-sharing mechanism, operationalising the Enterprise, and constituting the Economic Planning Commission. These components are essential not only to establishing a functioning regulatory regime, but to ensuring that the ISA heeds its equity obligations under the common heritage principle."),
+        tags$p("Establishing a benefit-sharing mechanism is central to operationalising the common heritage principle by distributing the profits derived from commercial deep-sea mining among member states. Two broad approaches have been discussed so far: direct distribution or a 'Common Heritage Fund', but neither has received substantive discussion in Council or Assembly. As Moses and Brigham observe, the ISA has made 'little progress in deciding on how to secure the common social benefit as owners/custodians of these resources'. The Enterprise, originally conceived as the ISA's operational arm for mining, transportation, and refinement of minerals to ensure the effective participation of developing states, so far only exists on paper, employing an interim director-general and one research assistant. Some discussion exists as to whether the Enterprise must be operational before deep-sea mining may take place. Similarly, the EPC was established to avoid adverse economic impacts on developing mineral-producing states from deep-sea mining. Having only been established in 2025, its operationalisation remains an important step towards the mining regulator vision. Operationalising a benefit-sharing mechanism, the Enterprise, and the EPC will set up the architecture through which the ISA can function as a mining regulator in line with the CHP."),
+        tags$p("As part of the mining regulator vision, environmental protection and marine scientific research function as guardrails. Science serves primarily to establish baselines, assess impacts, and inform contractor obligations. Environmental measures exist to ensure that mining proceeds sustainably. These guardrails may be more or less strict depending on the outcome of the Mining Code negotiations. The mining regulator vision is not opposed to environmental protection or MSR. What distinguishes it is that deep-sea mining sits at the centre, and that other responsibilities are defined in relation to it."),
+        tags$p("This path forward assumes that deep-sea mining is inevitable and desirable, and positions the ISA as the institution that makes it possible under international law. While environmental, scientific, and equity provisions are central in the mining regulator vision, the commercial exploitation of the Area nevertheless sits at its core. The ISA's legitimacy derives from its capacity to facilitate access to seabed minerals while preventing a 'free-for-all' among technologically and economically advantaged nations, implementing the CHP through regulated commercial exploitation.")
+      )
+    ),
+
+    si = list(
+      title = "The ISA as a Marine Scientific Research Institution",
+      body  = tagList(
+        tags$p("In addition to mining regulation, the ISA has an explicit mandate to promote and facilitate marine scientific research (MSR) in the Area. Its MSR mandate is understood as distinct from its mandate to develop mineral resources."),
+        tags$p("The deep sea is by far the biggest ecosystem on Earth and the most understudied. MSR in the Area has drastically increased in recent years, and the ISA has made efforts to expand its scientific activities. But these efforts have largely been tied to mining-related activities by focusing on impacts of DSM, collection of baseline data for contract areas, or informing environmental impact assessments. The DeepData database, the ISA's flagship deep-sea data initiative, consists mostly of data supplied by mining contractors. Similarly, technology transfer and capacity building programs are predominantly focused on mining technologies and industry-directed scientific research."),
+        tags$p("Many conditions are already in place that would enable the ISA to transform into a marine scientific research institution. As an institution with experience in coordinating multilateral action across both public and private sectors, the ISA can be imagined as a coordinator of multi-state scientific missions. Its task would be to address knowledge gaps in biodiversity patterns, ecological connectivity, ecosystem functions and services, life cycles and resilience, and climate change impacts connected to the deep-sea."),
+        tags$p("ISA-led scientific efforts could have a strong focus on equity and capacity-building, enabling access for developing states to research vessels, technologies, scientific training, and areas that are otherwise inaccessible. Amon, Levin, et al. highlight the possibility of refitting the not-yet-operationalised Enterprise from a mining organ to an MSR vehicle, operating a fleet of research vessels and deep-sea submersibles accessible to all member states."),
+        tags$p("Much of the infrastructure currently connected to mining-related activities can be shifted towards conducting independent research decoupled from industry interests. The DeepData database could become a leading data repository for deep-sea data. Moving away from contractor-based inputs would not only avoid questions about data quality and independence, but also allow the inclusion of geological and bathymetric data that have so far been kept confidential for commercial reasons. Highly advanced monitoring systems such as the TRIDENT project currently under development provide large-scale platforms already fit for a deep-sea environment, requiring little modification to be directed away from mining activities and towards broader scientific purposes."),
+        tags$p("An ISA dedicated to coordinating MSR could drive technological innovation and scientific advances through 'mutual learning' and 'technology co-development'. This will benefit both developing and developed countries by expanding access to intellectual capital, skilled workers, and knowledge exchange, and potentially positioning 'developing states as global leaders in high-value sectors of the knowledge economy at the forefront of future opportunities'. An MSR-oriented ISA can enable developing states to take part in bioprospecting and the use of marine genetic resources, in conjunction with the BBNJ Agreement."),
+        tags$p("From a 'blue natural capital' perspective, MSR is central to valuating ecosystem services such as carbon sequestration, fish stocks, and nutrient cycling. Moreover, comprehensive cost-benefit analyses indicate that the negative economic impacts of deep-sea mining likely outweigh its benefits, suggesting that an MSR-focused ISA offers a more economically sustainable path."),
+        tags$p("As an MSR institution, the ISA could figure as a deep-sea institutional node or hub within an expanding network of scientific institutions and collaborative efforts to foster ocean science and data diplomacy across relevant IOs, including the BBNJ-agreement, the IMO, IOC-UNESCO, ICES, the CBD, the FAO and RFMOS.")
+      )
+    ),
+
+    ec = list(
+      title = "The ISA as an Environmental Custodian",
+      body  = tagList(
+        HTML("<p>As the sole body governing the mineral resources of the Area, the ISA is also the institution mandated to manage non-use of these resources. The ISA would not be the first institution to move from governing the exploitation of a resource to regulating its conservation, as exemplified by the International Whaling Commission. The ISA was established with an obligation to protect the marine environment as outlined in the preamble of UNCLOS<sup>1</sup> and Article 145, stating that the ISA 'shall adopt appropriate rules, regulations and procedures for inter alia: […] (b) the protection and conservation of the natural resources of the Area and the prevention of damage to the flora and fauna of the marine environment.'.</p>"),
+        tags$p("So far, the ISA has established non-use measures in the form of Areas of Particular Environmental Interest (APEIs), in the Clarion Clipperton Zone, where no mining is allowed but MSR activities may be carried out. While these APEIs represent important first steps towards fulfilling the environmental responsibilities of the ISA, their size and placement may not adequately protect deep-sea environments. Other area-based management tools of the ISA, such as impact and preservation reference zones remain tied to specific mining contractor areas, functioning as exploitation guard-rails rather than preservation measures in their own right."),
+        tags$p("An agreement among member states either in Council or Assembly to impose a moratorium or ban on mining in the Area, together with a general environmental policy for the ISA, would provide the strongest legal and political basis for transforming the ISA into an environmental custodian. The ISA could establish extensive marine protected areas, ecological reference zones, and biodiversity conservation corridors across the international seabed. These protected areas would be designed not to accommodate future extraction, but to monitor and preserve deep-sea ecosystems and vulnerable habitats, informed by modern understandings of ecological connectivity, evolutionary processes, and climate resilience."),
+        tags$p("Ecosystem restoration represents another concrete function for the ISA as a custodian. While restoration of deep-sea environments is challenging, the ISA could coordinate research into restoration techniques for mitigating human impacts, such as historical mining tests, bottom trawling and, more broadly, impacts of climate change."),
+        tags$p("Central to the custodian vision is recognizing and operationalizing diverse values of the deep sea beyond mineral resources or even quantifiable ecosystem services. The IPBES Values Assessment framework acknowledges that nature holds intrinsic value independent of human use, alongside relational values rooted in cultural connections and responsibilities. For the ISA, this means incorporating Indigenous and local knowledge systems, traditional relationships with the ocean, and non-Western ontologies that recognize the deep sea as a rights-bearing entity. One proposal consists of establishing a '37th seat' for the deep sea in Council, granting 'legal guardians or proxies the power to speak for deep-sea ecosystems'."),
+        tags$p("Operationalizing these values requires transforming governance structures. The ISA could establish dedicated mechanisms for Indigenous Peoples and local communities to participate meaningfully in decision-making, bringing traditional knowledge and alternative governance models into managing the Area. This can include meaningful Indigenous representation on subsidiary bodies, recognition of existing ocean stewardship practices, and incorporating different value frameworks into area-based management decisions."),
+        HTML("<p>Similarly, the election rules for Council membership could be revised. As it stands, seats in Council are distributed among five groups of states, representing mineral resource consumers, deep-sea mining investors, mineral resource exporters, developing states, and one group to ensure geographical distribution of members.<sup>2</sup> An approach that 'treats the configuration of interests in DSM as largely fixed' and favouring the mining-focused priorities of 1994, when the rules were established. No special group is dedicated to potentially affected coastal states, states whose cultural or economic traditions rely on the deep sea, or states investing in MSR.</p>"),
+        tags$p("From an economic perspective, and similar to the MSR institution vision, the custodian vision aligns with growing evidence that preserving the deep sea generates greater value for humankind than extracting its minerals. The ISA as a custodian would actively maintain this natural capital; the deep sea's contributions to climate regulation, nutrient cycling, carbon sequestration, and genetic diversity that provide benefits in both economic and non-economic terms."),
+        tags$p("Institutional reform, potentially triggered by a second periodic review, could see the ISA establishing a new environmental subsidiary body focused on conservation, restructuring the Legal and Technical Commission (LTC) to prioritize environmental expertise, and developing funding mechanisms for custodian activities independent of mining revenues. Enhanced transparency, meaningful stakeholder participation, and accountability mechanisms would strengthen the legitimacy of the ISA as an institution governing the common heritage of humankind through active environmental stewardship rather than resource extraction."),
+        tags$hr(style = "margin-top: 1.8rem; border-color: #eee;"),
+        HTML("<p style='font-size:0.8rem; color:#888; line-height:1.6;'><sup>1</sup> '[&hellip;] will promote the peaceful uses of the seas and oceans, the equitable and efficient utilization of their resources, the conservation of their living resources, and the study, protection and preservation of the marine environment [&hellip;]'.</p>"),
+        HTML("<p style='font-size:0.8rem; color:#888; line-height:1.6;'><sup>2</sup> Council election rules are complex; the full set of criteria can be found at <a href='https://isa.org.jm/organs/the-council/' target='_blank' style='color:#888;'>isa.org.jm/organs/the-council/</a>.</p>")
+      )
+    )
+  )
+
+  observeEvent(input$vision_modal_open, {
+    v <- input$vision_modal_open
+    vc <- vision_content[[v]]
+    showModal(modalDialog(
+      title     = tags$span(style = "font-size:1.1rem; font-weight:700; color:#1a1a2e;", vc$title),
+      size      = "l",
+      easyClose = TRUE,
+      footer    = modalButton("Close"),
+      vc$body
+    ))
+  })
 
   # Reset view (zoom/pan only)
   observeEvent(input$reset_view, {
@@ -1652,7 +1789,6 @@ server <- function(input, output, session) {
         showlegend  = TRUE
       )
     }
-
     # Traces 9-10: comparison highlight placeholders (initially invisible).
     # Rendered as hollow rings + text labels; updated via plotlyProxy without camera reset.
     for (i in seq_len(2)) {
@@ -2043,64 +2179,65 @@ server <- function(input, output, session) {
 
   # ── Finding 1: development status bars ───────────────────────────────────────
   output$finding1_bars <- renderPlotly({
-    make_vision_toggle(bar_dev_data, "group", f1_vis(), "finding1_bars")
+    make_vision_plotly(bar_dev_data, "group")
   })
 
-  # ── Finding 1: geography map (reactive to radio button) ──────────────────────
-  output$finding1_map <- renderPlot({
-    vis <- req(input$map_vision)
-    if (is.null(world_map_sf)) {
-      ggplot() +
-        annotate("text", x = 0.5, y = 0.5,
-                 label = "rnaturalearth package required for map",
-                 color = "#aaa", size = 4) +
-        theme_void()
-    } else {
-      cfg <- switch(vis,
-        mr = list(col = "mean_mr2", name = "Mining reg.",
-                  pal = c("#FEF0DC","#E8B87A","#CC8A52","#9E5E2E","#5C2D0A")),
-        si = list(col = "mean_si2", name = "MSR inst.",
-                  pal = c("#E3F4F7","#9DD2DA","#5BAAB6","#357A89","#144B57")),
-        ec = list(col = "mean_ec2", name = "Env. cust.",
-                  pal = c("#E8F7EE","#A4D9B5","#6DB589","#3D8A5A","#14502F"))
+  # ── Finding 1: geography map (Leaflet choropleth, group-based vision switch) ──
+  output$finding1_map <- renderLeaflet({
+    req(!is.null(world_map_sf))
+    lo <- labelOptions(
+      style     = list("border" = "none", "padding" = "4px 8px", "box-shadow" = "none"),
+      direction = "auto", sticky = TRUE
+    )
+    hi <- highlightOptions(weight = 2, color = "#333", fillOpacity = 0.95, bringToFront = TRUE)
+    m <- leaflet(world_map_sf, options = leafletOptions(minZoom = 2, worldCopyJump = TRUE)) %>%
+      setView(lng = 10, lat = 25, zoom = 2)
+    for (vis in c("mr", "si", "ec")) {
+      cf  <- map_color_fns[[vis]]
+      col <- map_pal_cfg[[vis]]$col
+      m   <- m %>% addPolygons(
+        fillColor      = cf(world_map_sf[[col]]),
+        fillOpacity    = 0.82,
+        color          = "white",
+        weight         = 0.5,
+        smoothFactor   = 1.5,
+        label          = map_labels,
+        labelOptions   = lo,
+        highlightOptions = hi,
+        group          = vis
       )
-      ggplot() +
-        geom_sf(data = world_map_sf,
-                aes(fill = .data[[cfg$col]]), size = 0.1, color = "white") +
-        scale_fill_gradientn(colors = cfg$pal, na.value = "grey90",
-                             name = cfg$name, limits = c(0, 1)) +
-        coord_sf(ylim = c(-60, 85), expand = FALSE) +
-        theme_void() +
-        theme(
-          legend.title      = element_text(size = 8, face = "bold"),
-          legend.text       = element_text(size = 7),
-          legend.key.height = unit(0.35, "cm"),
-          legend.key.width  = unit(0.22, "cm"),
-          plot.background   = element_rect(fill = "white", color = NA)
-        )
     }
-  }, bg = "white")
+    m %>%
+      hideGroup("si") %>%
+      hideGroup("ec") %>%
+      htmlwidgets::onRender("function(el,x){var m=this;[100,400,900].forEach(function(d){setTimeout(function(){m.invalidateSize(false);},d);});}")
+  })
+
+  observeEvent(input$map_vision, {
+    vis <- input$map_vision
+    leafletProxy("finding1_map") %>%
+      showGroup(vis) %>%
+      hideGroup(setdiff(c("mr", "si", "ec"), vis))
+  }, ignoreInit = TRUE)
 
   # ── Finding 2: moratorium / sponsor bars ─────────────────────────────────────
   output$finding2_mora_bars <- renderPlotly({
-    make_vision_toggle(bar_morasponsor_data, "morasponsor",
-                       f2mora_vis(), "finding2_mora_bars")
+    make_vision_plotly(bar_morasponsor_data, "morasponsor")
   })
 
   # ── Finding 2: SIDS sponsor bars ─────────────────────────────────────────────
   output$finding2_sids_bars <- renderPlotly({
-    make_vision_toggle(bar_sids_data, "sponsorstate",
-                       f2sids_vis(), "finding2_sids_bars")
+    make_vision_plotly(bar_sids_data, "sponsorstate")
   })
 
   # ── Finding 3: actor type bars ────────────────────────────────────────────────
   output$finding3_bars <- renderPlotly({
-    make_vision_toggle(bar_type_data, "actor_type_eh2", f3_vis(), "finding3_bars")
+    make_vision_plotly(bar_type_data, "actor_type_eh2")
   })
 
   # ── Finding 4: council membership bars ───────────────────────────────────────
   output$finding4_bars <- renderPlotly({
-    make_vision_toggle(bar_council_data, "council_member", f4_vis(), "finding4_bars")
+    make_vision_plotly(bar_council_data, "council_member")
   })
 }
 
