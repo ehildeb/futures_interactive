@@ -58,6 +58,29 @@ ui <- page_fluid(
     }
     .toolbar-title { font-size: 0.9rem; font-weight: 700; color: #333; flex: 1; margin: 0; }
     .status-lbl { font-size: 0.75rem; color: #999; font-style: italic; }
+    .net-wrap { position: relative; width: 100%; height: calc(100vh - 52px); }
+    .net-legend {
+      position: absolute; bottom: 1.2rem; right: 1.2rem; z-index: 999;
+      background: rgba(255,255,255,0.93); border: 1px solid #e0e0e0;
+      border-radius: 6px; padding: 0.7rem 0.9rem;
+      font-family: 'Lora', serif; font-size: 11px; color: #444;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08); min-width: 175px;
+    }
+    .net-legend-section { font-size: 9px; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #bbb; margin: 0.5rem 0 0.25rem; }
+    .net-legend-section:first-child { margin-top: 0; }
+    .net-legend-row { display: flex; align-items: center; gap: 7px;
+      line-height: 1.8; white-space: nowrap; }
+    .lgd-dot  { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .lgd-sq   { width: 9px;  height: 9px;  border-radius: 1px; flex-shrink: 0; }
+    .lgd-dia  { width: 8px;  height: 8px;  border-radius: 1px;
+                transform: rotate(45deg); flex-shrink: 0; }
+    .lgd-tri-up   { width:0; height:0; border-left:5px solid transparent;
+                    border-right:5px solid transparent; border-bottom:9px solid #999; flex-shrink:0; }
+    .lgd-tri-down { width:0; height:0; border-left:5px solid transparent;
+                    border-right:5px solid transparent; border-top:9px solid #999; flex-shrink:0; }
+    .lgd-hex  { width:10px; height:10px; flex-shrink:0;
+                clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
   ")),
 
   div(class = "toolbar",
@@ -70,7 +93,23 @@ ui <- page_fluid(
     actionButton("export_btn", "Export PNG",       class = "btn-sm btn-outline-secondary")
   ),
 
-  visNetworkOutput("network_plot", width = "100%", height = "calc(100vh - 52px)"),
+  div(class = "net-wrap",
+    visNetworkOutput("network_plot", width = "100%", height = "100%"),
+    div(class = "net-legend",
+      div(class = "net-legend-section", "Cluster"),
+      div(class = "net-legend-row", div(class="lgd-dot", style="background:#6DB589;"), "Env. cust. + MSR inst."),
+      div(class = "net-legend-row", div(class="lgd-dot", style="background:#5BAAB6;"), "Env. cust. + Mining reg."),
+      div(class = "net-legend-row", div(class="lgd-dot", style="background:#8A7ABF;"), "Mining reg. + Env. cust."),
+      div(class = "net-legend-row", div(class="lgd-dot", style="background:#CC8A52;"), "Mining regulator"),
+      div(class = "net-legend-section", "Actor type"),
+      div(class = "net-legend-row", div(class="lgd-dot",      style="background:#999;"), "Member state"),
+      div(class = "net-legend-row", div(class="lgd-hex",      style="background:#999;"), "Regional group"),
+      div(class = "net-legend-row", div(class="lgd-sq",       style="background:#999;"), "Observer NGO"),
+      div(class = "net-legend-row", div(class="lgd-tri-up"),                             "Observer IGO"),
+      div(class = "net-legend-row", div(class="lgd-dia",      style="background:#999;"), "ISA"),
+      div(class = "net-legend-row", div(class="lgd-tri-down"),                           "Observer state")
+    )
+  ),
 
   # Trigger JS -> R positions fetch when export button clicked
   tags$script(HTML("
@@ -203,17 +242,60 @@ server <- function(input, output, session) {
       '<head><script>Object.defineProperty(window,"devicePixelRatio",{get:function(){return 3;}});</script>',
       html_txt
     )
+    legend_html <- '
+      <style>
+        .net-legend {
+          position: fixed; bottom: 1.2rem; right: 2rem; z-index: 9999;
+          background: rgba(255,255,255,0.93); border: 1px solid #e0e0e0;
+          border-radius: 6px; padding: 0.7rem 0.9rem;
+          font-family: Georgia, serif; font-size: 13px; color: #444;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .net-legend-section { font-size: 9px; font-weight: 800; letter-spacing: 0.1em;
+          text-transform: uppercase; color: #bbb; margin: 0.5rem 0 0.25rem; }
+        .net-legend-section:first-child { margin-top: 0; }
+        .net-legend-row { display: flex; align-items: center; gap: 8px;
+          line-height: 1.9; white-space: nowrap; }
+        .lgd-dot  { width:11px; height:11px; border-radius:50%; flex-shrink:0; display:inline-block; }
+        .lgd-sq   { width:10px; height:10px; border-radius:1px; flex-shrink:0; display:inline-block; }
+        .lgd-dia  { width:9px;  height:9px;  border-radius:1px; transform:rotate(45deg);
+                    flex-shrink:0; display:inline-block; }
+        .lgd-tri-up   { width:0; height:0; border-left:6px solid transparent;
+                        border-right:6px solid transparent; border-bottom:10px solid #999; flex-shrink:0; }
+        .lgd-tri-down { width:0; height:0; border-left:6px solid transparent;
+                        border-right:6px solid transparent; border-top:10px solid #999; flex-shrink:0; }
+        .lgd-hex  { width:11px; height:11px; flex-shrink:0; display:inline-block;
+                    clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
+      </style>
+      <div class="net-legend">
+        <div class="net-legend-section">Cluster</div>
+        <div class="net-legend-row"><div class="lgd-dot" style="background:#6DB589;"></div>Env. cust. + MSR inst.</div>
+        <div class="net-legend-row"><div class="lgd-dot" style="background:#5BAAB6;"></div>Env. cust. + Mining reg.</div>
+        <div class="net-legend-row"><div class="lgd-dot" style="background:#8A7ABF;"></div>Mining reg. + Env. cust.</div>
+        <div class="net-legend-row"><div class="lgd-dot" style="background:#CC8A52;"></div>Mining regulator</div>
+        <div class="net-legend-section">Actor type</div>
+        <div class="net-legend-row"><div class="lgd-dot" style="background:#999;"></div>Member state</div>
+        <div class="net-legend-row"><div class="lgd-hex" style="background:#999;"></div>Regional group</div>
+        <div class="net-legend-row"><div class="lgd-sq"  style="background:#999;"></div>Observer NGO</div>
+        <div class="net-legend-row"><div class="lgd-tri-up"></div>Observer IGO</div>
+        <div class="net-legend-row"><div class="lgd-dia" style="background:#999;"></div>ISA</div>
+        <div class="net-legend-row"><div class="lgd-tri-down"></div>Observer state</div>
+      </div>'
+
     html_txt <- sub(
       "</body>",
-      '<script>
-        setTimeout(function() {
-          var els = document.querySelectorAll(".visNetwork");
-          els.forEach(function(el) {
-            var inst = HTMLWidgets.getInstance(el);
-            if (inst && inst.network) inst.network.fit({ animation: false });
-          });
-        }, 800);
-      </script>\n</body>',
+      paste0(
+        legend_html,
+        '\n<script>
+          setTimeout(function() {
+            var els = document.querySelectorAll(".visNetwork");
+            els.forEach(function(el) {
+              var inst = HTMLWidgets.getInstance(el);
+              if (inst && inst.network) inst.network.fit({ animation: false });
+            });
+          }, 800);
+        </script>\n</body>'
+      ),
       html_txt
     )
     writeLines(html_txt, html_file)

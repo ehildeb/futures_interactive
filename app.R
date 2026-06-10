@@ -36,7 +36,7 @@ body, html { background: #FFFFFF; }
 .navbar-nav .nav-item + .nav-item { margin-left: 0.25rem; }
 
 .paper {
-  max-width: 860px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 2.5rem 1.5rem 3.5rem;
 }
@@ -112,7 +112,7 @@ body, html { background: #FFFFFF; }
 
 /* ── Legend: CSS-swatch overhaul ─────────────────────────────────────── */
 .net-legend-side {
-  width: 158px;
+  width: 190px;
   flex-shrink: 0;
   border-left: 1px solid #eee;
   padding: 0.85rem 0.75rem;
@@ -140,6 +140,7 @@ body, html { background: #FFFFFF; }
   user-select: none;
   padding: 0.04rem 0.15rem;
   border-radius: 2px;
+  white-space: nowrap;
 }
 .legend-item:hover { opacity: 0.55; }
 .legend-item.inactive { opacity: 0.2; }
@@ -159,6 +160,7 @@ body, html { background: #FFFFFF; }
 .lgd-circle { border-radius: 50%; }
 .lgd-square { border-radius: 1px; }
 .lgd-diamond { border-radius: 1px; transform: rotate(45deg); width: 8px; height: 8px; }
+.lgd-hexagon { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
 .lgd-tri {
   display: inline-block;
   width: 0; height: 0;
@@ -256,14 +258,47 @@ body, html { background: #FFFFFF; }
 
 .chart-float-right {
   float: right;
-  width: 46%;
-  margin: 0.4rem 0 1rem 2.2rem;
+  width: 48%;
+  margin: 0.4rem 0 1rem 2rem;
 }
 .chart-float-left {
   float: left;
-  width: 46%;
-  margin: 0.4rem 2.2rem 1rem 0;
+  width: 48%;
+  margin: 0.4rem 2rem 1rem 0;
 }
+
+/* Finding 2: two charts floated to opposite sides below the text */
+.finding-dual-float {
+  overflow: hidden;
+  margin-top: 1rem;
+}
+.finding-dual-float .chart-float-left,
+.finding-dual-float .chart-float-right {
+  width: 47%;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+/* Full-width map section below Finding 1 text */
+.finding-map-full {
+  clear: both;
+  margin-top: 0.8rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid #eee;
+}
+
+/* Inline radio buttons for map vision toggle */
+.map-toggle .shiny-input-container { margin-bottom: 0.3rem; }
+.map-toggle label.control-label    { display: none; }
+.map-toggle .radio-inline {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #999;
+  margin-right: 1rem;
+  cursor: pointer;
+}
+.map-toggle .radio-inline input[type=radio]:checked ~ span { color: #1a1a2e; }
 
 .finding-label {
   font-size: 0.7rem;
@@ -739,21 +774,21 @@ ui <- page_navbar(
       ),
       div(class = "visions-grid",
         div(class = "vision-card",
-          tags$h4("Mining Regulator"),
+          tags$h4("Mining regulator"),
           tags$p(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
             incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud."
           )
         ),
         div(class = "vision-card",
-          tags$h4("MSR Institution"),
+          tags$h4("MSR institution"),
           tags$p(
             "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
             doloremque laudantium, totam rem aperiam eaque ipsa quae ab illo inventore."
           )
         ),
         div(class = "vision-card",
-          tags$h4("Environmental Custodian"),
+          tags$h4("Environmental custodian"),
           tags$p(
             "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis
             praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias."
@@ -798,30 +833,25 @@ ui <- page_navbar(
             tags$span(class = "lgd-sw lgd-diamond", style = "background:#cccccc;"),
             tags$span("Vision pole")
           ),
-          div(class = "legend-item", id = "legend-cl-1",
-            onclick = "toggleLegend('cluster','1',this)",
-            tags$span(class = "lgd-sw lgd-circle", style = "background:#6DB589;"),
-            tags$span("Env. Custodian")
-          ),
           div(class = "legend-item", id = "legend-cl-3",
             onclick = "toggleLegend('cluster','3',this)",
-            tags$span(class = "lgd-sw lgd-circle", style = "background:#5BAAB6;"),
-            tags$span("EC + MSR")
-          ),
-          div(class = "legend-item", id = "legend-cl-5",
-            onclick = "toggleLegend('cluster','5',this)",
-            tags$span(class = "lgd-sw lgd-circle", style = "background:#8A7ABF;"),
-            tags$span("Mixed")
-          ),
-          div(class = "legend-item", id = "legend-cl-2",
-            onclick = "toggleLegend('cluster','2',this)",
-            tags$span(class = "lgd-sw lgd-circle", style = "background:#BC7798;"),
-            tags$span("MR + Env. Cust.")
+            tags$span(class = "lgd-sw lgd-circle", style = "background:#6DB589;"),
+            tags$span("Env. cust. + MSR inst.")
           ),
           div(class = "legend-item", id = "legend-cl-4",
             onclick = "toggleLegend('cluster','4',this)",
+            tags$span(class = "lgd-sw lgd-circle", style = "background:#5BAAB6;"),
+            tags$span("Env. cust. + Mining reg.")
+          ),
+          div(class = "legend-item", id = "legend-cl-2",
+            onclick = "toggleLegend('cluster','2',this)",
+            tags$span(class = "lgd-sw lgd-circle", style = "background:#8A7ABF;"),
+            tags$span("Mining reg. + Env. cust.")
+          ),
+          div(class = "legend-item", id = "legend-cl-1",
+            onclick = "toggleLegend('cluster','1',this)",
             tags$span(class = "lgd-sw lgd-circle", style = "background:#CC8A52;"),
-            tags$span("Mining Reg.")
+            tags$span("Mining regulator")
           ),
 
           # Actor type section
@@ -832,20 +862,30 @@ ui <- page_navbar(
             tags$span(class = "lgd-sw lgd-circle", style = "background:#999;"),
             tags$span("Member State")
           ),
+          div(class = "legend-item", id = "legend-type-rg",
+            onclick = "toggleLegend('type','regional_group',this)",
+            tags$span(class = "lgd-sw lgd-hexagon", style = "background:#999;"),
+            tags$span("Regional Group")
+          ),
           div(class = "legend-item", id = "legend-type-ngo",
             onclick = "toggleLegend('type','observer_ngo',this)",
             tags$span(class = "lgd-sw lgd-square", style = "background:#999;"),
             tags$span("Observer NGO")
+          ),
+          div(class = "legend-item", id = "legend-type-igo",
+            onclick = "toggleLegend('type','observer_igo',this)",
+            tags$span(class = "lgd-tri", style = "border-bottom: 9px solid #999;"),
+            tags$span("Observer IGO")
           ),
           div(class = "legend-item", id = "legend-type-isa",
             onclick = "toggleLegend('type','isa',this)",
             tags$span(class = "lgd-sw lgd-diamond", style = "background:#999;"),
             tags$span("ISA")
           ),
-          div(class = "legend-item", id = "legend-type-oth",
-            onclick = "toggleLegend('type','other',this)",
-            tags$span(class = "lgd-tri", style = "border-bottom: 9px solid #999;"),
-            tags$span("Other")
+          div(class = "legend-item", id = "legend-type-obs",
+            onclick = "toggleLegend('type','observer_state',this)",
+            tags$span(class = "lgd-tri", style = "border-top: 9px solid #999;"),
+            tags$span("Observer State")
           ),
 
           # Reset button
@@ -1048,15 +1088,10 @@ ui <- page_navbar(
     div(class = "paper paper-last",
       tags$hr(class = "sec-divider"),
 
-      # Finding 1: placeholder floated right, text wraps left
+      # Finding 1: dev status bars (float right) + full-width reactive map below
       div(class = "finding",
         div(class = "chart-float-right",
-          div(style = paste(
-            "height:295px; background:#f4f4f4; display:flex;",
-            "align-items:center; justify-content:center;",
-            "color:#aaa; font-size:0.85rem;",
-            "border:1px solid #e0e0e0; border-radius:4px;"
-          ), "[bar plot here]")
+          plotlyOutput("finding1_bars", height = "350px")
         ),
         div(class = "finding-label", "Finding 1"),
         tags$h3("Lorem ipsum dolor sit amet, consectetur adipiscing elit"),
@@ -1071,21 +1106,24 @@ ui <- page_navbar(
           mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit
           voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa quae ab
           illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo."
+        ),
+        div(class = "finding-map-full",
+          div(class = "map-toggle",
+            radioButtons("map_vision", NULL,
+              choices  = c("Mining reg." = "mr",
+                           "MSR institution" = "si",
+                           "Env. custodian"  = "ec"),
+              selected = "ec", inline = TRUE
+            )
+          ),
+          plotOutput("finding1_map", height = "380px")
         )
       ),
 
       tags$hr(class = "sec-divider"),
 
-      # Finding 2: placeholder floated left, text wraps right
+      # Finding 2: mora/sponsor (float left) + SIDS (float right), text above
       div(class = "finding",
-        div(class = "chart-float-left",
-          div(style = paste(
-            "height:295px; background:#f4f4f4; display:flex;",
-            "align-items:center; justify-content:center;",
-            "color:#aaa; font-size:0.85rem;",
-            "border:1px solid #e0e0e0; border-radius:4px;"
-          ), "[bar plot here]")
-        ),
         div(class = "finding-label", "Finding 2"),
         tags$h3("Sed do eiusmod tempor incididunt ut labore et dolore magna"),
         tags$p(
@@ -1099,6 +1137,60 @@ ui <- page_navbar(
           minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis
           dolor repellendus. Temporibus autem quibusdam et aut officiis debitis rerum
           necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae."
+        ),
+        div(class = "finding-dual-float",
+          div(class = "chart-float-left",
+            plotlyOutput("finding2_mora_bars", height = "350px")
+          ),
+          div(class = "chart-float-right",
+            plotlyOutput("finding2_sids_bars", height = "350px")
+          )
+        )
+      ),
+
+      tags$hr(class = "sec-divider"),
+
+      # Finding 3: actor type bars (float right), text wraps left
+      div(class = "finding",
+        div(class = "chart-float-right",
+          plotlyOutput("finding3_bars", height = "350px")
+        ),
+        div(class = "finding-label", "Finding 3"),
+        tags$h3("Ut enim ad minim veniam, quis nostrud exercitation ullamco"),
+        tags$p(
+          "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
+          voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
+          occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit."
+        ),
+        tags$p(
+          "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
+          doloremque laudantium, totam rem aperiam eaque ipsa quae ab illo inventore
+          veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim
+          ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit."
+        )
+      ),
+
+      tags$hr(class = "sec-divider"),
+
+      # Finding 4: council membership bars (float left), text wraps right
+      div(class = "finding",
+        div(class = "chart-float-left",
+          plotlyOutput("finding4_bars", height = "350px")
+        ),
+        div(class = "finding-label", "Finding 4"),
+        tags$h3("Nemo enim ipsam voluptatem quia voluptas sit aspernatur"),
+        tags$p(
+          "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit,
+          sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
+          Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur,
+          adipisci velit, sed quia non numquam eius modi tempora incidunt."
+        ),
+        tags$p(
+          "Ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima
+          veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi
+          ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit
+          qui in ea voluptate velit esse quam nihil molestiae consequatur."
         )
       )
     )
@@ -1159,8 +1251,8 @@ server <- function(input, output, session) {
 
   # Reset all filters (sliders + legend toggles + comparison)
   observeEvent(input$reset_filter, {
-    legend_state$clusters   <- setNames(rep(TRUE, 5), as.character(1:5))
-    legend_state$types      <- setNames(rep(TRUE, 4), c("member_state", "observer_ngo", "isa", "other"))
+    legend_state$clusters   <- setNames(rep(TRUE, 4), as.character(1:4))
+    legend_state$types      <- setNames(rep(TRUE, 6), c("member_state", "regional_group", "observer_ngo", "observer_igo", "isa", "observer_state"))
     comp_state$actor_a      <- NULL
     comp_state$actor_b      <- NULL
     comp_state$color_a      <- "#888888"
@@ -1184,8 +1276,8 @@ server <- function(input, output, session) {
 
   # Legend toggle state
   legend_state <- reactiveValues(
-    clusters = setNames(rep(TRUE, 5), as.character(1:5)),
-    types    = setNames(rep(TRUE, 4), c("member_state", "observer_ngo", "isa", "other"))
+    clusters = setNames(rep(TRUE, 4), as.character(1:4)),
+    types    = setNames(rep(TRUE, 6), c("member_state", "regional_group", "observer_ngo", "observer_igo", "isa", "observer_state"))
   )
   observeEvent(input$legend_toggle, {
     tog <- input$legend_toggle
@@ -1285,7 +1377,7 @@ server <- function(input, output, session) {
     col_a   <- comp_state$color_a
     col_b   <- comp_state$color_b
 
-    theta_cats <- c("Env. Cust.", "Mining Reg.", "MSR Inst.", "Env. Cust.")
+    theta_cats <- c("Env. cust.", "Mining reg.", "MSR inst.", "Env. cust.")
 
     # Initialize plotly object
     p <- plot_ly()
@@ -1325,12 +1417,13 @@ server <- function(input, output, session) {
             line  = list(color = "#ffffff", width = 1.5)
           ),
           text = c(
-            paste0("<b>", str_to_title(actor_a), "</b><br>Env. Cust.: ",  round(ec_a, 3)),
-            paste0("<b>", str_to_title(actor_a), "</b><br>Mining Reg.: ", round(mr_a, 3)),
-            paste0("<b>", str_to_title(actor_a), "</b><br>MSR Inst.: ",   round(si_a, 3)),
-            paste0("<b>", str_to_title(actor_a), "</b><br>Env. Cust.: ",  round(ec_a, 3))
+            paste0("<b>", str_to_title(actor_a), "</b><br>Env. cust.: ",  round(ec_a, 3)),
+            paste0("<b>", str_to_title(actor_a), "</b><br>Mining reg.: ", round(mr_a, 3)),
+            paste0("<b>", str_to_title(actor_a), "</b><br>MSR inst.: ",   round(si_a, 3)),
+            paste0("<b>", str_to_title(actor_a), "</b><br>Env. cust.: ",  round(ec_a, 3))
           ),
           hoverinfo  = "text",
+          hoveron    = "points",
           showlegend = FALSE
         )
       }
@@ -1358,12 +1451,13 @@ server <- function(input, output, session) {
             line  = list(color = "#ffffff", width = 1.5)
           ),
           text = c(
-            paste0("<b>", str_to_title(actor_b), "</b><br>Env. Cust.: ",  round(ec_b, 3)),
-            paste0("<b>", str_to_title(actor_b), "</b><br>Mining Reg.: ", round(mr_b, 3)),
-            paste0("<b>", str_to_title(actor_b), "</b><br>MSR Inst.: ",   round(si_b, 3)),
-            paste0("<b>", str_to_title(actor_b), "</b><br>Env. Cust.: ",  round(ec_b, 3))
+            paste0("<b>", str_to_title(actor_b), "</b><br>Env. cust.: ",  round(ec_b, 3)),
+            paste0("<b>", str_to_title(actor_b), "</b><br>Mining reg.: ", round(mr_b, 3)),
+            paste0("<b>", str_to_title(actor_b), "</b><br>MSR inst.: ",   round(si_b, 3)),
+            paste0("<b>", str_to_title(actor_b), "</b><br>Env. cust.: ",  round(ec_b, 3))
           ),
           hoverinfo  = "text",
+          hoveron    = "points",
           showlegend = FALSE
         )
       }
@@ -1383,12 +1477,13 @@ server <- function(input, output, session) {
         bgcolor = "rgba(0,0,0,0)"
       ),
       showlegend    = FALSE,
+      dragmode      = FALSE,
       margin        = list(l = 55, r = 55, t = 30, b = 20),
       paper_bgcolor = "rgba(0,0,0,0)",
       plot_bgcolor  = "rgba(0,0,0,0)",
       font          = list(family = "Lora, serif", size = 10, color = "#333333")
     ) %>%
-    config(displayModeBar = FALSE)
+    config(displayModeBar = FALSE, scrollZoom = FALSE)
   })
 
   # Score readout blocks rendered below each dropdown
@@ -1450,12 +1545,13 @@ server <- function(input, output, session) {
   # 3D vision-space scatter
   output$scatter3d_plot <- renderPlotly({
 
-    cluster_cols  <- c("1" = "#6DB589", "2" = "#BC7798", "3" = "#5BAAB6",
-                       "4" = "#CC8A52", "5" = "#8A7ABF")
-    cluster_names <- c("1" = "Env. Custodian", "2" = "MR + Env. Cust.",
-                       "3" = "EC + MSR", "4" = "Mining Reg.", "5" = "Mixed")
-    type_syms     <- c("Member State" = "circle", "Observer NGO" = "square",
-                       "ISA"          = "diamond", "Other"        = "cross")
+    cluster_cols  <- c("1" = "#CC8A52", "2" = "#8A7ABF",
+                       "3" = "#6DB589", "4" = "#5BAAB6")
+    cluster_names <- c("1" = "Mining regulator",       "2" = "Mining reg. + Env. cust.",
+                       "3" = "Env. cust. + MSR inst.", "4" = "Env. cust. + Mining reg.")
+    type_syms     <- c("Member State"   = "circle",        "Regional Group" = "hexagon",
+                       "Observer NGO"  = "square",        "Observer IGO"   = "triangle-up",
+                       "ISA"           = "diamond",       "Observer State" = "triangle-down")
 
     active_clusters <- names(which(legend_state$clusters))
     active_types    <- names(which(legend_state$types))
@@ -1467,27 +1563,33 @@ server <- function(input, output, session) {
       mutate(
         cluster_key  = as.character(if_else(is.na(cluster5), 1L, as.integer(cluster5))),
         type_key_leg = case_when(
-          actor_type_eh2 == "member state" | actor == "african group" ~ "member_state",
-          actor_type_eh2 == "observer ngo"                            ~ "observer_ngo",
-          actor_type_eh2 == "isa"                                     ~ "isa",
-          TRUE                                                         ~ "other"
+          actor_type_eh2 == "member state"                               ~ "member_state",
+          actor_type_eh2 == "regional group"                             ~ "regional_group",
+          actor_type_eh2 == "observer ngo"                               ~ "observer_ngo",
+          actor_type_eh2 == "observer igo"                               ~ "observer_igo",
+          actor_type_eh2 %in% c("isa", "enterprise")                     ~ "isa",
+          actor_type_eh2 == "observer state"                             ~ "observer_state",
+          TRUE                                                            ~ "member_state"
         )
       ) %>%
       filter(cluster_key %in% active_clusters, type_key_leg %in% active_types) %>%
       mutate(
         label       = str_to_title(actor),
         type_clean  = case_when(
-          actor_type_eh2 == "member state" | actor == "african group" ~ "Member State",
-          actor_type_eh2 == "observer ngo"                            ~ "Observer NGO",
-          actor_type_eh2 == "isa"                                     ~ "ISA",
-          TRUE                                                         ~ "Other"
+          actor_type_eh2 == "member state"                               ~ "Member State",
+          actor_type_eh2 == "regional group"                             ~ "Regional Group",
+          actor_type_eh2 == "observer ngo"                               ~ "Observer NGO",
+          actor_type_eh2 == "observer igo"                               ~ "Observer IGO",
+          actor_type_eh2 %in% c("isa", "enterprise")                     ~ "ISA",
+          actor_type_eh2 == "observer state"                             ~ "Observer State",
+          TRUE                                                            ~ "Member State"
         ),
         point_sym = type_syms[type_clean],
         hover = paste0(
           "<b>", str_to_title(actor), "</b><br>",
-          "Mining Reg.: <b>", round(mean_mr2, 3), "</b><br>",
-          "MSR Inst.:   <b>", round(mean_si2, 3), "</b><br>",
-          "Env. Cust.:  <b>", round(mean_ec2, 3), "</b>"
+          "Mining reg.: <b>", round(mean_mr2, 3), "</b><br>",
+          "MSR inst.:   <b>", round(mean_si2, 3), "</b><br>",
+          "Env. cust.:  <b>", round(mean_ec2, 3), "</b>"
         )
       )
 
@@ -1575,13 +1677,13 @@ server <- function(input, output, session) {
 
     p %>% layout(
       scene = list(
-        xaxis = list(title = "Mining Reg.", range = c(1, 0),
+        xaxis = list(title = "Mining reg.", range = c(1, 0),
                      tickfont = list(size = 10), titlefont = list(size = 11),
                      gridcolor = "#e8e8e8", zerolinecolor = "#cccccc"),
-        yaxis = list(title = "MSR Inst.",   range = c(1, 0),
+        yaxis = list(title = "MSR inst.",   range = c(1, 0),
                      tickfont = list(size = 10), titlefont = list(size = 11),
                      gridcolor = "#e8e8e8", zerolinecolor = "#cccccc"),
-        zaxis = list(title = "Env. Cust.",  range = c(0, 1),
+        zaxis = list(title = "Env. cust.",  range = c(0, 1),
                      tickfont = list(size = 10), titlefont = list(size = 11),
                      gridcolor = "#e8e8e8", zerolinecolor = "#cccccc"),
         bgcolor     = "#ffffff",
@@ -1605,20 +1707,16 @@ server <- function(input, output, session) {
     col_b  <- comp_state$color_b
 
     type_syms_hl <- c(
-      "member state" = "circle", "observer ngo" = "square",
-      "isa"          = "diamond", "other"        = "cross"
+      "member state"   = "circle",        "regional group" = "hexagon",
+      "observer ngo"   = "square",        "observer igo"   = "triangle-up",
+      "isa"            = "diamond",       "enterprise"     = "diamond",
+      "observer state" = "triangle-down"
     )
 
     actor_sym <- function(actor_name) {
       row <- dta_agg %>% filter(actor == actor_name)
       if (nrow(row) == 0) return("circle")
-      key <- case_when(
-        row$actor_type_eh2[1] == "member state" | row$actor[1] == "african group" ~ "member state",
-        row$actor_type_eh2[1] == "observer ngo" ~ "observer ngo",
-        row$actor_type_eh2[1] == "isa"          ~ "isa",
-        TRUE                                     ~ "other"
-      )
-      type_syms_hl[key]
+      type_syms_hl[row$actor_type_eh2[1]]
     }
 
     hl_vals <- function(actor_name, color, slot_label) {
@@ -1637,9 +1735,9 @@ server <- function(input, output, session) {
         opacity = 1,
         label   = paste0(slot_label, ": ", str_to_title(actor_name)),
         ht      = paste0("<b>", str_to_title(actor_name), "</b><br>",
-                         "Mining Reg.: ", round(row$mean_mr2[1], 3), "<br>",
-                         "MSR Inst.: ",   round(row$mean_si2[1], 3), "<br>",
-                         "Env. Cust.: ",  round(row$mean_ec2[1], 3))
+                         "Mining reg.: ", round(row$mean_mr2[1], 3), "<br>",
+                         "MSR inst.: ",   round(row$mean_si2[1], 3), "<br>",
+                         "Env. cust.: ",  round(row$mean_ec2[1], 3))
       )
     }
 
@@ -1716,11 +1814,14 @@ server <- function(input, output, session) {
       mutate(
         cluster_key  = as.character(cluster5),
         type_key_leg = case_when(
-          type == "vision"                                          ~ NA_character_,
-          actor_type_eh2 == "member state" | id == "african_group" ~ "member_state",
-          actor_type_eh2 == "observer ngo"                         ~ "observer_ngo",
-          actor_type_eh2 == "isa"                                  ~ "isa",
-          TRUE                                                      ~ "other"
+          type == "vision"                           ~ NA_character_,
+          actor_type_eh2 == "member state"           ~ "member_state",
+          actor_type_eh2 == "regional group"         ~ "regional_group",
+          actor_type_eh2 == "observer ngo"           ~ "observer_ngo",
+          actor_type_eh2 == "observer igo"           ~ "observer_igo",
+          actor_type_eh2 %in% c("isa", "enterprise") ~ "isa",
+          actor_type_eh2 == "observer state"         ~ "observer_state",
+          TRUE                                        ~ "member_state"
         )
       ) %>%
       transmute(
@@ -1771,16 +1872,16 @@ server <- function(input, output, session) {
         Actor          = actor,
         Type           = actor_type_eh2,
         Statements     = n_statements,
-        `Mining Reg.`  = mean_mr2,
-        `MSR Inst.`    = mean_si2,
-        `Env. Cust.`   = mean_ec2,
+        `Mining reg.`  = mean_mr2,
+        `MSR inst.`    = mean_si2,
+        `Env. cust.`   = mean_ec2,
         `Mora/Sponsor` = morasponsor,
         Council        = council_member,
         Region         = regional_group
       ) %>%
       mutate(
         Actor = str_to_title(Actor),
-        across(c(`Mining Reg.`, `MSR Inst.`, `Env. Cust.`), ~ round(.x, 3))
+        across(c(`Mining reg.`, `MSR inst.`, `Env. cust.`), ~ round(.x, 3))
       ) %>%
       datatable(
         rownames = FALSE, extensions = "Buttons",
@@ -1826,11 +1927,11 @@ server <- function(input, output, session) {
         ID            = id_statement,
         Actor         = actor,
         Statement     = statement,
-        `Mining Reg.` = mining_regulator,
-        `MSR Inst.`   = science_institution,
-        `Env. Cust.`  = environmental_custodian
+        `Mining reg.` = mining_regulator,
+        `MSR inst.`   = science_institution,
+        `Env. cust.`  = environmental_custodian
       ) %>%
-      mutate(across(c(`Mining Reg.`, `MSR Inst.`, `Env. Cust.`), ~ round(.x, 3)))
+      mutate(across(c(`Mining reg.`, `MSR inst.`, `Env. cust.`), ~ round(.x, 3)))
   })
 
   output$gpt_table <- renderDT({
@@ -1838,6 +1939,7 @@ server <- function(input, output, session) {
       selection = "single", rownames = FALSE,
       options = list(
         pageLength = 10, dom = "ftip", autoWidth = FALSE,
+        search = list(smart = FALSE, caseInsensitive = TRUE),
         columnDefs = list(
           list(className = "dt-left",  targets = "_all"),
           list(width = "105px",        targets = 0),   # ID
@@ -1846,8 +1948,23 @@ server <- function(input, output, session) {
           list(width = "85px",         targets = c(3, 4, 5)),
           list(
             targets = 2,
-            render = JS("function(data, type, row) {
+            render = JS("function(data, type, row, meta) {
               if (type !== 'display' || !data) return data;
+              var q = new $.fn.dataTable.Api(meta.settings).search();
+              if (q && q.length > 0) {
+                var idx = data.toLowerCase().indexOf(q.toLowerCase());
+                if (idx >= 0) {
+                  var start = Math.max(0, idx - 100);
+                  var end   = Math.min(data.length, idx + q.length + 100);
+                  return (start > 0 ? '…' : '') +
+                    data.substring(start, idx) +
+                    '<mark style=\"background:#ffe066;padding:0 1px;border-radius:2px\">' +
+                    data.substring(idx, idx + q.length) +
+                    '</mark>' +
+                    data.substring(idx + q.length, end) +
+                    (end < data.length ? '…' : '');
+                }
+              }
               return data.length > 280 ? data.substring(0, 280) + '…' : data;
             }")
           )
@@ -1876,15 +1993,15 @@ server <- function(input, output, session) {
         div(class = "stmt-modal-text", row$statement),
         div(class = "stmt-modal-scores",
           div(class = "stmt-modal-score-item",
-            div(class = "stmt-modal-score-label", "Mining Reg."),
+            div(class = "stmt-modal-score-label", "Mining reg."),
             div(class = "stmt-modal-score-val",   round(row$mining_regulator, 3))
           ),
           div(class = "stmt-modal-score-item",
-            div(class = "stmt-modal-score-label", "MSR Inst."),
+            div(class = "stmt-modal-score-label", "MSR inst."),
             div(class = "stmt-modal-score-val",   round(row$science_institution, 3))
           ),
           div(class = "stmt-modal-score-item",
-            div(class = "stmt-modal-score-label", "Env. Cust."),
+            div(class = "stmt-modal-score-label", "Env. cust."),
             div(class = "stmt-modal-score-val",   round(row$environmental_custodian, 3))
           )
         ),
@@ -1892,6 +2009,98 @@ server <- function(input, output, session) {
         div(class = "stmt-modal-expl", row$explanation)
       )
     ))
+  })
+
+  # ── Finding vision toggle state ───────────────────────────────────────────────
+  f1_vis      <- reactiveVal("mr")
+  f2mora_vis  <- reactiveVal("mr")
+  f2sids_vis  <- reactiveVal("mr")
+  f3_vis      <- reactiveVal("mr")
+  f4_vis      <- reactiveVal("mr")
+
+  # Helper: handle thumbnail click → update reactive val
+  .switch_vis <- function(click, rv) {
+    if (!is.null(click) && isTRUE(click$curveNumber > 0L)) {
+      others <- setdiff(c("mr", "si", "ec"), rv())
+      rv(others[[click$curveNumber]])
+    }
+  }
+
+  observeEvent(event_data("plotly_click", source = "finding1_bars"),
+    .switch_vis(event_data("plotly_click", source = "finding1_bars"), f1_vis))
+
+  observeEvent(event_data("plotly_click", source = "finding2_mora_bars"),
+    .switch_vis(event_data("plotly_click", source = "finding2_mora_bars"), f2mora_vis))
+
+  observeEvent(event_data("plotly_click", source = "finding2_sids_bars"),
+    .switch_vis(event_data("plotly_click", source = "finding2_sids_bars"), f2sids_vis))
+
+  observeEvent(event_data("plotly_click", source = "finding3_bars"),
+    .switch_vis(event_data("plotly_click", source = "finding3_bars"), f3_vis))
+
+  observeEvent(event_data("plotly_click", source = "finding4_bars"),
+    .switch_vis(event_data("plotly_click", source = "finding4_bars"), f4_vis))
+
+  # ── Finding 1: development status bars ───────────────────────────────────────
+  output$finding1_bars <- renderPlotly({
+    make_vision_toggle(bar_dev_data, "group", f1_vis(), "finding1_bars")
+  })
+
+  # ── Finding 1: geography map (reactive to radio button) ──────────────────────
+  output$finding1_map <- renderPlot({
+    vis <- req(input$map_vision)
+    if (is.null(world_map_sf)) {
+      ggplot() +
+        annotate("text", x = 0.5, y = 0.5,
+                 label = "rnaturalearth package required for map",
+                 color = "#aaa", size = 4) +
+        theme_void()
+    } else {
+      cfg <- switch(vis,
+        mr = list(col = "mean_mr2", name = "Mining reg.",
+                  pal = c("#FEF0DC","#E8B87A","#CC8A52","#9E5E2E","#5C2D0A")),
+        si = list(col = "mean_si2", name = "MSR inst.",
+                  pal = c("#E3F4F7","#9DD2DA","#5BAAB6","#357A89","#144B57")),
+        ec = list(col = "mean_ec2", name = "Env. cust.",
+                  pal = c("#E8F7EE","#A4D9B5","#6DB589","#3D8A5A","#14502F"))
+      )
+      ggplot() +
+        geom_sf(data = world_map_sf,
+                aes(fill = .data[[cfg$col]]), size = 0.1, color = "white") +
+        scale_fill_gradientn(colors = cfg$pal, na.value = "grey90",
+                             name = cfg$name, limits = c(0, 1)) +
+        coord_sf(ylim = c(-60, 85), expand = FALSE) +
+        theme_void() +
+        theme(
+          legend.title      = element_text(size = 8, face = "bold"),
+          legend.text       = element_text(size = 7),
+          legend.key.height = unit(0.35, "cm"),
+          legend.key.width  = unit(0.22, "cm"),
+          plot.background   = element_rect(fill = "white", color = NA)
+        )
+    }
+  }, bg = "white")
+
+  # ── Finding 2: moratorium / sponsor bars ─────────────────────────────────────
+  output$finding2_mora_bars <- renderPlotly({
+    make_vision_toggle(bar_morasponsor_data, "morasponsor",
+                       f2mora_vis(), "finding2_mora_bars")
+  })
+
+  # ── Finding 2: SIDS sponsor bars ─────────────────────────────────────────────
+  output$finding2_sids_bars <- renderPlotly({
+    make_vision_toggle(bar_sids_data, "sponsorstate",
+                       f2sids_vis(), "finding2_sids_bars")
+  })
+
+  # ── Finding 3: actor type bars ────────────────────────────────────────────────
+  output$finding3_bars <- renderPlotly({
+    make_vision_toggle(bar_type_data, "actor_type_eh2", f3_vis(), "finding3_bars")
+  })
+
+  # ── Finding 4: council membership bars ───────────────────────────────────────
+  output$finding4_bars <- renderPlotly({
+    make_vision_toggle(bar_council_data, "council_member", f4_vis(), "finding4_bars")
   })
 }
 

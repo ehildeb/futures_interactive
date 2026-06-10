@@ -5,6 +5,8 @@ library(plotly)
 library(visNetwork)
 library(bslib)
 library(bsicons)
+library(patchwork)
+library(rlang)
 
 # Paths
 data_dir  <- file.path("data", "working_data")
@@ -141,22 +143,25 @@ net_nodes <- raw_nodes %>%
   select(-px, -py, -ax, -ay) %>%
   mutate(
     size  = if_else(type == "vision", 36, 14),
-    # Shape by actor type; vision nodes stay as diamond
+    # Shape directly from actor_type_eh2.
+    # Only manual override: "enterprise" (Interim Director General) -> diamond (ISA).
     shape = case_when(
-      type == "vision"                                        ~ "diamond",
-      actor_type_eh2 == "member state" | id == "african_group" ~ "dot",
-      actor_type_eh2 == "observer ngo"                        ~ "square",
-      actor_type_eh2 == "isa"                                 ~ "diamond",
-      TRUE                                                    ~ "triangle"
+      type == "vision"                                            ~ "diamond",
+      actor_type_eh2 == "member state"                           ~ "dot",
+      actor_type_eh2 == "regional group"                         ~ "hexagon",
+      actor_type_eh2 == "observer ngo"                           ~ "square",
+      actor_type_eh2 == "observer igo"                           ~ "triangle",
+      actor_type_eh2 %in% c("isa", "enterprise")                 ~ "diamond",
+      actor_type_eh2 == "observer state"                         ~ "triangleDown",
+      TRUE                                                        ~ "triangle"
     ),
     # Muted cluster colours (same palette as 3D scatter)
     color = case_when(
       type == "vision" ~ "#FFFFFF",
-      cluster5 == 1    ~ "#6DB589",
-      cluster5 == 2    ~ "#BC7798",
-      cluster5 == 3    ~ "#5BAAB6",
-      cluster5 == 4    ~ "#CC8A52",
-      cluster5 == 5    ~ "#8A7ABF",
+      cluster5 == 3    ~ "#6DB589",  # Env. Custodian     (ec=0.91)
+      cluster5 == 4    ~ "#5BAAB6",  # MR + Env. Cust.   (ec=0.72)
+      cluster5 == 2    ~ "#8A7ABF",  # Mining Reg. + EC  (ec=0.60)
+      cluster5 == 1    ~ "#CC8A52",  # Mining Regulator  (ec=0.33)
       TRUE             ~ "#999999"
     ),
     font.size        = if_else(type == "vision", 18, 10),
@@ -294,3 +299,361 @@ make_group_data <- function(grouping, data = dta_agg) {
         labels = c("Member State", "Observer NGO", "ISA SG")))
   )
 }
+
+
+# ── Bar chart helpers (ported from paper_code/descriptive.R) ==================
+
+col_mr  <- "#CC8A52"
+col_msr <- "#5BAAB6"
+col_ec  <- "#6DB589"
+
+theme_bar <- theme_minimal(base_size = 10) +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor   = element_blank(),
+    axis.title.x       = element_blank(),
+    axis.ticks.x       = element_blank(),
+    plot.title         = element_text(face = "bold", size = 10, hjust = 0.5),
+    legend.position    = "none"
+  )
+
+# Triple bar chart: 3 side-by-side panels (MR, MSR inst., EC).
+# return_list = TRUE: list of 3 ggplot objects (for combining with spacer).
+# return_list = FALSE (default): assembled patchwork.
+plot_all_visions <- function(data, group_var,
+                              bar_text_size = 3, x_angle = 30, x_size = 9,
+                              return_list = FALSE,
+                              titles = c("Mining regulator", "MSR institution", "Env. custodian")) {
+  max_value     <- 0.83
+  group_var_sym <- enquo(group_var)
+
+  visions <- list(
+    list(var = "mean_mr2",  title = titles[1], fill = col_mr),
+    list(var = "mean_si2",  title = titles[2], fill = col_msr),
+    list(var = "mean_ec2",  title = titles[3], fill = col_ec)
+  )
+
+  plots <- lapply(seq_along(visions), function(i) {
+    v      <- visions[[i]]
+    show_y <- i == 1
+    ggplot(data, aes(x = !!group_var_sym, y = !!sym(v$var))) +
+      geom_col(fill = v$fill, width = 0.65) +
+      geom_text(
+        aes(label = round(!!sym(v$var), 2)),
+        vjust = 1.5, size = bar_text_size, color = "white", fontface = "bold"
+      ) +
+      scale_y_continuous(expand = expansion(mult = c(0, 0.02))) +
+      coord_cartesian(ylim = c(0, max_value)) +
+      theme_bar +
+      theme(
+        axis.title.y = if (show_y) element_text(size = 9)  else element_blank(),
+        axis.text.y  = if (show_y) element_text(size = 8)  else element_blank(),
+        axis.text.x  = element_text(angle = x_angle, hjust = 1, size = x_size)
+      ) +
+      labs(y = if (show_y) "Average score" else NULL, title = v$title)
+  })
+
+  if (return_list) return(plots)
+  wrap_plots(plots, ncol = 3) & theme(plot.margin = unit(c(5, 10, 5, 10), "pt"))
+}
+
+
+# ── Bar data: development status (Figure 3) ===================================
+
+bar_dev_data <- dta_agg %>%
+  pivot_longer(c(developed, developing, ldcs, lldcs, sids),
+               names_to = "group", values_to = "has") %>%
+  filter(has == 1) %>%
+  group_by(group) %>%
+  summarise(across(c(mean_mr2, mean_si2, mean_ec2), \(x) mean(x, na.rm = TRUE)),
+            n = n(), .groups = "drop") %>%
+  mutate(group = factor(group,
+    levels = c("developed", "developing", "ldcs", "lldcs", "sids"),
+    labels = c("Developed", "Developing", "LDCs", "LLDCs", "SIDS")
+  ))
+
+
+# ── Bar data: moratorium / sponsor + SIDS (Figure 4) ==========================
+
+bar_morasponsor_data <- dta_agg %>%
+  filter(actor_type_eh2 == "member state" | actor == "african group") %>%
+  group_by(morasponsor) %>%
+  summarise(across(c(mean_mr2, mean_si2, mean_ec2), \(x) mean(x, na.rm = TRUE)),
+            n = n(), .groups = "drop") %>%
+  mutate(morasponsor = factor(morasponsor,
+    levels = c("sponsor", "moratorium/pp", "both", "neither"),
+    labels = c("Sponsor", "Moratorium/PP", "Both", "Neither")
+  ))
+
+bar_sids_data <- dta_agg %>%
+  filter(!is.na(sids), sids == 1) %>%
+  group_by(sponsorstate) %>%
+  summarise(across(c(mean_mr2, mean_si2, mean_ec2), \(x) mean(x, na.rm = TRUE)),
+            n = n(), .groups = "drop") %>%
+  mutate(sponsorstate = factor(sponsorstate,
+    levels = c(1, 0), labels = c("SIDS: Sponsor", "SIDS: Not sponsor")
+  ))
+
+
+# ── Bar data: actor types (Figure 5) ==========================================
+
+bar_type_data <- dta_agg %>%
+  filter(
+    actor_type_eh2 %in% c("member state", "observer ngo", "isa"),
+    !actor %in% c("secretariat", "chair of finance committee",
+                  "deputy to the secretary general", "legal counsel",
+                  "master of ceremony", "president of council",
+                  "head of security", "council",
+                  "chair legal and technical commission")
+  ) %>%
+  mutate(actor_type_eh2 = if_else(actor == "african group",
+                                   "member state", actor_type_eh2)) %>%
+  group_by(actor_type_eh2) %>%
+  summarise(across(c(mean_mr2, mean_si2, mean_ec2), \(x) mean(x, na.rm = TRUE)),
+            n = n(), .groups = "drop") %>%
+  mutate(actor_type_eh2 = factor(actor_type_eh2,
+    levels = c("member state", "observer ngo", "isa"),
+    labels = c("Member state", "Observer NGO", "ISA SG")
+  ))
+
+
+# ── Bar data: council membership (Figure 6) ====================================
+
+bar_council_data <- dta_agg %>%
+  filter(actor_type_eh2 == "member state" | actor == "african group") %>%
+  mutate(council_member = if_else(actor == "african group", 1L, council_member)) %>%
+  group_by(council_member) %>%
+  summarise(across(c(mean_mr2, mean_si2, mean_ec2), \(x) mean(x, na.rm = TRUE)),
+            n = n(), .groups = "drop") %>%
+  mutate(council_member = factor(council_member,
+    levels = c(1, 0), labels = c("Council member", "Not Council member")
+  ))
+
+
+# ── Plotly bar chart helper ====================================================
+# Creates a 3-panel subplot (MR / MSR inst. / EC) for one grouping variable.
+# data:        data frame with mean_mr2, mean_si2, mean_ec2, and optionally n
+# x_col:       column name (string) for the x-axis grouping
+# x_tickangle: angle for x-axis tick labels (default -35)
+# titles:      panel titles (length-3 character vector)
+
+make_vision_plotly <- function(data, x_col, x_tickangle = -35,
+                                titles = c("Mining regulator",
+                                           "MSR institution",
+                                           "Env. custodian")) {
+  x     <- data[[x_col]]
+  has_n <- "n" %in% names(data)
+
+  mk <- function(y_col, clr) {
+    y    <- round(data[[y_col]], 3)
+    htxt <- if (has_n)
+      paste0("<b>", x, "</b><br>Score: <b>", y, "</b><br>n = ", data[["n"]])
+    else
+      paste0("<b>", x, "</b><br>Score: <b>", y, "</b>")
+    plot_ly(
+      x = x, y = y, type = "bar",
+      marker           = list(color = clr, line = list(width = 0)),
+      text             = as.character(y),
+      textposition     = "inside",
+      insidetextanchor = "middle",
+      textfont         = list(color = "white", size = 10),
+      hoverinfo        = "text",
+      hovertext        = htxt,
+      showlegend       = FALSE
+    )
+  }
+
+  p1 <- mk("mean_mr2", col_mr)
+  p2 <- mk("mean_si2", col_msr)
+  p3 <- mk("mean_ec2", col_ec)
+
+  # Annotation x-midpoints for 3 equal panels at gap = 0.05
+  gap <- 0.05
+  w   <- (1 - 2 * gap) / 3
+  xm  <- c(w / 2, w + gap + w / 2, 2 * (w + gap) + w / 2)
+
+  annots <- lapply(seq_along(titles), function(i)
+    list(text      = paste0("<b>", titles[i], "</b>"),
+         x         = xm[i], y = 1.02,
+         xref      = "paper", yref = "paper",
+         xanchor   = "center", yanchor = "bottom",
+         showarrow = FALSE,
+         font      = list(size = 11, color = "#1a1a2e")))
+
+  subplot(p1, p2, p3, shareY = TRUE, titleX = TRUE, margin = gap) %>%
+    layout(
+      showlegend   = FALSE,
+      annotations  = annots,
+      yaxis  = list(range = c(0, 0.87), title = "Average score",
+                    gridcolor = "#f0f0f0", tickfont = list(size = 9),
+                    zerolinecolor = "#e0e0e0"),
+      yaxis2 = list(range = c(0, 0.87), gridcolor = "#f0f0f0",
+                    showticklabels = FALSE),
+      yaxis3 = list(range = c(0, 0.87), gridcolor = "#f0f0f0",
+                    showticklabels = FALSE),
+      xaxis  = list(tickangle = x_tickangle, tickfont = list(size = 9),
+                    fixedrange = TRUE),
+      xaxis2 = list(tickangle = x_tickangle, tickfont = list(size = 9),
+                    fixedrange = TRUE),
+      xaxis3 = list(tickangle = x_tickangle, tickfont = list(size = 9),
+                    fixedrange = TRUE),
+      margin        = list(l = 50, r = 5, t = 30, b = 70),
+      plot_bgcolor  = "rgba(0,0,0,0)",
+      paper_bgcolor = "rgba(0,0,0,0)"
+    ) %>%
+    config(displayModeBar = FALSE)
+}
+
+
+# ── Toggle variant: one vision large + two greyed thumbnails =================
+# active_vis: "mr" | "si" | "ec"
+# source_id:  must match the plotlyOutput() ID so click events are routed correctly
+make_vision_toggle <- function(data, x_col, active_vis = "mr",
+                                source_id = "A", x_tickangle = -35) {
+  others    <- setdiff(c("mr", "si", "ec"), active_vis)
+  vis_order <- c(active_vis, others)
+
+  vis_labels <- c(mr = "Mining regulator", si = "MSR institution",
+                  ec = "Env. custodian")
+  vis_colors <- c(mr = col_mr, si = col_msr, ec = col_ec)
+
+  x     <- data[[x_col]]
+  has_n <- "n" %in% names(data)
+
+  mk <- function(vis, is_active) {
+    y_col <- paste0("mean_", vis, "2")
+    y     <- round(data[[y_col]], 3)
+    clr   <- if (is_active) vis_colors[[vis]] else "rgba(185,185,185,0.45)"
+    htxt  <- if (is_active) {
+      if (has_n)
+        paste0("<b>", x, "</b><br>Score: <b>", y, "</b><br>n = ", data[["n"]])
+      else
+        paste0("<b>", x, "</b><br>Score: <b>", y, "</b>")
+    } else {
+      paste0("Switch to <b>", vis_labels[[vis]], "</b>")
+    }
+    plot_ly(
+      source = source_id,
+      x = x, y = y, type = "bar",
+      name             = vis,
+      marker           = list(color = clr, line = list(width = 0)),
+      text             = if (is_active) as.character(y) else NULL,
+      textposition     = "inside",
+      insidetextanchor = "middle",
+      textfont         = list(color = "white", size = if (is_active) 10 else 8),
+      hoverinfo        = "text",
+      hovertext        = htxt,
+      showlegend       = FALSE
+    )
+  }
+
+  plots <- lapply(vis_order, function(v) mk(v, v == active_vis))
+
+  # Widths: active=0.62, thumbnails=0.19 each (sum=1)
+  wts <- c(0.62, 0.19, 0.19)
+  gap <- 0.015
+  sc  <- 1 - 2 * gap
+  cum_w  <- cumsum(wts * sc)
+  starts <- c(0, cum_w[-3] + (1:2) * gap)
+  ends   <- starts + wts * sc
+  mids   <- (starts + ends) / 2
+
+  annots <- lapply(seq_len(3), function(i) {
+    v <- vis_order[[i]]
+    list(
+      text      = if (i == 1) paste0("<b>", vis_labels[[v]], "</b>")
+                  else vis_labels[[v]],
+      x         = mids[[i]], y = 1.02,
+      xref      = "paper",  yref = "paper",
+      xanchor   = "center", yanchor = "bottom",
+      showarrow = FALSE,
+      font      = list(size  = if (i == 1) 11L else 9L,
+                       color = if (i == 1) "#1a1a2e" else "#aaa")
+    )
+  })
+
+  subplot(plots[[1]], plots[[2]], plots[[3]],
+          shareY = TRUE, titleX = TRUE,
+          widths = wts, margin = gap) %>%
+    layout(
+      showlegend   = FALSE,
+      annotations  = annots,
+      yaxis  = list(range = c(0, 0.87), title = "Average score",
+                    gridcolor = "#f0f0f0", tickfont = list(size = 9),
+                    zerolinecolor = "#e0e0e0"),
+      yaxis2 = list(range = c(0, 0.87), showticklabels = FALSE,
+                    zeroline = FALSE, showgrid = FALSE),
+      yaxis3 = list(range = c(0, 0.87), showticklabels = FALSE,
+                    zeroline = FALSE, showgrid = FALSE),
+      xaxis  = list(tickangle = x_tickangle, tickfont = list(size = 9),
+                    fixedrange = TRUE),
+      xaxis2 = list(tickangle = -40, tickfont = list(size = 7),
+                    fixedrange = TRUE),
+      xaxis3 = list(tickangle = -40, tickfont = list(size = 7),
+                    fixedrange = TRUE),
+      margin        = list(l = 50, r = 5, t = 30, b = 75),
+      plot_bgcolor  = "rgba(0,0,0,0)",
+      paper_bgcolor = "rgba(0,0,0,0)"
+    ) %>%
+    config(displayModeBar = FALSE) %>%
+    event_register("plotly_click")
+}
+
+
+# ── World map data (Figure 2 -- for Finding 1 map tab) ========================
+
+.map_ok <- tryCatch({
+  library(rnaturalearth)
+  library(rnaturalearthdata)
+  library(sf)
+
+  .world <- ne_countries(scale = "medium", returnclass = "sf") %>%
+    mutate(sovereignt = str_to_lower(sovereignt))
+
+  .dta_map <- dta_agg %>%
+    mutate(sovereignt = case_when(
+      actor == "usa"                    ~ "united states of america",
+      actor == "uk"                     ~ "united kingdom",
+      actor == "viet nam"               ~ "vietnam",
+      actor == "bahamas"                ~ "the bahamas",
+      actor == "tanzania"               ~ "united republic of tanzania",
+      actor == "republic of korea"      ~ "south korea",
+      actor == "cabo verde"             ~ "cape verde",
+      actor == "syrian arabic republic" ~ "syria",
+      actor == "papua neu guinea"       ~ "papua new guinea",
+      actor == "timor-leste"            ~ "east timor",
+      actor == "tunesia"                ~ "tunisia",
+      actor == "cote divoire"           ~ "ivory coast",
+      TRUE                              ~ actor
+    )) %>%
+    filter(actor_type_eh2 == "member state",
+           sovereignt %in% .world$sovereignt) %>%
+    select(sovereignt, mean_mr2, mean_si2, mean_ec2)
+
+  .ag <- dta_agg %>% filter(actor == "african group")
+  .ag_countries <- c(
+    "algeria","angola","benin","botswana","burkina faso","cameroon","chad",
+    "comoros","congo","ivory coast","democratic republic of the congo",
+    "djibouti","egypt","equatorial guinea","eswatini","gabon","gambia",
+    "ghana","guinea","kenya","lesotho","liberia","madagascar","malawi",
+    "mali","mauritania","mauritius","morocco","mozambique","namibia",
+    "niger","nigeria","rwanda","senegal","seychelles","sierra leone",
+    "somalia","south africa","sudan","togo","tunisia","uganda","zambia","zimbabwe"
+  )
+  .ag_fill <- tibble(
+    sovereignt = .ag_countries,
+    mean_mr2   = .ag$mean_mr2,
+    mean_si2   = .ag$mean_si2,
+    mean_ec2   = .ag$mean_ec2
+  ) %>% filter(!sovereignt %in% .dta_map$sovereignt)
+
+  world_map_sf <<- .world %>%
+    left_join(bind_rows(.dta_map, .ag_fill), by = "sovereignt")
+
+  rm(.world, .dta_map, .ag, .ag_countries, .ag_fill)
+  TRUE
+}, error = function(e) {
+  message("rnaturalearth not available -- map tab will be disabled: ", e$message)
+  world_map_sf <<- NULL
+  FALSE
+})
