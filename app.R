@@ -38,7 +38,7 @@ body, html { background: #FFFFFF; }
 .paper {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 2.5rem 1.5rem 3.5rem;
+  padding: 2.5rem 1.5rem 1.25rem;
 }
 .paper-last {
   padding-top: 3.5rem;
@@ -88,7 +88,7 @@ body, html { background: #FFFFFF; }
 
 /* Network: full-width outer container (slight side margins), responsive flex */
 .network-section {
-  margin: 2rem 1.5rem 0;
+  margin: 0.75rem 1.5rem 0;
   display: flex;
   align-items: stretch;
   border: 1px solid #ddd;
@@ -787,7 +787,7 @@ div.vis-tooltip {
 
 # ── UI ========================================================================
 ui <- page_navbar(
-  title = "Lorem Ipsum Dolor Sit Amet",
+  title = "Interactive paper: Negotiating futures",
   theme = bs_theme(
     bootswatch   = "flatly",
     primary      = "#2C3E6B",
@@ -809,7 +809,7 @@ ui <- page_navbar(
       ),
       tags$p(HTML(
         'You are looking at the interactive web version of our paper <strong>Negotiating futures: Three visions for the International Seabed Authority</strong>.
-        The full published version of it can be <a href="https://doi.org" target="_blank">found here</a>. Use the visualisations below to explore our main findings, and visit
+        The full published version of it, including references, can be <a href="https://doi.org" target="_blank">found here</a>. Read about the visions by clicking their cards below, use the visualisations to explore our main findings, and visit
         <a href="#" onclick="document.querySelector(\'[data-bs-toggle=tab][data-value=Data]\').click(); return false;">the data tab</a>
         to browse the underlying data. For questions or feedback, please contact [Emil W. Hildebrand].'
       )),
@@ -825,7 +825,7 @@ ui <- page_navbar(
         40 countries, more than 900 scientists, and major global firms have called for a moratorium
         or precautionary pause on deep-sea mining amidst mounting concerns over environmental impacts,
         knowledge gaps, and economic uncertainty. State and non-state actors at the ISA increasingly find themselves
-        negotiating not just the Mining Code, but the very", HTML("<i>raison d’être</i>"), " of the ISA itself."
+        negotiating not just the Mining Code, but the very ", HTML("<i>raison d’être</i>"), " of the ISA itself."
       ),
       tags$p(
         "We argue that this moment offers an opportunity to imagine ", HTML("<strong>radically different futures</strong>,"), " for the ISA as an institution."
@@ -851,9 +851,9 @@ ui <- page_navbar(
       
       tags$h2("Visions"),
       tags$p(
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-        incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-        exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+        "Click on any of the three visions below to read the full vision as outlined in our paper. We have constructed the three visions as imagined ideal
+        types of ISA futures. In reality they may not be mutually exclusive futures, but rather serve to highlight different emphases in purpose,
+        authority, and legitimacy for the ISA."
       ),
       div(class = "visions-grid",
         div(class = "vision-card",
@@ -894,11 +894,20 @@ ui <- page_navbar(
       
       tags$hr(class = "sec-divider"),
       
-      tags$h2("Findings"),
+      tags$h2("Results"),
       tags$p(
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-        incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-        exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+        "Each statement made in a formal setting during the 30th Session of the ISA’s Council and Assembly is included
+        in the analysis. After filtering, a total of 798 statements were scored by an LLM model, based on how much they invoke
+        each of the three visions. In other words, statements that we consider to contain the ", HTML("<i>discursive seeds</i>"),
+        " of one of the three futures are scored higher for that vision. The final data consists of the average scores across visions
+        for a total of 97 actors."
+      ),
+      tags$p(
+        "Below is a network mapping these actors in the semantic space between our three visions based on their scores. The actors are
+        clustered in groups with similar score profiles across the three visions using a k-means algorithm.
+        Hover over an actor to see their scores, or click two actors to compare their score profile in the actor comparison module to the right.
+        Filter actor types and clusters by clicking their labels in the legend. A 3D version of the semantic space is also
+        available by clicking the top right button."
       )
     ),
 
@@ -1185,15 +1194,30 @@ ui <- page_navbar(
     div(class = "paper paper-last",
       tags$hr(class = "sec-divider"),
 
-      # Finding 1: dev status bars below text, interactive leaflet map below
+      # Finding 1: dev status bars below text, interactive leaflet map
       div(class = "finding",
         div(class = "finding-label", "Finding 1"),
-        tags$h3("Lorem ipsum dolor sit amet, consectetur adipiscing elit"),
+        tags$h3("Geographic differences and development status do not explain vision scores"),
+        
+        div(class = "finding-map-container",
+            div(class = "map-toggle",
+                radioButtons("map_vision", NULL,
+                             choices  = c("Mining reg." = "mr",
+                                          "MSR institution" = "si",
+                                          "Env. custodian"  = "ec"),
+                             selected = "mr", inline = TRUE
+                )
+            ),
+            leafletOutput("finding1_map", height = "580px")
+        ),
+        
         tags$p(
           "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
           incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
           exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-          irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla."
+          irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla.",
+          
+          style = "margin-top: 2rem;"
         ),
         tags$p(
           "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
@@ -1201,18 +1225,8 @@ ui <- page_navbar(
           voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa quae ab
           illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo."
         ),
-        div(class = "finding-chart-wrap", plotlyOutput("finding1_bars", height = "500px")),
-        div(class = "finding-map-container",
-          div(class = "map-toggle",
-            radioButtons("map_vision", NULL,
-              choices  = c("Mining reg." = "mr",
-                           "MSR institution" = "si",
-                           "Env. custodian"  = "ec"),
-              selected = "mr", inline = TRUE
-            )
-          ),
-          leafletOutput("finding1_map", height = "580px")
-        )
+        
+        div(class = "finding-chart-wrap", plotlyOutput("finding1_bars", height = "500px"))
       ),
 
       tags$hr(class = "sec-divider"),
@@ -1220,7 +1234,7 @@ ui <- page_navbar(
       # Finding 2: mora/sponsor + SIDS in equal grid below text
       div(class = "finding",
         div(class = "finding-label", "Finding 2"),
-        tags$h3("Sed do eiusmod tempor incididunt ut labore et dolore magna"),
+        tags$h3("States with vested interests in deep-sea mining are less likely to invoke environmental or MSR visions"),
         tags$p(
           "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis
           praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias
@@ -1242,7 +1256,7 @@ ui <- page_navbar(
       # Findings 3 & 4 combined: text-chart-text-chart
       div(class = "finding",
         div(class = "finding-label", "Finding 3"),
-        tags$h3("Ut enim ad minim veniam, quis nostrud exercitation ullamco"),
+        tags$h3("The ISA secretariat differs substantially from the member states it represents"),
         tags$p(
           "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
           aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
@@ -1272,10 +1286,6 @@ ui <- page_navbar(
       )
     )
   ),
-
-
-  # ── Tab 2: Documentation ====================================================
-  nav_panel("Documentation", icon = bs_icon("book")),
 
   # ── Tab 3: Data =============================================================
   nav_panel("Data", icon = bs_icon("database"),
@@ -1313,7 +1323,11 @@ ui <- page_navbar(
         )
       )
     )
-  )
+  ),
+  
+  # ── Tab 2: Documentation ====================================================
+  nav_panel("Documentation", icon = bs_icon("book")),
+  
 )
 
 
