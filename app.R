@@ -109,6 +109,10 @@ body, html { background: #FFFFFF; }
   position: relative;
   padding: 0.4rem;
 }
+/* Floor: keeps the network canvas tall enough that the comparison panel (300px chart
+   + ~320px controls incl. empty score rows × 2) never pushes the outer box above the
+   vis.js canvas height. CSS min-height wins even when JS sets an explicit height. */
+#network_plot { min-height: 640px; }
 
 /* ── Legend: CSS-swatch overhaul ─────────────────────────────────────── */
 .net-legend-side {
@@ -390,7 +394,7 @@ body, html { background: #FFFFFF; }
   margin: 0.5rem 0 1.5rem;
 }
 .vision-card {
-  border-left: 3px solid #ddd;
+  border-left: 4px solid #ddd;
   padding: 0.5rem 0 0.5rem 0.9rem;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
@@ -400,6 +404,15 @@ body, html { background: #FFFFFF; }
   border-left-color: #1a1a2e;
   background: #f9f9f9;
 }
+.vision-card-mr          { border-left-color: #CC8A52; }
+.vision-card-mr h4       { color: #CC8A52; }
+.vision-card-mr:hover    { border-left-color: #CC8A52; background: rgba(204,138,82,0.07); }
+.vision-card-si          { border-left-color: #5BAAB6; }
+.vision-card-si h4       { color: #5BAAB6; }
+.vision-card-si:hover    { border-left-color: #5BAAB6; background: rgba(91,170,182,0.07); }
+.vision-card-ec          { border-left-color: #6DB589; }
+.vision-card-ec h4       { color: #6DB589; }
+.vision-card-ec:hover    { border-left-color: #6DB589; background: rgba(109,181,137,0.07); }
 .vision-card h4 {
   font-size: 0.78rem;
   font-weight: 700;
@@ -442,11 +455,14 @@ body, html { background: #FFFFFF; }
 /* Collapsed: hide the inner column, shrink section to just the tab */
 .comparison-section.is-collapsed .comp-inner { display: none; }
 .comparison-section.is-collapsed { width: 22px; }
+@media (max-width: 1300px) {
+  .comparison-section { width: 280px; }
+}
 .comp-controls {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  padding: 0.85rem 0.85rem;
+  gap: 0.4rem;
+  padding: 0.6rem 0.85rem;
 }
 .comp-chart-area {
   display: flex;
@@ -539,16 +555,26 @@ body, html { background: #FFFFFF; }
   overflow: visible !important;
   max-height: none !important;
   height: auto !important;
-  flex: none !important;
-  display: block !important;
+  flex: 0 0 auto !important;
+  align-self: flex-start !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 .data-tab .card-body {
   overflow: visible !important;
   max-height: none !important;
   height: auto !important;
-  flex: none !important;
+  flex: 0 0 auto !important;
+  display: block !important;
 }
-/* Stop bslib tab pane from clipping content */
+/* Stop bslib tab panes at all nesting levels from clipping content */
+.data-tab .tab-content,
+.data-tab .tab-content > .tab-pane {
+  overflow: visible !important;
+  height: auto !important;
+  max-height: none !important;
+}
 .tab-content > .tab-pane,
 .tab-content > .active {
   overflow: visible !important;
@@ -749,6 +775,29 @@ body, html { background: #FFFFFF; }
 }
 .data-tab .dataTables_wrapper { padding-bottom: 1.5rem; }
 
+/* Clickable statement-count cell in actor scores table */
+/* Second selector beats the general tr:hover > td { color:#333 !important } rule */
+.data-tab table.dataTable tbody td.stmts-link-cell,
+.data-tab table.dataTable tbody tr:hover > td.stmts-link-cell {
+  cursor: pointer;
+  color: var(--bs-link-color) !important;
+  text-decoration: underline;
+}
+/* Light Bootstrap tooltip on that cell */
+.stmts-tip .tooltip-inner {
+  background: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.09);
+  font-size: 0.75rem;
+  font-family: Lora, serif;
+}
+.stmts-tip.bs-tooltip-top    .tooltip-arrow::before { border-top-color:    #ddd; }
+.stmts-tip.bs-tooltip-bottom .tooltip-arrow::before { border-bottom-color: #ddd; }
+/* Centre the Statements count column (3rd child = index 2) */
+.data-tab table.dataTable thead th:nth-child(3),
+.data-tab table.dataTable tbody td:nth-child(3) { text-align: center !important; }
+
 /* visNetwork tooltip: match paper aesthetic */
 div.vis-tooltip {
   background: #ffffff !important;
@@ -787,7 +836,7 @@ div.vis-tooltip {
 
 # ── UI ========================================================================
 ui <- page_navbar(
-  title = "Interactive paper: Negotiating futures",
+  title = "Hildebrand & Vadrot (2026)",
   theme = bs_theme(
     bootswatch   = "flatly",
     primary      = "#2C3E6B",
@@ -808,7 +857,7 @@ ui <- page_navbar(
         tags$p(class = "subtitle", HTML('Paper by Emil W. Hildebrand and Alice B. M. Vadrot | <a href="http://twinpolitics.eu" target="_blank" style="color:inherit;">ERC TwinPolitics project</a>, 2026'))
       ),
       tags$p(HTML(
-        'You are looking at the interactive web version of our paper <strong>Negotiating futures: Three visions for the International Seabed Authority</strong>.
+        'You are looking at the condensed interactive web version of our paper <strong>Negotiating futures: Seeds of alternative visions for the International Seabed Authority</strong>.
         The full published version of it, including references, can be <a href="https://doi.org" target="_blank">found here</a>. Read about the visions by clicking their cards below, use the visualisations to explore our main findings, and visit
         <a href="#" onclick="document.querySelector(\'[data-bs-toggle=tab][data-value=Data]\').click(); return false;">the data tab</a>
         to browse the underlying data. For questions or feedback, please contact [Emil W. Hildebrand].'
@@ -819,7 +868,7 @@ ui <- page_navbar(
       tags$h2("Introduction"),
       tags$p(
         "The International Seabed Authority (ISA), tasked with governing the international seabed (‘the Area’)
-        and its mineral resources ‘for the benefit of humankind as a whole’, has historically operated as a mining
+        ‘for the benefit of humankind as a whole’, has historically operated as a mining
         regulator – responsible for negotiating the ‘Mining Code’ and to facilitate the commercial exploitation
         of the deep seabed. But the prospect of deep-sea mining is facing multiple challenges:
         40 countries, more than 900 scientists, and major global firms have called for a moratorium
@@ -840,8 +889,8 @@ ui <- page_navbar(
         "To map these discursive seeds, we explore alternative paths for the ISA by constructing three distinct visions,
         based on selected legal responsibilities of the ISA under UNCLOS: the ISA as a ", HTML("<strong>Mining Regulator</strong>,"), " a ",
         HTML("<strong>Marine Scientific Research (MSR) Institution</strong>,"), " and an ", HTML("<strong>Environmental Custodian</strong>."), " We then systematically analyse
-        how and how strongly different actors invoke these three visions during ISA negotiations. Using an LLM-based content analysis
-        of a comprehensive dataset from the ISA’s 30th Session (2025) – collected via Collaborative Event Ethnography
+        how strongly different actors invoke these three visions during ISA negotiations. Using an LLM-based content analysis
+        of a comprehensive dataset from the ISA’s 30th Session (2025) – collected
         across more than 150 hours of negotiations – we map each actor in a semantic space between the three visions.
         In addition, we explore factors that may help explain the observed patterns, especially keeping in mind the pervasiveness
         of a North-South divide in global environmental politics and the uneven distribution of power in shaping potential futures."
@@ -856,7 +905,7 @@ ui <- page_navbar(
         authority, and legitimacy for the ISA."
       ),
       div(class = "visions-grid",
-        div(class = "vision-card",
+        div(class = "vision-card vision-card-mr",
           onclick = "Shiny.setInputValue('vision_modal_open', 'mr', {priority:'event'})",
           tags$h4("Mining regulator"),
           tags$p(
@@ -867,7 +916,7 @@ ui <- page_navbar(
           ),
           tags$p(class = "read-more-hint", "Read more →")
         ),
-        div(class = "vision-card",
+        div(class = "vision-card vision-card-si",
           onclick = "Shiny.setInputValue('vision_modal_open', 'si', {priority:'event'})",
           tags$h4("MSR institution"),
           tags$p(
@@ -879,7 +928,7 @@ ui <- page_navbar(
           ),
           tags$p(class = "read-more-hint", "Read more →")
         ),
-        div(class = "vision-card",
+        div(class = "vision-card vision-card-ec",
           onclick = "Shiny.setInputValue('vision_modal_open', 'ec', {priority:'event'})",
           tags$h4("Environmental custodian"),
           tags$p(
@@ -895,20 +944,13 @@ ui <- page_navbar(
       tags$hr(class = "sec-divider"),
       
       tags$h2("Results"),
-      tags$p(
-        "Each statement made in a formal setting during the 30th Session of the ISA’s Council and Assembly is included
-        in the analysis. After filtering, a total of 798 statements were scored by an LLM model, based on how much they invoke
-        each of the three visions. In other words, statements that we consider to contain the ", HTML("<i>discursive seeds</i>"),
-        " of one of the three futures are scored higher for that vision. The final data consists of the average scores across visions
-        for a total of 97 actors."
-      ),
-      tags$p(
-        "Below is a network mapping these actors in the semantic space between our three visions based on their scores. The actors are
-        clustered in groups with similar score profiles across the three visions using a k-means algorithm.
+      tags$p(HTML(
+        'The network shows <a href="#" onclick="event.preventDefault(); gotoActorScores();">97 actors</a> mapped in the semantic space between our three visions, based on <a href="#" onclick="event.preventDefault(); gotoStatements();">505 statements</a> made during ISA negotiations.
+        The actors are clustered in groups with similar score profiles using a k-means algorithm.
         Hover over an actor to see their scores, or click two actors to compare their score profile in the actor comparison module to the right.
         Filter actor types and clusters by clicking their labels in the legend. A 3D version of the semantic space is also
-        available by clicking the top right button."
-      )
+        available by clicking the top right button.'
+      ))
     ),
 
     # Combined network / 3D view
@@ -1053,7 +1095,7 @@ ui <- page_navbar(
 
         # Chart
         div(class = "comp-chart-area",
-          plotlyOutput("comp_plot_combined", height = "400px")
+          plotlyOutput("comp_plot_combined", height = "300px")
         )
         ) # end comp-inner
       )
@@ -1071,6 +1113,23 @@ ui <- page_navbar(
           if (stmtTab) stmtTab.click();
         }, 200);
       });
+
+      function gotoActorScores() {
+        var dataTab = document.querySelector('[data-bs-toggle=\"tab\"][data-value=\"Data\"]');
+        if (dataTab) dataTab.click();
+        setTimeout(function() {
+          var sub = document.querySelector('[data-bs-toggle=\"tab\"][data-value=\"Actor Scores\"]');
+          if (sub) sub.click();
+        }, 200);
+      }
+      function gotoStatements() {
+        var dataTab = document.querySelector('[data-bs-toggle=\"tab\"][data-value=\"Data\"]');
+        if (dataTab) dataTab.click();
+        setTimeout(function() {
+          var sub = document.querySelector('[data-bs-toggle=\"tab\"][data-value=\"Statements\"]');
+          if (sub) sub.click();
+        }, 200);
+      }
 
       function toggleLegend(category, key, el) {
         el.classList.toggle('inactive');
@@ -1143,8 +1202,24 @@ ui <- page_navbar(
           lastPlotWidth = w;
           var byWidth = Math.round(w * PLOT_RATIO);
           var byVP    = Math.round(window.innerHeight * 0.72);
-          var h = Math.max(320, Math.min(byWidth, byVP)) + 'px';
-          setPlotHeights(h);
+          var h = Math.max(320, Math.min(byWidth, byVP));
+
+          // Floor on network height: the comparison panel's natural content height
+          // (controls + fixed 400px chart). Without this, a width-based h smaller than
+          // the panel leaves blank space at the bottom of the module box.
+          var compSection = document.querySelector('.comparison-section');
+          if (compSection && !compSection.classList.contains('is-collapsed')) {
+            var ctrl    = compSection.querySelector('.comp-controls');
+            var chartEl = document.getElementById('comp_plot_combined');
+            var ctrlH   = (ctrl    && ctrl.offsetHeight)    ? ctrl.offsetHeight    : 320;
+            var chartH  = (chartEl && chartEl.offsetHeight) ? chartEl.offsetHeight : 300;
+            var cs      = window.getComputedStyle(plotArea);
+            var padV    = parseFloat(cs.paddingTop  || 0) +
+                          parseFloat(cs.paddingBottom || 0);
+            h = Math.max(h, ctrlH + chartH - padV);
+          }
+
+          setPlotHeights(h + 'px');
         }
 
         // Debounced window resize
@@ -1187,6 +1262,33 @@ ui <- page_navbar(
 
         setTimeout(updateNetworkHeight, 300);
 
+        // Poll until vis.js Network instance is available (typically 8-10s on first load).
+        // Once found, force a height recalculation and also bind to 'stabilized' as a
+        // second pass in case node layout shifts the canvas size after initialization.
+        var networkReadyPoller = setInterval(function() {
+          var visNet = getVisNetwork();
+          if (!visNet) return;
+          clearInterval(networkReadyPoller);
+          lastPlotWidth = 0;
+          updateNetworkHeight();
+          visNet.once('stabilized', function() {
+            lastPlotWidth = 0;
+            updateNetworkHeight();
+          });
+        }, 400);
+        // Safety: stop polling after 60 seconds regardless.
+        setTimeout(function() { clearInterval(networkReadyPoller); }, 60000);
+
+        // Watch the whole comparison section so any child rendering (scores, chart)
+        // triggers a floor recalculation.
+        var compSectionEl = document.querySelector('.comparison-section');
+        if (compSectionEl && window.ResizeObserver) {
+          new ResizeObserver(function() {
+            lastPlotWidth = 0;
+            updateNetworkHeight();
+          }).observe(compSectionEl);
+        }
+
       });
     ")),
 
@@ -1212,18 +1314,23 @@ ui <- page_navbar(
         ),
         
         tags$p(
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-          incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-          irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla.",
+          "Contrary to what one might expect, geographical region or development status do not seem to explain
+          differences in vision invocation between state actors. This finding is particularly interesting
+          within the context of global environmental negotiations, where recurrent patterns of unbalanced
+          developed-developing relations contribute to the disproportionate control by developed countries over
+          negotiation forums, agendas, and decisions, and the marginalization of developing state perspectives.
+          The ISA was conceived with the goal of facilitating access of developing states to the Area and its resources.
+          The lack of systematic differences between regions and economic development status may in part
+          reflect this promise to safeguards the interests of developing states.",
           
           style = "margin-top: 2rem;"
         ),
         tags$p(
-          "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
-          mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit
-          voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa quae ab
-          illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo."
+          "The question of power is central when considering alternative futures and future change: some actors have more power, economic or otherwise,
+          to imagine their visions of the future into being. In our case, there seems to be no clear correlation between invoked
+          future visions and traditional power structures – as indicated here by geography and development status.
+          This suggests that, at least at the discursive level, the future of the ISA may be less pre-determined by the power imbalances
+          that shape other multilateral environmental forums."
         ),
         
         div(class = "finding-chart-wrap", plotlyOutput("finding1_bars", height = "500px"))
@@ -1236,17 +1343,20 @@ ui <- page_navbar(
         div(class = "finding-label", "Finding 2"),
         tags$h3("States with vested interests in deep-sea mining are less likely to invoke environmental or MSR visions"),
         tags$p(
-          "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis
-          praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias
-          excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui
-          officia deserunt mollitia animi, id est laborum et dolorum fuga."
+          "Deep-sea mining is a brand-new (potential) industry and remains highly speculative. There may be less long-term entrenched
+          national interests and predictable geopolitical dynamics in deep-sea mining than in other industries. Thus, we find more
+          explanatory power in sponsorship status and moratorium stance – the former serving as a signal that a state has ‘bought into’
+          and invested in the idea of deep-sea mining as a profitable endeavour and the latter signalling a degree of doubt towards the
+          (current) economic or environmental sustainability of it."
         ),
         div(class = "finding-chart-wrap", plotlyOutput("finding2_mora_bars", height = "500px")),
         tags$p(
-          "Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo
-          minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis
-          dolor repellendus. Temporibus autem quibusdam et aut officiis debitis rerum
-          necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae."
+          "A stark example of this can be found within the SIDS group, where some states count among the most ardent opponents of
+          deep-sea mining (for example Palau, Samoa, Tuvalu), whereas others sponsor exploration contracts
+          (for example Cook Islands, Nauru, Tonga). Some actors have also qualified their position towards deep-sea mining in recent
+          years, such as Germany, the sponsor of two exploration contracts, calling for a precautionary pause and urging other
+          states to do the same. In such a context, where vested interests are in flux, the ideational abilities of actors
+          may carry particular weight in determining the ISA's future."
         ),
         div(class = "finding-chart-wrap", plotlyOutput("finding2_sids_bars", height = "500px"))
       ),
@@ -1258,31 +1368,40 @@ ui <- page_navbar(
         div(class = "finding-label", "Finding 3"),
         tags$h3("The ISA secretariat differs substantially from the member states it represents"),
         tags$p(
-          "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
-          voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-          occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit."
+          "While the discursive seeds of diverse potential futures exist within the negotiation space, they are unevenly distributed
+          between different components of the ISA as an institution. We observe a stronger invocation of the mining regulator vision
+          from the ISA’ Secretary General than among its negotiating member states and non-state observers. The opposite is true for
+          the environmental custodian vision. In other words, there are differences between the ISA as a bureaucracy and the ISA as a
+          multilateral forum."
         ),
         div(class = "finding-chart-wrap", plotlyOutput("finding3_bars", height = "500px")),
         tags$p(
-          "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
-          doloremque laudantium, totam rem aperiam eaque ipsa quae ab illo inventore
-          veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim
-          ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit."
-        ),
-        tags$p(
-          "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit,
-          sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
-          Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur,
-          adipisci velit, sed quia non numquam eius modi tempora incidunt."
-        ),
-        div(class = "finding-chart-wrap", plotlyOutput("finding4_bars", height = "500px")),
-        tags$p(
-          "Ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima
-          veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi
-          ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit
-          qui in ea voluptate velit esse quam nihil molestiae consequatur."
+          "If the ISA’s secretariat is to represent its member states evenly and manage the Area on behalf of its
+          negotiating parties, our findings suggest a necessary shift towards a stronger environmental custodian role.
+          This becomes even clearer when looking at differences between the ISA secretariat and the civil society actors engaged in
+          the negotiations. The ISA is, after all, dependent not only on political will but also social legitimacy."
         )
+      ),
+
+      tags$hr(class = "sec-divider"),
+
+      tags$h2("Conclusion"),
+      tags$p(
+        "The ISA and its member states may do well in remembering the ‘potentiality in a regime that continues to be in the making”.
+        Deep-sea mining remains, after all, a potential industry and its commencement is not inevitable.
+        Thus, the future of the ISA is not fixed to one path but remains dependent on the political will of the actors negotiating
+        its role and their visions for its future." 
+      ),
+      tags$p(
+        "From the perspective of discursive institutionalism, actors can persuade other actors to adopt alternative views, creating
+        opportunities to reorient the ISA towards other legitimate operationalisations of the common heritage principle. Such change
+        requires actors within the ISA negotiations to openly discuss alternative visions for the future of the ISA."
+      ),
+      tags$p(
+        "Ultimately, the legitimacy of the ISA does not rest on its capacity to initiate mineral exploitation, but on its ability to govern
+        the Area in a way that reflects the common heritage principle. As the ISA enters its fourth decade of operations and under new
+        leadership, the organisation and its member states may take this critical moment to explicitly reflect on the ISA’s role as a steward
+        of the common heritage of humankind and its way forward."
       )
     )
   ),
@@ -1292,7 +1411,7 @@ ui <- page_navbar(
     div(class = "data-tab",
       navset_tab(
 
-        nav_panel("Actor Scores", icon = bs_icon("table"),
+        nav_panel("Actor Scores", icon = bs_icon("text-left"),
           br(),
           card(fill = FALSE,
             card_header(
@@ -1617,7 +1736,7 @@ server <- function(input, output, session) {
     # Layout and styling
     p %>% layout(
       polar = list(
-        radialaxis  = list(range = c(0, 1), visible = TRUE, gridcolor = "#eeeeee", tickfont = list(size = 9, color = "#999999")),
+        radialaxis  = list(range = c(0, 1), visible = TRUE, gridcolor = "#eeeeee", showticklabels = FALSE),
         angularaxis = list(
           tickfont  = list(size = 11, family = "Lora, serif", color = "#333333"),
           linecolor = "#cccccc",
@@ -1629,7 +1748,7 @@ server <- function(input, output, session) {
       ),
       showlegend    = FALSE,
       dragmode      = FALSE,
-      margin        = list(l = 55, r = 55, t = 30, b = 20),
+      margin        = list(l = 55, r = 58, t = 15, b = 5),
       paper_bgcolor = "rgba(0,0,0,0)",
       plot_bgcolor  = "rgba(0,0,0,0)",
       font          = list(family = "Lora, serif", size = 10, color = "#333333")
@@ -1637,11 +1756,34 @@ server <- function(input, output, session) {
     config(displayModeBar = FALSE, scrollZoom = FALSE)
   })
 
-  # Score readout blocks rendered below each dropdown
+  # Score readout blocks rendered below each dropdown.
+  # Always renders (never returns NULL) so the chart doesn't shift when an actor is first selected.
+  # Empty state shows 0.00 placeholders with muted styling and an invisible button to hold height.
   make_score_ui <- function(actor_name, border_col, fill_col) {
-    if (is.null(actor_name) || actor_name == "") return(NULL)
-    arow <- dta_agg %>% filter(actor == actor_name)
-    if (nrow(arow) == 0) return(NULL)
+    empty <- is.null(actor_name) || actor_name == ""
+    if (!empty) {
+      arow <- dta_agg %>% filter(actor == actor_name)
+      if (nrow(arow) == 0) empty <- TRUE
+    }
+
+    if (empty) {
+      return(
+        div(class = "comp-scores", style = "border-left-color:#e0e0e0;",
+          lapply(c("EC", "MR", "SI"), function(lbl) {
+            div(class = "comp-score-row",
+              span(class = "comp-score-lbl", style = "color:#ddd;", lbl),
+              div(class = "comp-score-bar"),
+              span(class = "comp-score-val", style = "color:#ddd;", "0.00")
+            )
+          }),
+          tags$button(
+            class = "comp-stmts-link", style = "visibility:hidden;",
+            bs_icon("arrow-right-short"), "View statements"
+          )
+        )
+      )
+    }
+
     scores <- list(
       list(lbl = "EC", val = round(arow$mean_ec2[1], 2)),
       list(lbl = "MR", val = round(arow$mean_mr2[1], 2)),
@@ -2025,13 +2167,14 @@ server <- function(input, output, session) {
         `Mining reg.`  = mean_mr2,
         `MSR inst.`    = mean_si2,
         `Env. cust.`   = mean_ec2,
-        `Mora/Sponsor` = morasponsor,
-        Council        = council_member,
+        `Moratorium/PP/Sponsor` = morasponsor,
+        `Council member` = council_member,
         Region         = regional_group
       ) %>%
       mutate(
         Actor = str_to_title(Actor),
-        across(c(`Mining reg.`, `MSR inst.`, `Env. cust.`), ~ round(.x, 3))
+        across(c(`Mining reg.`, `MSR inst.`, `Env. cust.`), ~ round(.x, 3)),
+        `Council member` = ifelse(`Council member` == 1, "yes", "no")
       ) %>%
       datatable(
         rownames = FALSE, extensions = "Buttons",
@@ -2050,11 +2193,28 @@ server <- function(input, output, session) {
                 var v = parseFloat(cellData);
                 if (!isNaN(v)) {
                   var pct = (Math.max(0, Math.min(1, v)) * 100).toFixed(1);
-                  td.style.background = 'linear-gradient(90deg, #d8d8d8 ' + pct + '%, transparent ' + pct + '%)';
+                  var clr = {3: 'rgba(204,138,82,0.55)', 4: 'rgba(91,170,182,0.55)', 5: 'rgba(109,181,137,0.55)'}[col] || '#d8d8d8';
+                  td.style.background = 'linear-gradient(90deg, ' + clr + ' ' + pct + '%, transparent ' + pct + '%)';
                   td.style.backgroundSize = '100% 65%';
                   td.style.backgroundRepeat = 'no-repeat';
                   td.style.backgroundPosition = '0% 50%';
                 }
+              }")
+            ),
+            list(
+              targets = 2,
+              createdCell = JS("function(td, cellData, rowData, row, col) {
+                var actor = rowData[0];
+                new bootstrap.Tooltip(td, {
+                  title: 'Click to view statements',
+                  placement: 'top',
+                  customClass: 'stmts-tip',
+                  trigger: 'hover'
+                });
+                $(td).addClass('stmts-link-cell').on('click', function(e) {
+                  e.stopPropagation();
+                  Shiny.setInputValue('goto_stmts', actor, {priority: 'event'});
+                });
               }")
             )
           ),

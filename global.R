@@ -204,10 +204,11 @@ net_edges <- raw_edges %>%
 
 # GPT model output
 gpt_results <- read_csv(
-  file.path(gpt_dir, "results_parsed_20251128_212532.csv"),
+  file.path(gpt_dir, "results_parsed_20251124_145506.csv"),
   show_col_types = FALSE
 ) %>%
   filter(actor %in% dta_agg$actor) %>%
+  filter(!(mining_regulator == 0 & science_institution == 0 & environmental_custodian == 0)) %>%
   select(id_statement, actor, statement, mining_regulator, science_institution,
          environmental_custodian, explanation) %>%
   mutate(actor = str_to_title(actor))
@@ -457,6 +458,7 @@ make_vision_plotly <- function(data, x_col, x_tickangle = -35,
       text             = as.character(y),
       textposition     = "inside",
       insidetextanchor = "middle",
+      textangle        = -90,
       textfont         = list(color = "white", size = 12, family = "Lora, serif"),
       hoverinfo        = "text",
       hovertext        = htxt,
@@ -546,6 +548,7 @@ make_vision_toggle <- function(data, x_col, active_vis = "mr",
       text             = if (is_active) as.character(y) else NULL,
       textposition     = "inside",
       insidetextanchor = "middle",
+      textangle        = -90,
       textfont         = list(color = "white", size = if (is_active) 10 else 8),
       hoverinfo        = "text",
       hovertext        = htxt,
