@@ -484,16 +484,62 @@ body, html { background: #FFFFFF; }
 }
 .comp-slot { display: flex; align-items: center; gap: 0.5rem; }
 .comp-slot .form-group { margin: 0; flex: 1; }
-.comp-slot .selectize-input {
+/* Shared actor selectize — comp module + data tabs */
+.actor-select { min-width: 0; }
+.actor-select .form-group { margin: 0 !important; }
+.actor-select .selectize-control { max-width: 100% !important; }
+.actor-select .selectize-input {
   font-size: 0.8rem !important;
-  padding: 0.18rem 0.45rem !important;
+  font-family: inherit !important;
+  color: #333 !important;
+  padding: 0.18rem 1.6rem 0.18rem 0.45rem !important;
   min-height: 0 !important;
-  border-color: #e0e0e0 !important;
+  border: 1px solid #e0e0e0 !important;
   border-radius: 2px !important;
   box-shadow: none !important;
   line-height: 1.4 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  font-weight: normal !important;
+  display: flex !important;
+  align-items: center !important;
+  overflow: hidden !important;
 }
-.comp-slot .selectize-dropdown { font-size: 0.8rem !important; border-radius: 2px !important; }
+.actor-select .selectize-input .item {
+  color: #333 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  font-size: 0.8rem !important;
+}
+.actor-select .selectize-input input {
+  color: #333 !important;
+  background: transparent !important;
+  font-family: inherit !important;
+  font-size: 0.8rem !important;
+  flex-shrink: 1 !important;
+  min-width: 2px !important;
+}
+.actor-select .selectize-input input::placeholder { color: #aaa !important; }
+.actor-select .selectize-input.focus { border-color: #aaa !important; box-shadow: none !important; }
+.actor-select .selectize-dropdown {
+  font-size: 0.8rem !important;
+  font-family: inherit !important;
+  border: 1px solid #ddd !important;
+  border-radius: 2px !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.07) !important;
+}
+.actor-select .selectize-dropdown .option { color: #333 !important; background: #fff !important; }
+.actor-select .selectize-dropdown .option.active,
+.actor-select .selectize-dropdown .option.selected,
+.actor-select .selectize-dropdown .option:hover {
+  background: #f4f4f4 !important;
+  color: #1a1a2e !important;
+}
 /* Score readout block shown under each dropdown when actor is selected */
 .comp-scores {
   padding: 0.3rem 0.25rem 0.1rem 0.6rem;
@@ -718,14 +764,24 @@ body, html { background: #FFFFFF; }
   letter-spacing: 0.1em; color: #aaa; margin-bottom: 0.45rem;
 }
 .stmt-modal-expl { font-size: 0.9rem; line-height: 1.8; color: #444; }
-/* Actor selectize filter in statements header */
-.data-tab .card-header .selectize-input {
-  font-size: 0.82rem !important;
-  text-transform: none !important;
-  letter-spacing: normal !important;
-  font-weight: normal !important;
-  color: #333 !important;
+/* Reset button for DT tables */
+.dt-reset-btn {
+  font-size: 0.72rem;
+  padding: 0.18rem 0.55rem;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #888;
+  border-radius: 2px;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  line-height: 1.5;
+  transition: color 0.12s, border-color 0.12s;
 }
+.dt-reset-btn:hover { color: #333; border-color: #999; }
+/* Actor selectize filter in statements header */
 .data-tab table.dataTable thead th {
   font-size: 0.78rem;
   font-weight: 700;
@@ -831,6 +887,38 @@ div.vis-tooltip {
   transition: color 0.12s;
 }
 .comp-stmts-link:hover { color: #555; }
+
+/* Jump-to navigation row */
+.section-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin: 0.55rem 0 0;
+}
+.section-nav-label {
+  font-size: 0.82rem;
+  color: #999;
+  font-style: normal;
+  margin-right: 0.1rem;
+}
+.section-nav-btn {
+  font-size: 0.78rem;
+  padding: 0.2rem 0.7rem;
+  background: #fff;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.12s;
+  line-height: 1.5;
+}
+.section-nav-btn:hover { opacity: 0.7; }
+.section-nav-btn.nav-background   { color: #6DB589; }
+.section-nav-btn.nav-visions      { color: #5BAAB6; }
+.section-nav-btn.nav-findings     { color: #2C3E6B; }
+.section-nav-btn.nav-implications { color: #CC8A52; }
+
 "
 
 
@@ -847,58 +935,67 @@ ui <- page_navbar(
   tags$head(tags$style(HTML(css))),
 
 
-  # ── Tab 1: Findings =========================================================
-  nav_panel("Findings", icon = bs_icon("file-text"),
+  # ── Tab 1: Paper =========================================================
+  nav_panel("Paper", icon = bs_icon("file-text"),
 
     # Intro text in paper column
     div(class = "paper",
       div(class = "paper-header",
-        tags$h1("Negotiating futures: Three visions for the International Seabed Authority"),
+        tags$h1("Negotiating futures: Seeds of alternative visions for the International Seabed Authority"),
         tags$p(class = "subtitle", HTML('Paper by Emil W. Hildebrand and Alice B. M. Vadrot | <a href="http://twinpolitics.eu" target="_blank" style="color:inherit;">ERC TwinPolitics project</a>, 2026'))
       ),
       tags$p(HTML(
         'You are looking at the condensed interactive web version of our paper <strong>Negotiating futures: Seeds of alternative visions for the International Seabed Authority</strong>.
-        The full published version of it, including references, can be <a href="https://doi.org" target="_blank">found here</a>. Read about the visions by clicking their cards below, use the visualisations to explore our main findings, and visit
+        The full published version of it, including references, can be <a href="https://doi.org" target="_blank">found here</a>.
+        Read about the visions by clicking their cards below, use the visualisations to explore our main findings, and visit
         <a href="#" onclick="document.querySelector(\'[data-bs-toggle=tab][data-value=Data]\').click(); return false;">the data tab</a>
         to browse the underlying data. For questions or feedback, please contact [Emil W. Hildebrand].'
       )),
       
+      div(class = "section-nav",
+        tags$span(class = "section-nav-label", "Jump to:"),
+        tags$button(class = "section-nav-btn nav-background",   onclick = "scrollToSection('section-background')",   "Background"),
+        tags$button(class = "section-nav-btn nav-visions",      onclick = "scrollToSection('section-visions')",      "Visions"),
+        tags$button(class = "section-nav-btn nav-findings",     onclick = "scrollToSection('section-findings')",     "Main findings"),
+        tags$button(class = "section-nav-btn nav-implications", onclick = "scrollToSection('section-implications')", "Implications")
+      ),
+
       tags$hr(class = "sec-divider"),
-      
-      tags$h2("Introduction"),
+
+      tags$h2(id = "section-background", "Background"),
       tags$p(
-        "The International Seabed Authority (ISA), tasked with governing the international seabed (‘the Area’)
-        ‘for the benefit of humankind as a whole’, has historically operated as a mining
-        regulator – responsible for negotiating the ‘Mining Code’ and to facilitate the commercial exploitation
+        "The International Seabed Authority (ISA), tasked with governing the international seabed ('the Area')
+        'for the benefit of humankind as a whole', has historically operated as a mining
+        regulator – responsible for negotiating the 'Mining Code' and to facilitate the commercial exploitation
         of the deep seabed. But the prospect of deep-sea mining is facing multiple challenges:
         40 countries, more than 900 scientists, and major global firms have called for a moratorium
         or precautionary pause on deep-sea mining amidst mounting concerns over environmental impacts,
         knowledge gaps, and economic uncertainty. State and non-state actors at the ISA increasingly find themselves
-        negotiating not just the Mining Code, but the very ", HTML("<i>raison d’être</i>"), " of the ISA itself."
+        negotiating not just the Mining Code, but the very ", HTML("<i>raison d'être</i>"), " of the ISA itself."
       ),
       tags$p(
         "We argue that this moment offers an opportunity to imagine ", HTML("<strong>radically different futures</strong>,"), " for the ISA as an institution."
       ),
       tags$p(
-        "During these negotiations, delegates articulate, debate, and negotiate different understandings of the ISA’s
+        "During these negotiations, delegates articulate, debate, and negotiate different understandings of the ISA's
         role, purpose, and future priorities. We treat these ideas as they surface in the negotiations as the
-        ‘discursive seeds’ of potential futures – explicit or implicit visions of the ISA’s future that
+        'discursive seeds' of potential futures – explicit or implicit visions of the ISA's future that
         may reshape the institution from within."
       ),
       tags$p(
         "To map these discursive seeds, we explore alternative paths for the ISA by constructing three distinct visions,
-        based on selected legal responsibilities of the ISA under UNCLOS: the ISA as a ", HTML("<strong>Mining Regulator</strong>,"), " a ",
-        HTML("<strong>Marine Scientific Research (MSR) Institution</strong>,"), " and an ", HTML("<strong>Environmental Custodian</strong>."), " We then systematically analyse
+        based on selected legal responsibilities of the ISA under UNCLOS: the ISA as a ", HTML("<strong style='color:#CC8A52;'>Mining Regulator</strong>,"), " a ",
+        HTML("<strong style='color:#5BAAB6;'>Marine Scientific Research (MSR) Institution</strong>,"), " and an ", HTML("<strong style='color:#6DB589;'>Environmental Custodian</strong>."), " We then systematically analyse
         how strongly different actors invoke these three visions during ISA negotiations. Using an LLM-based content analysis
-        of a comprehensive dataset from the ISA’s 30th Session (2025) – collected
+        of a comprehensive dataset from the ISA's 30th Session (2025) – collected
         across more than 150 hours of negotiations – we map each actor in a semantic space between the three visions.
         In addition, we explore factors that may help explain the observed patterns, especially keeping in mind the pervasiveness
         of a North-South divide in global environmental politics and the uneven distribution of power in shaping potential futures."
       ),
-      
+
       tags$hr(class = "sec-divider"),
-      
-      tags$h2("Visions"),
+
+      tags$h2(id = "section-visions", "Visions"),
       tags$p(
         "Click on any of the three visions below to read the full vision as outlined in our paper. We have constructed the three visions as imagined ideal
         types of ISA futures. In reality they may not be mutually exclusive futures, but rather serve to highlight different emphases in purpose,
@@ -940,17 +1037,20 @@ ui <- page_navbar(
           tags$p(class = "read-more-hint", "Read more →")
         )
       ),
-      
+
       tags$hr(class = "sec-divider"),
-      
-      tags$h2("Results"),
+
+      tags$h2(id = "section-findings", "Main findings"),
       tags$p(HTML(
-        'The network shows <a href="#" onclick="event.preventDefault(); gotoActorScores();">97 actors</a> mapped in the semantic space between our three visions, based on <a href="#" onclick="event.preventDefault(); gotoStatements();">505 statements</a> made during ISA negotiations.
-        The actors are clustered in groups with similar score profiles using a k-means algorithm.
-        Hover over an actor to see their scores, or click two actors to compare their score profile in the actor comparison module to the right.
+        'Our results show clear differences in how different actors invoke visions.
+        The network below shows <a href="#" onclick="event.preventDefault(); gotoActorScores();">97 actors</a> mapped in the semantic space between our three visions, based on <a href="#" onclick="event.preventDefault(); gotoStatements();">505 statements</a> made during ISA negotiations.
+        The actors are clustered in groups with similar score profiles using a k-means algorithm.'
+      )),
+      tags$p(
+        "Hover over an actor to see their scores, or click two actors to compare their score profile in the actor comparison module to the right.
         Filter actor types and clusters by clicking their labels in the legend. A 3D version of the semantic space is also
-        available by clicking the top right button.'
-      ))
+        available by clicking the top right button."
+      ),
     ),
 
     # Combined network / 3D view
@@ -1042,7 +1142,7 @@ ui <- page_navbar(
         )
       ),
 
-      # ── Actor comparison (right column on wide screens, below on narrow) ──
+      # ── Actor comparison (right column on wide screens, below on narrow)
       div(class = "comparison-section",
 
         # Collapse/expand tab — always visible on the inner edge of the panel
@@ -1059,34 +1159,26 @@ ui <- page_navbar(
           div(class = "comp-hint", "Click actors in the graph, or choose below"),
           div(class = "comp-slot",
             uiOutput("badge_a"),
-            div(style = "flex:1;",
+            div(class = "actor-select", style = "flex:1;",
               selectizeInput(
                 "comp_actor_a", NULL,
-                choices  = c("Choose actor" = "",
-                             setNames(
-                               sort(unique(dta_agg$actor)),
-                               str_to_title(sort(unique(dta_agg$actor)))
-                             )),
+                choices  = actor_choices,
                 selected = "",
                 width    = "100%",
-                options  = list(placeholder = "Choose actor")
+                options  = list(placeholder = "Select actor")
               )
             )
           ),
           uiOutput("comp_scores_a"),
           div(class = "comp-slot",
             uiOutput("badge_b"),
-            div(style = "flex:1;",
+            div(class = "actor-select", style = "flex:1;",
               selectizeInput(
                 "comp_actor_b", NULL,
-                choices  = c("Choose actor" = "",
-                             setNames(
-                               sort(unique(dta_agg$actor)),
-                               str_to_title(sort(unique(dta_agg$actor)))
-                             )),
+                choices  = actor_choices,
                 selected = "",
                 width    = "100%",
-                options  = list(placeholder = "Choose actor")
+                options  = list(placeholder = "Select actor")
               )
             )
           ),
@@ -1131,6 +1223,13 @@ ui <- page_navbar(
         }, 200);
       }
 
+      function scrollToSection(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var navbar = document.querySelector('.navbar');
+        var offset = navbar ? navbar.offsetHeight + 20 : 80;
+        window.scrollTo({top: el.getBoundingClientRect().top + window.pageYOffset - offset, behavior: 'smooth'});
+      }
       function toggleLegend(category, key, el) {
         el.classList.toggle('inactive');
         Shiny.setInputValue('legend_toggle', {category: category, key: key}, {priority: 'event'});
@@ -1385,7 +1484,7 @@ ui <- page_navbar(
 
       tags$hr(class = "sec-divider"),
 
-      tags$h2("Conclusion"),
+      tags$h2(id = "section-implications", "Implications"),
       tags$p(
         "The ISA and its member states may do well in remembering the ‘potentiality in a regime that continues to be in the making”.
         Deep-sea mining remains, after all, a potential industry and its commencement is not inevitable.
@@ -1416,7 +1515,24 @@ ui <- page_navbar(
           card(fill = FALSE,
             card_header(
               span("Actor-level mean vision scores"),
-              div(id = "actor-hdr-ctrl", class = "dt-hdr-ctrl")
+              div(class = "dt-hdr-ctrl",
+                div(id = "actor-hdr-ctrl"),
+                div(class = "actor-select", style = "width:200px;",
+                  selectizeInput("actor_filter", NULL,
+                    choices  = c("Select actor" = "", setNames(
+                      sort(unique(dta_agg$actor)),
+                      str_to_title(sort(unique(dta_agg$actor)))
+                    )),
+                    selected = "", width = "100%",
+                    options  = list(placeholder = "Select actor")
+                  )
+                ),
+                tags$button(
+                  class   = "dt-reset-btn",
+                  onclick = "$('#actor_filter')[0].selectize.setValue('');",
+                  bs_icon("arrow-counterclockwise"), "Reset"
+                )
+              )
             ),
             DTOutput("actor_table")
           )
@@ -1429,11 +1545,17 @@ ui <- page_navbar(
               span("Statements — click any row to view the full text and model explanation"),
               div(class = "dt-hdr-ctrl",
                 div(id = "gpt-hdr-ctrl"),
-                div(style = "width:200px;",
+                div(class = "actor-select", style = "width:200px;",
                   selectizeInput("gpt_actor", NULL,
-                    choices  = c("All actors" = "All", sort(unique(gpt_results$actor))),
-                    selected = "All", width = "100%"
+                    choices  = actor_choices,
+                    selected = "", width = "100%",
+                    options  = list(placeholder = "Select actor")
                   )
+                ),
+                tags$button(
+                  class   = "dt-reset-btn",
+                  onclick = "$('#gpt_table').DataTable().search('').draw(); $('#gpt_actor')[0].selectize.setValue('');",
+                  bs_icon("arrow-counterclockwise"), "Reset"
                 )
               )
             ),
@@ -1445,7 +1567,95 @@ ui <- page_navbar(
   ),
   
   # ── Tab 2: Documentation ====================================================
-  nav_panel("Documentation", icon = bs_icon("book")),
+  nav_panel("Documentation", icon = bs_icon("book"),
+
+    div(class = "paper",
+
+      div(class = "paper-header",
+        tags$h1("Documentation")
+      ),
+
+      # Links
+      tags$h2("Links"),
+      tags$ul(
+        tags$li(tags$a(href = "https://doi.org", target = "_blank", "Published paper")),
+        tags$li(tags$a(href = "https://github.com", target = "_blank", "GitHub repository")),
+        tags$li(tags$a(href = "https://twinpolitics.eu", target = "_blank", "TwinPolitics project page"))
+      ),
+
+      tags$hr(class = "sec-divider"),
+
+      # Methods
+      tags$h2("Methods"),
+
+      tags$h3("Data collection and processing"),
+      tags$p(
+        "The statement data was collected using Collaborative Event Ethnography and covers a full year of ISA
+        negotiations, online and on-site in Kingston. Statements were collected during the Council meeting in
+        Part I of the ISA's 30th Session (March 17-28, 2025), and the Council and Assembly meetings in Part II
+        (July 7-25, 2025). A transcript of every statement was collected in a database together with the actor,
+        time and date, and negotiation setting."
+      ),
+      tags$p(
+        "Only statements made in a formal negotiation setting are included. Mining Code negotiations are
+        text-bound and leave less room for actors to choose their own topics and emphasis, making them less
+        suitable for identifying vision invocations. The data set consists of 799 statements made by 110
+        actors, comprising more than 280,000 words. After filtering for substantive statements, the final
+        sample contains 505 statements across 97 actors."
+      ),
+
+      tags$h3("Analysing negotiation data using an LLM approach"),
+      tags$p(
+        "Our analysis consists of scoring every negotiation statement on a 0-1 scale indicating how strongly
+        it invokes each of the three visions, using GPT-5 Mini. The number and length of statements makes
+        manual coding impractical due to constraints of time, resources, and the risk of coder fatigue. The
+        LLM-based approach maintains sensitivity to context and nuance while allowing systematic analysis
+        across the entire data set."
+      ),
+      tags$p(
+        "The model prompt was constructed, evaluated, and reconstructed in an iterative process to ensure
+        validity and consistency following a five-step approach. The model handled the data well from the
+        outset: it understood natural language and imperfect transcriptions, managed the highly specific
+        context of deep-sea mining negotiations, and almost always provided well-founded reasons for its
+        scoring. The model performed particularly well in its handling of contextual nuances -- for instance,
+        identifying when one vision was subjugated to another within a statement."
+      ),
+      tags$p(
+        "A limitation is that the model functions best with longer statements. For shorter statements, the
+        model sometimes looks for evidence where a human coder might question its inclusion. Positively, the
+        model only assigns moderate scores in such cases. A stochasticity test shows an average standard
+        deviation of 0.319 across five separate runs. An intraclass correlation coefficient (ICC) test,
+        however, reveals highly consistent relative scoring across runs (ICC > 0.9 for all three visions =
+        'excellent reliability'). Any patterns between actors remain highly robust across multiple runs."
+      ),
+      tags$p(
+        "The model seems to harbour some bias towards the ISA as a mining regulator, scoring statements as
+        invoking this vision based on certain words even when context was ambiguous. The model was instructed
+        to read such terms in context, though some bias persisted. Our choice of GPT-5 Mini over open-source
+        models is motivated by the high specificity of the negotiations; by conducting robustness, bias, and
+        stochasticity tests and being transparent about the prompt and model parameters used, we have sought
+        to minimise potential issues."
+      ),
+
+      tags$h3("Computing and interpreting final scores"),
+      tags$p(
+        "Final scores were computed by taking the average of the statements from each actor for each vision.
+        The scores are independent of each other, meaning that an actor can score high on all three visions,
+        low on all three, or a mix. Zero-values were excluded when calculating means to prevent statements
+        that did not address a vision from pulling averages down. African countries speaking as a group are
+        assigned the mean score of the group; those that additionally delivered statements unilaterally
+        receive a combined mean."
+      ),
+      tags$p(
+        "The final scores represent how strongly an actor invokes each vision on average throughout the
+        negotiations. The scores do not mean that an actor explicitly supports any vision, nor are they
+        direct proxies for an actor's stance on deep-sea mining. They indicate when an actor expresses ideas
+        that correspond with a given understanding of the ISA's role. The scores are relative: they can only
+        be compared between actors."
+      )
+
+    )
+  ),
   
 )
 
@@ -1453,7 +1663,7 @@ ui <- page_navbar(
 # ── Server ====================================================================
 server <- function(input, output, session) {
 
-  # Vision card modals
+  # Vision card modals ----------------------------------------------------------
   vision_content <- list(
 
     mr = list(
@@ -1513,13 +1723,13 @@ server <- function(input, output, session) {
     ))
   })
 
-  # Reset view (zoom/pan only)
+  # Reset view ------------------------------------------------------------------
   observeEvent(input$reset_view, {
     visNetworkProxy("network_plot") %>% visFit(animation = FALSE)
   })
 
 
-  # Reset all filters (sliders + legend toggles + comparison)
+  # Reset all filters -----------------------------------------------------------
   observeEvent(input$reset_filter, {
     legend_state$clusters   <- setNames(rep(TRUE, 4), as.character(1:4))
     legend_state$types      <- setNames(rep(TRUE, 6), c("member_state", "regional_group", "observer_ngo", "observer_igo", "isa", "observer_state"))
@@ -1532,19 +1742,19 @@ server <- function(input, output, session) {
     updateSelectizeInput(session, "comp_actor_b", selected = "")
   })
 
-  # Navigate to Statements tab filtered by actor
+  # Navigate to Statements tab --------------------------------------------------
   observeEvent(input$goto_stmts, {
     actor_nm <- input$goto_stmts
     if (!is.null(actor_nm) && actor_nm != "") {
-      # Match case-insensitively so dta_agg and gpt_results actor names always line up
-      matched <- gpt_results$actor[tolower(gpt_results$actor) == tolower(actor_nm)]
-      sel <- if (length(matched) > 0) matched[1] else "All"
+      # Match against dta_agg (same source as actor_choices values)
+      matched <- dta_agg$actor[tolower(dta_agg$actor) == tolower(actor_nm)]
+      sel <- if (length(matched) > 0) matched[1] else ""
       updateSelectizeInput(session, "gpt_actor", selected = sel)
       session$sendCustomMessage("goto_statements", list())
     }
   })
 
-  # Legend toggle state
+  # Legend toggle state ---------------------------------------------------------
   legend_state <- reactiveValues(
     clusters = setNames(rep(TRUE, 4), as.character(1:4)),
     types    = setNames(rep(TRUE, 6), c("member_state", "regional_group", "observer_ngo", "observer_igo", "isa", "observer_state"))
@@ -1558,7 +1768,7 @@ server <- function(input, output, session) {
     }
   })
 
-  # ── Comparison module ────────────────────────────────────────────────────
+  # ── Comparison module ---------------------------------------------------------
 
   # Helper: hex to rgba string
   hex_to_rgba <- function(hex, alpha = 1) {
@@ -1736,7 +1946,8 @@ server <- function(input, output, session) {
     # Layout and styling
     p %>% layout(
       polar = list(
-        radialaxis  = list(range = c(0, 1), visible = TRUE, gridcolor = "#eeeeee", showticklabels = FALSE),
+        radialaxis  = list(range = c(0, 1), visible = TRUE, gridcolor = "#eeeeee", showticklabels = TRUE,
+                           tickfont = list(size = 9, color = "#cccccc"), tickcolor = "#cccccc", linecolor = "#eeeeee"),
         angularaxis = list(
           tickfont  = list(size = 11, family = "Lora, serif", color = "#333333"),
           linecolor = "#cccccc",
@@ -1805,7 +2016,7 @@ server <- function(input, output, session) {
       tags$button(
         class   = "comp-stmts-link",
         onclick = paste0("Shiny.setInputValue('goto_stmts','", actor_name, "',{priority:'event'});"),
-        bs_icon("arrow-right-short"), "View statements"
+        bs_icon("arrow-right-short"), paste0("View ", arow$n_statements[1], " statements")
       )
     )
   }
@@ -1833,9 +2044,9 @@ server <- function(input, output, session) {
       "B")
   })
 
-  # ── End comparison module ─────────────────────────────────────────────────
+  # ── End comparison module -----------------------------------------------------
 
-  # 3D vision-space scatter
+  # 3D vision-space scatter -----------------------------------------------------
   output$scatter3d_plot <- renderPlotly({
 
     cluster_cols  <- c("1" = "#CC8A52", "2" = "#8A7ABF",
@@ -1991,7 +2202,7 @@ server <- function(input, output, session) {
   })
   outputOptions(output, "scatter3d_plot", suspendWhenHidden = FALSE)
 
-  # Update 3D comparison highlights (traces 9-10) via proxy — no camera reset
+  # Update 3D comparison highlights via proxy -----------------------------------
   observe({
     comp_a <- comp_state$actor_a
     comp_b <- comp_state$actor_b
@@ -2060,8 +2271,7 @@ server <- function(input, output, session) {
       )
   })
 
-  # Network: render once with all nodes; proxy updates hidden property on slider change
-  # (avoids zoom reset that a full re-render would cause)
+  # Network (2D) ----------------------------------------------------------------
   output$network_plot <- renderVisNetwork({
     initial_nodes <- net_nodes %>%
       mutate(
@@ -2157,9 +2367,13 @@ server <- function(input, output, session) {
       visUpdateNodes(nodes = nodes_hl)
   })
 
-  # Actor table
+  # Actor scores table ----------------------------------------------------------
   output$actor_table <- renderDT({
-    dta_agg %>%
+    df <- dta_agg
+    if (!is.null(input$actor_filter) && input$actor_filter != "") {
+      df <- df %>% filter(actor == input$actor_filter)
+    }
+    df %>%
       select(
         Actor          = actor,
         Type           = actor_type_eh2,
@@ -2179,7 +2393,7 @@ server <- function(input, output, session) {
       datatable(
         rownames = FALSE, extensions = "Buttons",
         options = list(
-          pageLength = 20, dom = "Bftip",
+          pageLength = 20, dom = "Btip",
           buttons = list(
             list(extend = "csv",   text = "Download CSV",   filename = "actor_scores"),
             list(extend = "excel", text = "Download Excel", filename = "actor_scores")
@@ -2205,12 +2419,6 @@ server <- function(input, output, session) {
               targets = 2,
               createdCell = JS("function(td, cellData, rowData, row, col) {
                 var actor = rowData[0];
-                new bootstrap.Tooltip(td, {
-                  title: 'Click to view statements',
-                  placement: 'top',
-                  customClass: 'stmts-tip',
-                  trigger: 'hover'
-                });
                 $(td).addClass('stmts-link-cell').on('click', function(e) {
                   e.stopPropagation();
                   Shiny.setInputValue('goto_stmts', actor, {priority: 'event'});
@@ -2220,9 +2428,9 @@ server <- function(input, output, session) {
           ),
           initComplete = JS("function(settings, json) {
             var $ctrl = $('#actor-hdr-ctrl');
+            $ctrl.find('.dt-buttons').remove();
             var $wrap = $(this.api().table().container());
-            $ctrl.prepend($wrap.find('.dataTables_filter').detach());
-            $ctrl.prepend($wrap.find('.dt-buttons').detach());
+            $ctrl.append($wrap.find('.dt-buttons').detach());
           }")
         )
       )
@@ -2231,7 +2439,7 @@ server <- function(input, output, session) {
   # Statement browser
   gpt_view <- reactive({
     df <- gpt_results
-    if (input$gpt_actor != "All") df <- df %>% filter(actor == input$gpt_actor)
+    if (!is.null(input$gpt_actor) && input$gpt_actor != "") df <- df %>% filter(tolower(actor) == tolower(input$gpt_actor))
     df %>%
       select(
         ID            = id_statement,
@@ -2249,6 +2457,7 @@ server <- function(input, output, session) {
       selection = "single", rownames = FALSE,
       options = list(
         pageLength = 10, dom = "ftip", autoWidth = FALSE,
+        language = list(search = "", searchPlaceholder = "Search text..."),
         search = list(smart = FALSE, caseInsensitive = TRUE),
         columnDefs = list(
           list(className = "dt-left",  targets = "_all"),
@@ -2321,7 +2530,7 @@ server <- function(input, output, session) {
     ))
   })
 
-  # ── Finding vision toggle state ───────────────────────────────────────────────
+  # ── Finding vision toggle state----------------------------------------------
   f1_vis      <- reactiveVal("mr")
   f2mora_vis  <- reactiveVal("mr")
   f2sids_vis  <- reactiveVal("mr")
@@ -2351,12 +2560,12 @@ server <- function(input, output, session) {
   observeEvent(event_data("plotly_click", source = "finding4_bars"),
     .switch_vis(event_data("plotly_click", source = "finding4_bars"), f4_vis))
 
-  # ── Finding 1: development status bars ───────────────────────────────────────
+  # ── Finding 1: development status bars---------------------------------------
   output$finding1_bars <- renderPlotly({
     make_vision_plotly(bar_dev_data, "group")
   })
 
-  # ── Finding 1: geography map (Leaflet choropleth, group-based vision switch) ──
+  # ── Finding 1: geography map (Leaflet choropleth, group-based vision switch)-
   output$finding1_map <- renderLeaflet({
     req(!is.null(world_map_sf))
     lo <- labelOptions(
@@ -2394,22 +2603,22 @@ server <- function(input, output, session) {
       hideGroup(setdiff(c("mr", "si", "ec"), vis))
   }, ignoreInit = TRUE)
 
-  # ── Finding 2: moratorium / sponsor bars ─────────────────────────────────────
+  # ── Finding 2: moratorium / sponsor bars-------------------------------------
   output$finding2_mora_bars <- renderPlotly({
     make_vision_plotly(bar_morasponsor_data, "morasponsor")
   })
 
-  # ── Finding 2: SIDS sponsor bars ─────────────────────────────────────────────
+  # ── Finding 2: SIDS sponsor bars---------------------------------------------
   output$finding2_sids_bars <- renderPlotly({
     make_vision_plotly(bar_sids_data, "sponsorstate")
   })
 
-  # ── Finding 3: actor type bars ────────────────────────────────────────────────
+  # ── Finding 3: actor type bars-----------------------------------------------
   output$finding3_bars <- renderPlotly({
     make_vision_plotly(bar_type_data, "actor_type_eh2")
   })
 
-  # ── Finding 4: council membership bars ───────────────────────────────────────
+  # ── Finding 4: council membership bars---------------------------------------
   output$finding4_bars <- renderPlotly({
     make_vision_plotly(bar_council_data, "council_member")
   })

@@ -63,6 +63,20 @@ dta_agg <- dta_agg %>% left_join(un_countries, by = "actor")
 raw_nodes <- read_csv(file.path(network_dir, "nodes.csv"), show_col_types = FALSE)
 raw_edges <- read_csv(file.path(network_dir, "edges.csv"), show_col_types = FALSE)
 
+# Correctly-cased display names from Gephi labels (WWF, DSCC, IUCN, etc.)
+# Used in all four actor selectize dropdowns.
+actor_label_lookup <- raw_nodes %>%
+  filter(type == "actor") %>%
+  transmute(actor = str_replace_all(id, "_", " "), label) %>%
+  deframe()
+
+actor_choices <- local({
+  actors <- sort(unique(dta_agg$actor))
+  labels <- actor_label_lookup[actors]
+  labels[is.na(labels)] <- str_to_title(actors[is.na(labels)])
+  c("Select actor" = "", setNames(actors, labels))
+})
+
 # Vision pole coordinates: roughly balanced triangle (middle ground between original and equilateral)
 # EC left, MR right, SI bottom
 pole_coords <- tibble(

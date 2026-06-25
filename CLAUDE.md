@@ -50,7 +50,9 @@ No modules/ directory. Everything is in two files.
 ### Tabs
 
 **Findings tab** (`nav_panel("Findings")`)
-- Paper header + intro text (lorem ipsum placeholders)
+- Paper header + intro text
+- Network visualisation appears after intro text
+- Introduction, Visions, Findings h2, and Implications h2 sections all live in `div(class = "paper paper-last")` below the network
 - Three-visions explainer grid (`.visions-grid`, `.vision-card`)
 - **3D vision-space scatter** (plotly, see below) — above the 2D network
 - **2D visNetwork** — barycentric layout, cluster shapes/greyscale, slider filters
@@ -189,6 +191,65 @@ All CSS in the `css` string at the top of app.R.
 | `.dt-hdr-ctrl` | Flex container for controls injected into card headers |
 
 **Theme:** `bs_theme(bootswatch="flatly")` with Lora (Google Font). Primary overridden to `#2C3E6B`. Flatly's teal (`#18BC9C`) bleeds into DT pagination — override with `.page-link` / `.page-item`, not `.paginate_button`.
+
+---
+
+## Removed/Dormant Features
+
+### Network "i" info button (removed, easy to restore)
+
+A small circular button in the top-left of `.net-plot-area` that triggers a modal popup explaining the network visualisation. Removed to keep the UI clean for now.
+
+**To restore:**
+
+1. **CSS** (add inside the `css` string, e.g. after the `.view-btn-group` block):
+```css
+/* Network info button (top-left of plot area) */
+.net-info-btn {
+  width: 1.65rem;
+  height: 1.65rem;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #555;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-style: italic;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  transition: background 0.12s, color 0.12s;
+}
+.net-info-btn:hover { background: #f5f5f5; color: #1a1a2e; }
+```
+
+2. **UI** (add as first child inside `div(class = "net-plot-area", ...)`):
+```r
+div(class = "view-btn-group", style = "left: 0.6rem; right: auto;",
+  tags$button(class = "net-info-btn", title = "About this visualisation",
+    onclick = "Shiny.setInputValue('network_info_open', 1, {priority: 'event'})",
+    "i"
+  )
+),
+```
+
+3. **Server** (add anywhere in the server function, e.g. near the other modal observers):
+```r
+observeEvent(input$network_info_open, {
+  showModal(modalDialog(
+    title     = tags$span(style = "font-size:1.1rem; font-weight:700; color:#1a1a2e;",
+                          "About this visualisation"),
+    size      = "m",
+    easyClose = TRUE,
+    footer    = modalButton("Close"),
+    tags$p("[Edit this text to describe the network visualisation]")
+  ))
+})
+```
 
 ---
 
