@@ -443,17 +443,20 @@ body, html { background: #FFFFFF; }
 }
 /* Comparison: fixed right column — row so the collapse tab runs full height */
 .comparison-section { width: 340px; flex-direction: row; }
-/* Inner column: controls stacked above chart, fills remaining width */
+/* Inner column: controls stacked above chart, fills remaining width.
+   flex-shrink:0 keeps it at full width when the parent collapses —
+   overflow:hidden on .comparison-section clips the content instead of
+   display:none, so Plotly always has a valid non-zero container. */
 .comp-inner {
-  flex: 1;
+  flex: 1 0 auto;
   min-width: 0;
   display: flex;
   flex-direction: column;
 }
 .comp-controls { border-bottom: 1px solid #eee; flex-shrink: 0; }
 .comp-chart-area { flex: 1; min-height: 0; }
-/* Collapsed: hide the inner column, shrink section to just the tab */
-.comparison-section.is-collapsed .comp-inner { display: none; }
+/* Collapsed: shrink section to just the tab and clip the inner column */
+.comparison-section { overflow: hidden; }
 .comparison-section.is-collapsed { width: 22px; }
 @media (max-width: 1300px) {
   .comparison-section { width: 280px; }
@@ -532,6 +535,7 @@ body, html { background: #FFFFFF; }
   border: 1px solid #ddd !important;
   border-radius: 2px !important;
   box-shadow: 0 2px 6px rgba(0,0,0,0.07) !important;
+  text-transform: none !important;
 }
 .actor-select .selectize-dropdown .option { color: #333 !important; background: #fff !important; }
 .actor-select .selectize-dropdown .option.active,
@@ -850,9 +854,27 @@ body, html { background: #FFFFFF; }
 }
 .stmts-tip.bs-tooltip-top    .tooltip-arrow::before { border-top-color:    #ddd; }
 .stmts-tip.bs-tooltip-bottom .tooltip-arrow::before { border-bottom-color: #ddd; }
-/* Centre the Statements count column (3rd child = index 2) */
-.data-tab table.dataTable thead th:nth-child(3),
-.data-tab table.dataTable tbody td:nth-child(3) { text-align: center !important; }
+/* Centre the Statements count column in actor table (3rd child = index 2) */
+#actor_table thead th:nth-child(3),
+#actor_table tbody td:nth-child(3) { text-align: center !important; }
+
+/* Left-align statement text column in statements browser */
+#gpt_table tbody td:nth-child(3) { text-align: left !important; }
+
+/* Score columns: horizontally and vertically center the number within the bar */
+#actor_table tbody td:nth-child(4),
+#actor_table tbody td:nth-child(5),
+#actor_table tbody td:nth-child(6),
+#gpt_table  tbody td:nth-child(4),
+#gpt_table  tbody td:nth-child(5),
+#gpt_table  tbody td:nth-child(6) {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+/* All other columns in both tables: vertically centered */
+#actor_table tbody td,
+#gpt_table   tbody td { vertical-align: middle !important; }
 
 /* visNetwork tooltip: match paper aesthetic */
 div.vis-tooltip {
@@ -954,7 +976,7 @@ ui <- page_navbar(
       
       div(class = "section-nav",
         tags$span(class = "section-nav-label", "Jump to:"),
-        tags$button(class = "section-nav-btn nav-background",   onclick = "scrollToSection('section-background')",   "Background"),
+        tags$button(class = "section-nav-btn nav-background",   onclick = "scrollToSection('section-background')",   "Introduction"),
         tags$button(class = "section-nav-btn nav-visions",      onclick = "scrollToSection('section-visions')",      "Visions"),
         tags$button(class = "section-nav-btn nav-findings",     onclick = "scrollToSection('section-findings')",     "Main findings"),
         tags$button(class = "section-nav-btn nav-implications", onclick = "scrollToSection('section-implications')", "Implications")
@@ -962,44 +984,46 @@ ui <- page_navbar(
 
       tags$hr(class = "sec-divider"),
 
-      tags$h2(id = "section-background", "Background"),
+      tags$h2(id = "section-background", "Introduction"),
       tags$p(
-        "The International Seabed Authority (ISA), tasked with governing the international seabed ('the Area')
+        "States at the ISA may need to critically rethink the very ", HTML("<i>raison d'être</i>"), " of the International Seabed Authority (ISA).
+        The ISA, tasked with governing the international seabed ('the Area')
         'for the benefit of humankind as a whole', has historically operated as a mining
-        regulator – responsible for negotiating the 'Mining Code' and to facilitate the commercial exploitation
-        of the deep seabed. But the prospect of deep-sea mining is facing multiple challenges:
+        regulator. But the prospect of deep-sea mining is facing multiple challenges: over
         40 countries, more than 900 scientists, and major global firms have called for a moratorium
         or precautionary pause on deep-sea mining amidst mounting concerns over environmental impacts,
-        knowledge gaps, and economic uncertainty. State and non-state actors at the ISA increasingly find themselves
-        negotiating not just the Mining Code, but the very ", HTML("<i>raison d'être</i>"), " of the ISA itself."
+        knowledge gaps, and economic uncertainty."
       ),
       tags$p(
-        "We argue that this moment offers an opportunity to imagine ", HTML("<strong>radically different futures</strong>,"), " for the ISA as an institution."
+        "We argue that this moment offers an opportunity to imagine ", HTML("<strong>radically different futures</strong>"), " for the ISA as an institution."
       ),
       tags$p(
-        "During these negotiations, delegates articulate, debate, and negotiate different understandings of the ISA's
-        role, purpose, and future priorities. We treat these ideas as they surface in the negotiations as the
-        'discursive seeds' of potential futures – explicit or implicit visions of the ISA's future that
-        may reshape the institution from within."
+        "Our contribution in this paper is twofold. First, we construct three visions for the future,
+        asking what the ISA could become if it turned away from deep-sea mining and rebuilt its purpose
+        around different parts of its UNCLOS mandate: the ISA as a ", HTML("<strong style='color:#CC8A52;'>Mining Regulator</strong>,"), " a ",
+        HTML("<strong style='color:#5BAAB6;'>Marine Scientific Research (MSR) Institution</strong>,"), " and an
+        ", HTML("<strong style='color:#6DB589;'>Environmental Custodian</strong>."),""
       ),
       tags$p(
-        "To map these discursive seeds, we explore alternative paths for the ISA by constructing three distinct visions,
-        based on selected legal responsibilities of the ISA under UNCLOS: the ISA as a ", HTML("<strong style='color:#CC8A52;'>Mining Regulator</strong>,"), " a ",
-        HTML("<strong style='color:#5BAAB6;'>Marine Scientific Research (MSR) Institution</strong>,"), " and an ", HTML("<strong style='color:#6DB589;'>Environmental Custodian</strong>."), " We then systematically analyse
-        how strongly different actors invoke these three visions during ISA negotiations. Using an LLM-based content analysis
-        of a comprehensive dataset from the ISA's 30th Session (2025) – collected
-        across more than 150 hours of negotiations – we map each actor in a semantic space between the three visions.
-        In addition, we explore factors that may help explain the observed patterns, especially keeping in mind the pervasiveness
-        of a North-South divide in global environmental politics and the uneven distribution of power in shaping potential futures."
+        "Second, we map the discursive seeds of these visions among the state and non-state actors negotiating at the ISA:
+        ", HTML("<i>the implicit or explicit ideas about the ISA, its priorities, and its role in governing the Area, as articulated
+        by actors in the negotiations, from which alternative futures of the institution may take shape</i>."), " We then place
+        each actor in a semantic space between the three visions to explore where the impulses for radically different
+        futures may already exist. In addition, we explore factors that may help explain the observed patterns, especially
+        keeping in mind the pervasiveness of a North-South divide in global environmental politics and the uneven
+        distribution of power in shaping potential futures."
       ),
 
       tags$hr(class = "sec-divider"),
 
       tags$h2(id = "section-visions", "Visions"),
       tags$p(
-        "Click on any of the three visions below to read the full vision as outlined in our paper. We have constructed the three visions as imagined ideal
-        types of ISA futures. In reality they may not be mutually exclusive futures, but rather serve to highlight different emphases in purpose,
-        authority, and legitimacy for the ISA."
+        "To develop each of the three visions presented in this paper, we have used the ISA’s obligations
+        of resource development, environmental protection, and MSR as starting points and, with the help
+        of discussions in the academic literature, imagined what they would look like if the whole purpose
+        of the ISA was rebuilt around each of them. The common heritage principle guides each vision, but its
+        operationalisation differs significantly between the three. Each vision is constructed as ideal types,
+        allowing us to imagine what the ISA ", HTML("<i>could</i>"), " become."
       ),
       div(class = "visions-grid",
         div(class = "vision-card vision-card-mr",
@@ -1041,15 +1065,27 @@ ui <- page_navbar(
       tags$hr(class = "sec-divider"),
 
       tags$h2(id = "section-findings", "Main findings"),
-      tags$p(HTML(
-        'Our results show clear differences in how different actors invoke visions.
-        The network below shows <a href="#" onclick="event.preventDefault(); gotoActorScores();">97 actors</a> mapped in the semantic space between our three visions, based on <a href="#" onclick="event.preventDefault(); gotoStatements();">505 statements</a> made during ISA negotiations.
-        The actors are clustered in groups with similar score profiles using a k-means algorithm.'
-      )),
       tags$p(
-        "Hover over an actor to see their scores, or click two actors to compare their score profile in the actor comparison module to the right.
-        Filter actor types and clusters by clicking their labels in the legend. A 3D version of the semantic space is also
-        available by clicking the top right button."
+        "Using an LLM-based content analysis of a comprehensive statement dataset from the ISA's 30th Session (2025)
+        – collected across more than 150 hours of negotiations – we score each actor from 0-1 based on how strongly
+        the discursive seeds of each vision appear in their statements."
+      ),
+      tags$p(HTML(
+        'Each statement made in a formal setting during the 30th Session of the ISA’s Council and Assembly is
+        included in the analysis. After filtering, a total of <a href="#" onclick="event.preventDefault(); gotoStatements();">798 statements</a> by
+        <a href="#" onclick="event.preventDefault(); gotoActorScores();">97 actors</a> are included.'
+      )),
+      tags$hr(class = "sec-divider"),
+      div(class = "finding",
+        div(class = "finding-label", "Finding 1"),
+        tags$h3("Distribution of discursive seeds among actors"),
+        tags$p(
+          "Below is a network mapping state and non-state actors at the ISA negotiations in a semantic space between our three visions
+          based on their average score across all statements.
+          Hover over an actor to see their scores, or click two actors to compare their score profile in the actor comparison module.
+          Filter actor types and clusters by clicking their labels in the legend. A 3D version of the semantic space is also available
+          by clicking the top right button."
+        )
       ),
     ),
 
@@ -1395,9 +1431,9 @@ ui <- page_navbar(
     div(class = "paper paper-last",
       tags$hr(class = "sec-divider"),
 
-      # Finding 1: dev status bars below text, interactive leaflet map
+      # Finding 2: dev status bars below text, interactive leaflet map
       div(class = "finding",
-        div(class = "finding-label", "Finding 1"),
+        div(class = "finding-label", "Finding 2"),
         tags$h3("Geographic differences and development status do not explain vision scores"),
         
         div(class = "finding-map-container",
@@ -1437,9 +1473,9 @@ ui <- page_navbar(
 
       tags$hr(class = "sec-divider"),
 
-      # Finding 2: mora/sponsor + SIDS in equal grid below text
+      # Finding 3: mora/sponsor + SIDS in equal grid below text
       div(class = "finding",
-        div(class = "finding-label", "Finding 2"),
+        div(class = "finding-label", "Finding 3"),
         tags$h3("States with vested interests in deep-sea mining are less likely to invoke environmental or MSR visions"),
         tags$p(
           "Deep-sea mining is a brand-new (potential) industry and remains highly speculative. There may be less long-term entrenched
@@ -1462,9 +1498,9 @@ ui <- page_navbar(
 
       tags$hr(class = "sec-divider"),
 
-      # Findings 3 & 4 combined: text-chart-text-chart
+      # Finding 4: ISA secretariat vs member states
       div(class = "finding",
-        div(class = "finding-label", "Finding 3"),
+        div(class = "finding-label", "Finding 4"),
         tags$h3("The ISA secretariat differs substantially from the member states it represents"),
         tags$p(
           "While the discursive seeds of diverse potential futures exist within the negotiation space, they are unevenly distributed
@@ -2407,9 +2443,9 @@ server <- function(input, output, session) {
                 var v = parseFloat(cellData);
                 if (!isNaN(v)) {
                   var pct = (Math.max(0, Math.min(1, v)) * 100).toFixed(1);
-                  var clr = {3: 'rgba(204,138,82,0.55)', 4: 'rgba(91,170,182,0.55)', 5: 'rgba(109,181,137,0.55)'}[col] || '#d8d8d8';
+                  var clr = {3: '#E3BFA0', 4: '#A5D0D7', 5: '#AFD6BE'}[col] || '#d8d8d8';
                   td.style.background = 'linear-gradient(90deg, ' + clr + ' ' + pct + '%, transparent ' + pct + '%)';
-                  td.style.backgroundSize = '100% 65%';
+                  td.style.backgroundSize = '100% 17px';
                   td.style.backgroundRepeat = 'no-repeat';
                   td.style.backgroundPosition = '0% 50%';
                 }
@@ -2465,6 +2501,20 @@ server <- function(input, output, session) {
           list(width = "120px",        targets = 1),   # Actor
           list(width = "auto",         targets = 2),   # Statement
           list(width = "85px",         targets = c(3, 4, 5)),
+          list(
+            targets = c(3, 4, 5),
+            createdCell = JS("function(td, cellData, rowData, row, col) {
+              var v = parseFloat(cellData);
+              if (!isNaN(v)) {
+                var pct = (Math.max(0, Math.min(1, v)) * 100).toFixed(1);
+                var clr = {3: '#E3BFA0', 4: '#A5D0D7', 5: '#AFD6BE'}[col] || '#d8d8d8';
+                td.style.background = 'linear-gradient(90deg, ' + clr + ' ' + pct + '%, transparent ' + pct + '%)';
+                td.style.backgroundSize = '100% 17px';
+                td.style.backgroundRepeat = 'no-repeat';
+                td.style.backgroundPosition = '0% 50%';
+              }
+            }")
+          ),
           list(
             targets = 2,
             render = JS("function(data, type, row, meta) {

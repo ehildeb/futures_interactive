@@ -4,18 +4,26 @@
 
 Interactive web dashboard for a peer-review paper on **institutional visions at the International Seabed Authority (ISA)** in deep-sea mining governance. The paper uses LLM-coded statements from ISA Assembly/Council meetings to score actors on three competing institutional visions.
 
-**Paper status:** Under review. Content may change; keep Shiny code loosely coupled to data.
+**Paper status:** RR1 submitted to *Geopolitics* (Taylor & Francis), Submission ID 251415075. Content may change; keep Shiny code loosely coupled to data.
 
 ---
 
 ## Research Summary
 
+The paper combines a **futuring approach** with **discursive institutionalism** to construct three alternative visions for the ISA and empirically map where the "discursive seeds" of these visions already exist in ISA negotiations. "Discursive seeds" = implicit or explicit ideas about the ISA's priorities and role as articulated in negotiations, from which alternative futures may take shape.
+
 **Three visions** (scored 0-1 per actor):
-1. **Mining Regulator (MR)** `pal_mr = "#B63F7B"`: ISA as a mining facilitation/regulation body
+1. **Mining Regulator (MR)** `pal_mr = "#B63F7B"`: ISA as mining facilitation/regulation body
 2. **MSR Institution (SI)** `pal_si = "#3F9BA8"`: ISA as a marine science institution
 3. **Environmental Custodian (EC)** `pal_ec = "#4BAF67"`: ISA as an environmental protection body
 
 **Key comparisons:** Development status (Developed/Developing/LDCs/LLDCs/SIDS), Moratorium vs. Sponsor states, SIDS sponsor vs. non-sponsor, Council membership, Regional groups (5), Actor types (Member state / Observer NGO / ISA SG).
+
+**Core findings:**
+- Vision scores do NOT map to geography or development status
+- Sponsorship (vested interests) explains alignment better: sponsoring states score higher on MR, moratorium/PP states score higher on EC and MSR
+- ISA Secretary-General scores substantially higher on MR than member states; lower on EC — gap with both member states and civil society
+- EC and MSR institution are positively correlated (r = 0.41); MR negatively correlated with EC (r = -0.67) and MSR (r = -0.32)
 
 ---
 
@@ -25,14 +33,19 @@ Interactive web dashboard for a peer-review paper on **institutional visions at 
 |------|-------------|
 | `paper_code/working_data/dta_agg_SUBMITTED.csv` | One row per actor. Key cols: `actor`, `actor_type_eh2`, `mean_mr2`, `mean_si2`, `mean_ec2`, `n_statements`, `morasponsor`, `morastate`, `sponsorstate`, `council_member`, `regional_group`, `isa_member` |
 | `paper_code/working_data/un_countries.csv` | UN development categories: Developed / Developing / LDCs / LLDCs / SIDS |
-| `paper_code/gephi/nodes.csv` + `edges.csv` | Network data exported from Gephi. Edges to `mr`, `si`, `ec` nodes carry vision weights. `cluster5` column on nodes. |
+| `paper_code/gephi/nodes.csv` + `edges.csv` | Network data exported from Gephi. Edges to `mr`, `si`, `ec` nodes carry vision weights. `cluster4` column on nodes (was `cluster5` before RR1). |
 | `paper_code/gpt_results/results_parsed_20251128_212532.csv` | Statement-level LLM output: per-statement MR/SI/EC scores + explanation |
 | `paper_code/gpt_results/understandings.xlsx` | Scale and vision definition text used in the app |
 
-**Notes:**
-- Vision scores are 0-1.
-- African Group is treated as a member state equivalent in most comparisons.
-- `set.seed(42)` used for node jitter in global.R (reproducible layout).
+**Dataset (RR1):**
+- Source: ISA 30th Session (2025) — Part I Council (March 17-28) + Part II Council and Assembly (July 7-25)
+- 799 raw statements by 110 actors; filtered to **505 substantive statements across 97 actors**
+- Formal settings only (not Mining Code text negotiations)
+- LLM scoring model: **GPT-5 Mini**
+- Vision scores are 0-1; zero-values excluded from actor means to avoid pulling averages down
+- African Group assigned the mean score of the group; states that also spoke individually get combined mean
+- ISA actor in Figure 5 is now **ISA SG** (Secretary-General only) — not an average of all ISA representatives
+- `set.seed(42)` used for node jitter in global.R (reproducible layout)
 
 ---
 
@@ -80,9 +93,11 @@ No modules/ directory. Everything is in two files.
 
 ### 3D Vision-Space Scatter (plotly)
 
-Each actor plotted at `(mean_mr2, mean_si2, mean_ec2)`. Built as **one trace per cluster** so the legend cleanly shows 5 colour entries. Symbol (shape) is set per-point from actor type.
+Each actor plotted at `(mean_mr2, mean_si2, mean_ec2)`. Built as **one trace per cluster** so the legend cleanly shows cluster colour entries. Symbol (shape) is set per-point from actor type.
 
-**Cluster colours (vivid, different from 2D network greyscale):**
+**IMPORTANT (RR1):** Clusters changed from k=5 to k=4. Update `cluster5` join to `cluster4` in the data and reduce traces from 5 clusters to 4. The trace count in the fixed-order scheme (currently 11 traces) needs adjustment.
+
+**Previous 5-cluster colours (for reference only — now superseded):**
 | Cluster | Colour | Hex |
 |---------|--------|-----|
 | 1 | Green | `#4BAF67` |
@@ -99,10 +114,10 @@ Each actor plotted at `(mean_mr2, mean_si2, mean_ec2)`. Built as **one trace per
 | ISA | diamond |
 | Other | cross |
 
-**Implementation pattern:** build with `plot_ly()` + `add_trace()` loop. Always emits exactly **11 traces** in fixed order to support proxy updates:
-- Traces 0-4: one per cluster (always present; empty clusters get an invisible NA placeholder)
-- Traces 5-8: 4 dummy type-legend entries (NA data, grey)
-- Traces 9-10: comparison highlight placeholders (invisible on init, updated by `plotlyProxy`)
+**Implementation pattern:** build with `plot_ly()` + `add_trace()` loop. Always emits traces in fixed order to support proxy updates:
+- Traces 0-3: one per cluster (k=4 now; was 0-4 for k=5). Empty clusters get an invisible NA placeholder.
+- Traces 4-7: 4 dummy type-legend entries (NA data, grey) — index shift from k=5 era
+- Traces 8-9: comparison highlight placeholders (invisible on init, updated by `plotlyProxy`)
 
 `comp_state` is **not** a reactive dependency inside `renderPlotly` — this prevents camera resets. Instead, a separate `observe` calls `plotlyProxyInvoke("restyle", update, list(9L, 10L))` to update just the comparison traces without re-rendering.
 
@@ -279,16 +294,19 @@ R path on this machine: `C:\Program Files\R\R-4.4.2\bin\Rscript.exe`
 
 ---
 
-## K-means Cluster Reference (k=5, set.seed(42))
+## K-means Cluster Reference (k=4, set.seed(42)) — updated in RR1
 
-Clusters ordered left-to-right in 2D network (EC pole left, MR pole right):
+**Changed in RR1:** Clusters reduced from 5 to **4** after removing the ITLOS node and updating the node-position algorithm. The 3D scatter `cluster5` column/colours will need updating to reflect `cluster4`.
 
-| Cluster | 2D shape | 2D greyscale | 3D colour | Spatial position |
-|---------|----------|-------------|-----------|-----------------|
-| 1 | Circle | `#3C3C3C` dark | `#4BAF67` green | EC-left leaning |
-| 2 | Square | `#C8C8C8` lightest | `#B63F7B` pink | Right side |
-| 3 | Triangle up | `#ABABAB` light | `#3F9BA8` teal | Centre-left |
-| 4 | Triangle down | `#242424` darkest | `#E8821A` orange | Right side |
-| 5 | Diamond | `#686868` medium | `#7B5CB8` purple | Centre-right |
+Clusters ordered left-to-right in 2D network (EC pole left, MR pole right), based on paper description:
+
+| Cluster | Paper label | Spatial position | Typical profile |
+|---------|-------------|-----------------|-----------------|
+| 1 (green) | Group 1 | EC-left | High EC, low MR, moderate-high MSR. Most NGOs, some EU/LAC/SIDS countries |
+| 2 (blue) | Group 2 | Centre-left | High EC, moderately high MSR and MR |
+| 3 (purple) | Group 3 | Centre-right | High MR, moderate EC and MSR. Many sponsoring states, African Group |
+| 4 | Group 4 | MR-right | High MR, low-moderate others. Includes ISA SG, Council President, LTC/FC chairs |
+
+**Note:** Exact hex colours and 2D greyscale mappings for the 4-cluster solution need to be set when updating the app. The 3D scatter currently uses 5-cluster colours — update `cluster5` join to `cluster4`.
 
 Vision pole nodes (2D only): white diamonds (`#FFFFFF`), size 36, fixed position.
