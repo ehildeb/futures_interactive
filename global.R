@@ -216,6 +216,26 @@ net_edges <- raw_edges %>%
     color = "rgba(0,0,0,0.07)"
   )
 
+# Statement metadata: date, time, meeting (forum) from raw observation data
+stmt_meta <- read_csv(
+  file.path(data_dir, "working_data_clean_ISA.csv"),
+  col_types = cols_only(
+    id_statement = col_character(),
+    date         = col_character(),
+    time         = col_character(),
+    meeting      = col_character()
+  )
+) %>%
+  distinct(id_statement, .keep_all = TRUE) %>%
+  mutate(
+    meeting = case_when(
+      meeting == "30th part i council"   ~ "Council (30th Session Part I)",
+      meeting == "30th part ii council"  ~ "Council (30th Session Part II)",
+      meeting == "30th part ii assembly" ~ "Assembly (30th Session Part II)",
+      TRUE                               ~ str_to_title(meeting)
+    )
+  )
+
 # GPT model output
 gpt_results <- read_csv(
   file.path(gpt_dir, "results_parsed_20251124_145506.csv"),
@@ -225,7 +245,8 @@ gpt_results <- read_csv(
   filter(!(mining_regulator == 0 & science_institution == 0 & environmental_custodian == 0)) %>%
   select(id_statement, actor, statement, mining_regulator, science_institution,
          environmental_custodian, explanation) %>%
-  mutate(actor = str_to_title(actor))
+  mutate(actor = str_to_title(actor)) %>%
+  left_join(stmt_meta, by = "id_statement")
 
 # Scale and vision definitions
 understandings <- read_excel(file.path(gpt_dir, "understandings.xlsx"))

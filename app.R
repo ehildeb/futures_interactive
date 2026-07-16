@@ -61,7 +61,7 @@ body, html { background: #FFFFFF; }
 .paper-header .subtitle {
   font-size: 1.05rem;
   color: #666;
-  font-style: italic;
+  font-style: normal;
   margin: 0;
 }
 
@@ -722,7 +722,8 @@ body, html { background: #FFFFFF; }
   padding-top: 0.6rem !important;
   line-height: 1.55;
 }
-#gpt_table tbody td:first-child { white-space: nowrap; font-size: 0.75rem; color: #aaa; }
+/* Date column: nowrap, muted */
+#gpt_table tbody td:nth-child(2) { white-space: nowrap; font-size: 0.75rem; color: #aaa; }
 /* Row hover and selection: no dark flash */
 .data-tab table.dataTable tbody tr:hover > td,
 .data-tab table.dataTable tbody tr:hover {
@@ -747,7 +748,11 @@ body, html { background: #FFFFFF; }
 /* Statement modal */
 .stmt-modal-actor {
   font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.1em; color: #aaa; margin-bottom: 0.5rem;
+  letter-spacing: 0.1em; color: #aaa; margin-bottom: 0.2rem;
+}
+.stmt-modal-meta {
+  font-size: 0.65rem; color: #bbb; letter-spacing: 0.02em;
+  font-weight: normal; margin-bottom: 0.1rem;
 }
 .stmt-modal-text {
   font-size: 0.95rem; line-height: 1.85; color: #222; margin-bottom: 0;
@@ -859,15 +864,15 @@ body, html { background: #FFFFFF; }
 #actor_table tbody td:nth-child(3) { text-align: center !important; }
 
 /* Left-align statement text column in statements browser */
-#gpt_table tbody td:nth-child(3) { text-align: left !important; }
+#gpt_table tbody td:nth-child(4) { text-align: left !important; }
 
 /* Score columns: horizontally and vertically center the number within the bar */
 #actor_table tbody td:nth-child(4),
 #actor_table tbody td:nth-child(5),
 #actor_table tbody td:nth-child(6),
-#gpt_table  tbody td:nth-child(4),
 #gpt_table  tbody td:nth-child(5),
-#gpt_table  tbody td:nth-child(6) {
+#gpt_table  tbody td:nth-child(6),
+#gpt_table  tbody td:nth-child(7) {
   text-align: center !important;
   vertical-align: middle !important;
 }
@@ -946,7 +951,7 @@ div.vis-tooltip {
 
 # ── UI ========================================================================
 ui <- page_navbar(
-  title = "Hildebrand & Vadrot (2026)",
+  title = "Negotiating futures",
   theme = bs_theme(
     bootswatch   = "flatly",
     primary      = "#2C3E6B",
@@ -954,8 +959,7 @@ ui <- page_navbar(
     heading_font = font_google("Lora")
   ),
   fillable = FALSE,
-  tags$head(tags$style(HTML(css))),
-
+  header = tags$head(tags$style(HTML(css))),
 
   # ── Tab 1: Paper =========================================================
   nav_panel("Paper", icon = bs_icon("file-text"),
@@ -964,7 +968,7 @@ ui <- page_navbar(
     div(class = "paper",
       div(class = "paper-header",
         tags$h1("Negotiating futures: Seeds of alternative visions for the International Seabed Authority"),
-        tags$p(class = "subtitle", HTML('Paper by Emil W. Hildebrand and Alice B. M. Vadrot | <a href="http://twinpolitics.eu" target="_blank" style="color:inherit;">ERC TwinPolitics project</a>, 2026'))
+        tags$p(class = "subtitle", HTML('Paper by Emil W. Hildebrand and Alice B. M. Vadrot | Published in <em>Geopolitics</em> journal, 2026 | <a href="http://twinpolitics.eu" target="_blank" style="color:inherit;">ERC TwinPolitics project</a>'))
       ),
       tags$p(HTML(
         'You are looking at the condensed interactive web version of our paper <strong>Negotiating futures: Seeds of alternative visions for the International Seabed Authority</strong>.
@@ -1018,7 +1022,7 @@ ui <- page_navbar(
 
       tags$h2(id = "section-visions", "Visions"),
       tags$p(
-        "To develop each of the three visions presented in this paper, we have used the ISA’s obligations
+        "To develop each of our three visions, we have used the ISA’s obligations
         of resource development, environmental protection, and MSR as starting points and, with the help
         of discussions in the academic literature, imagined what they would look like if the whole purpose
         of the ISA was rebuilt around each of them. The common heritage principle guides each vision, but its
@@ -1030,10 +1034,9 @@ ui <- page_navbar(
           onclick = "Shiny.setInputValue('vision_modal_open', 'mr', {priority:'event'})",
           tags$h4("Mining regulator"),
           tags$p(
-            "The ISA functions primarily as an industry enabler and regulator, developing and
-            enforcing the legal and regulatory framework for deep-sea mining activities. Focus
-            on regulation, resource extraction, and facilitating commercial mineral exploitation
-            of the international seabed."
+            "The ISA functions primarily as an industry enabler and regulator, developing and enforcing the
+            legal and regulatory framework for deep-sea mining activities. Focus on regulation, resource
+            extraction, and facilitating commercial mineral exploitation of the international seabed."
           ),
           tags$p(class = "read-more-hint", "Read more →")
         ),
@@ -1041,11 +1044,10 @@ ui <- page_navbar(
           onclick = "Shiny.setInputValue('vision_modal_open', 'si', {priority:'event'})",
           tags$h4("MSR institution"),
           tags$p(
-            "The ISA serves as a multilateral scientific body that coordinates, promotes, and
-            disseminates deep-sea research and science diplomacy. It facilitates international
-            expeditions, operates data infrastructure and research platforms, brokers knowledge
-            and technology transfer between states, and builds scientific capacity independent
-            of mining activities."
+            "The ISA serves as a multilateral scientific body that coordinates, promotes, and disseminates
+            deep-sea research and science diplomacy. It facilitates international expeditions, operates
+            data infrastructure and research platforms, brokers knowledge and technology transfer between
+            states, and builds scientific capacity independent of mining activities."
           ),
           tags$p(class = "read-more-hint", "Read more →")
         ),
@@ -1053,10 +1055,10 @@ ui <- page_navbar(
           onclick = "Shiny.setInputValue('vision_modal_open', 'ec', {priority:'event'})",
           tags$h4("Environmental custodian"),
           tags$p(
-            "The ISA acts as steward and protector of the deep-sea environment, prioritizing
-            conservation of seabed biodiversity and ecosystem integrity. Focus on precautionary
-            measures, environmental protection standards, area-based management, and preventing
-            harm to marine environments for present and future generations."
+            "The ISA acts as steward and protector of the deep-sea environment, prioritizing conservation
+            of seabed biodiversity and ecosystem integrity. Focus on diverse knowledge systems, nature’s
+            intrinsic value, and indigenous knowledge. Precautionary measures and preventing harm to marine
+            environments for present and future generations guides the ISA’s work."
           ),
           tags$p(class = "read-more-hint", "Read more →")
         )
@@ -1438,11 +1440,20 @@ ui <- page_navbar(
         
         div(class = "finding-map-container",
             div(class = "map-toggle",
-                radioButtons("map_vision", NULL,
-                             choices  = c("Mining reg." = "mr",
-                                          "MSR institution" = "si",
-                                          "Env. custodian"  = "ec"),
-                             selected = "mr", inline = TRUE
+                div(style = "display:flex; align-items:center;",
+                    radioButtons("map_vision", NULL,
+                                 choices  = c("Mining reg." = "mr",
+                                              "MSR institution" = "si",
+                                              "Env. custodian"  = "ec"),
+                                 selected = "mr", inline = TRUE
+                    ),
+                    tags$button(
+                      class   = "reset-view-btn",
+                      title   = "Reset map view",
+                      style   = "margin-bottom: 0.6rem; margin-left: 0.6rem; flex-shrink: 0;",
+                      onclick = "Shiny.setInputValue('reset_map_view', Math.random(), {priority:'event'})",
+                      bs_icon("aspect-ratio")
+                    )
                 )
             ),
             leafletOutput("finding1_map", height = "580px")
@@ -1552,22 +1563,7 @@ ui <- page_navbar(
             card_header(
               span("Actor-level mean vision scores"),
               div(class = "dt-hdr-ctrl",
-                div(id = "actor-hdr-ctrl"),
-                div(class = "actor-select", style = "width:200px;",
-                  selectizeInput("actor_filter", NULL,
-                    choices  = c("Select actor" = "", setNames(
-                      sort(unique(dta_agg$actor)),
-                      str_to_title(sort(unique(dta_agg$actor)))
-                    )),
-                    selected = "", width = "100%",
-                    options  = list(placeholder = "Select actor")
-                  )
-                ),
-                tags$button(
-                  class   = "dt-reset-btn",
-                  onclick = "$('#actor_filter')[0].selectize.setValue('');",
-                  bs_icon("arrow-counterclockwise"), "Reset"
-                )
+                div(id = "actor-hdr-ctrl")
               )
             ),
             DTOutput("actor_table")
@@ -1705,44 +1701,37 @@ server <- function(input, output, session) {
     mr = list(
       title = "The ISA as a Mining Regulator",
       body  = tagList(
-        tags$p("UNCLOS and the 1994 Agreement established the ISA to develop the mineral resources in the Area for the benefit of humankind. Article 150 states that activities in the Area shall be carried out 'with a view to ensuring the development of the resources of the Area'. This orientation has so far shaped the ISA's work, with the development of a regulatory framework for mineral exploitation as its primary focus."),
-        tags$p("The Mining Code, comprising regulations, standards and guidelines for deep-sea mining, forms the core of the mining regulator vision. The Mining Code is what will enable commercial mining of the deep sea, but also what will determine its boundaries, including environmental protection, scientific data and monitoring regulations, and equity provision to ensure the participation of developing states. Despite intense negotiations following Nauru's 2021 triggering of the 'two-year rule', and missed deadlines in both 2023 and 2025, the Mining Code remains unfinished. The ISA Council is now pursuing a 'thematic approach' to completing the Mining Code, without a fixed deadline."),
+        tags$p("UNCLOS and the 1994 Agreement established the ISA to develop the mineral resources in the Area for the benefit of humankind. This orientation has so far shaped the ISA's work, with the development of regulatory frameworks for mineral exploration and exploitation as its primary focus."),
+        tags$p("The Mining Code, comprising regulations, standards and guidelines for deep-sea mining, forms the core of the mining regulator vision. The Mining Code is what will enable commercial mining of the deep sea, but also what will determine its guardrails, including environmental protection, scientific data and monitoring regulations, and equity provision to ensure the participation of developing states. Despite intense negotiations following Nauru's 2021 triggering of the 'two-year rule', a provision of the 1994 Agreement compelling the ISA to finish its deliberations within two years, and missed deadlines in both 2023 and 2025, the Mining Code remains unfinished. The ISA Council is now pursuing a 'thematic approach' to completing the Mining Code, without a fixed deadline."),
         tags$p("Finishing the Mining Code is not the only outstanding step in realising the ISA as a mining regulator. The ISA's 'evolutionary approach' of implementation envisions additional elements: establishing a benefit-sharing mechanism, operationalising the Enterprise, and constituting the Economic Planning Commission. These components are essential not only to establishing a functioning regulatory regime, but to ensuring that the ISA heeds its equity obligations under the common heritage principle."),
-        tags$p("Establishing a benefit-sharing mechanism is central to operationalising the common heritage principle by distributing the profits derived from commercial deep-sea mining among member states. Two broad approaches have been discussed so far: direct distribution or a 'Common Heritage Fund', but neither has received substantive discussion in Council or Assembly. As Moses and Brigham observe, the ISA has made 'little progress in deciding on how to secure the common social benefit as owners/custodians of these resources'. The Enterprise, originally conceived as the ISA's operational arm for mining, transportation, and refinement of minerals to ensure the effective participation of developing states, so far only exists on paper, employing an interim director-general and one research assistant. Some discussion exists as to whether the Enterprise must be operational before deep-sea mining may take place. Similarly, the EPC was established to avoid adverse economic impacts on developing mineral-producing states from deep-sea mining. Having only been established in 2025, its operationalisation remains an important step towards the mining regulator vision. Operationalising a benefit-sharing mechanism, the Enterprise, and the EPC will set up the architecture through which the ISA can function as a mining regulator in line with the CHP."),
-        tags$p("As part of the mining regulator vision, environmental protection and marine scientific research function as guardrails. Science serves primarily to establish baselines, assess impacts, and inform contractor obligations. Environmental measures exist to ensure that mining proceeds sustainably. These guardrails may be more or less strict depending on the outcome of the Mining Code negotiations. The mining regulator vision is not opposed to environmental protection or MSR. What distinguishes it is that deep-sea mining sits at the centre, and that other responsibilities are defined in relation to it."),
-        tags$p("This path forward assumes that deep-sea mining is inevitable and desirable, and positions the ISA as the institution that makes it possible under international law. While environmental, scientific, and equity provisions are central in the mining regulator vision, the commercial exploitation of the Area nevertheless sits at its core. The ISA's legitimacy derives from its capacity to facilitate access to seabed minerals while preventing a 'free-for-all' among technologically and economically advantaged nations, implementing the CHP through regulated commercial exploitation.")
+        tags$p("Establishing a benefit-sharing mechanism is central to operationalising the CHP by distributing the profits derived from commercial deep-sea mining among member states. Two broad approaches have been discussed so far: direct distribution or a 'Common Heritage Fund', but neither has received substantive discussion in Council or Assembly. The Enterprise, originally conceived as the ISA's operational arm for mining, transportation, and refinement of minerals to ensure the effective participation of developing states, so far only exists on paper, employing an interim director-general and a research assistant. Some discussion exists as to whether the Enterprise must be operational before deep-sea mining may take place, but as a direct vehicle for developing states to participate in the activities in the Area, it remains a central pillar of the mining regulator vision. Similarly, the EPC was established to avoid adverse economic impacts on developing mineral-producing states from deep-sea mining. Having only been established in 2025, its operationalisation remains an important step towards the mining regulator vision. Operationalising a benefit-sharing mechanism, the Enterprise, and the EPC will set up the structures through which the ISA can function as a mining regulator in line with the CHP."),
+        tags$p("In the mining regulator vision, deep-sea mining and its regulation sits at the centre of the ISA's work, and other obligations are defined in relation to it. Science serves primarily to establish baselines, assess potential negative impacts, and inform contractor obligations. Environmental measures exist to ensure that mining proceeds sustainably as possible."),
+        tags$p("This path forward assumes that deep-sea mining is inevitable, and positions the ISA as the institution that makes it possible under international law. The ISA's legitimacy derives from its capacity to facilitate access to seabed minerals while preventing a 'free-for-all' among technologically and economically advantaged nations, implementing the CHP through regulated commercial exploitation.")
       )
     ),
 
     si = list(
       title = "The ISA as a Marine Scientific Research Institution",
       body  = tagList(
-        tags$p("In addition to mining regulation, the ISA has an explicit mandate to promote and facilitate marine scientific research (MSR) in the Area. Its MSR mandate is understood as distinct from its mandate to develop mineral resources."),
-        tags$p("The deep sea is by far the biggest ecosystem on Earth and the most understudied. MSR in the Area has drastically increased in recent years, and the ISA has made efforts to expand its scientific activities. But these efforts have largely been tied to mining-related activities by focusing on impacts of DSM, collection of baseline data for contract areas, or informing environmental impact assessments. The DeepData database, the ISA's flagship deep-sea data initiative, consists mostly of data supplied by mining contractors. Similarly, technology transfer and capacity building programs are predominantly focused on mining technologies and industry-directed scientific research."),
-        tags$p("Many conditions are already in place that would enable the ISA to transform into a marine scientific research institution. As an institution with experience in coordinating multilateral action across both public and private sectors, the ISA can be imagined as a coordinator of multi-state scientific missions. Its task would be to address knowledge gaps in biodiversity patterns, ecological connectivity, ecosystem functions and services, life cycles and resilience, and climate change impacts connected to the deep-sea."),
-        tags$p("ISA-led scientific efforts could have a strong focus on equity and capacity-building, enabling access for developing states to research vessels, technologies, scientific training, and areas that are otherwise inaccessible. Amon, Levin, et al. highlight the possibility of refitting the not-yet-operationalised Enterprise from a mining organ to an MSR vehicle, operating a fleet of research vessels and deep-sea submersibles accessible to all member states."),
-        tags$p("Much of the infrastructure currently connected to mining-related activities can be shifted towards conducting independent research decoupled from industry interests. The DeepData database could become a leading data repository for deep-sea data. Moving away from contractor-based inputs would not only avoid questions about data quality and independence, but also allow the inclusion of geological and bathymetric data that have so far been kept confidential for commercial reasons. Highly advanced monitoring systems such as the TRIDENT project currently under development provide large-scale platforms already fit for a deep-sea environment, requiring little modification to be directed away from mining activities and towards broader scientific purposes."),
-        tags$p("An ISA dedicated to coordinating MSR could drive technological innovation and scientific advances through 'mutual learning' and 'technology co-development'. This will benefit both developing and developed countries by expanding access to intellectual capital, skilled workers, and knowledge exchange, and potentially positioning 'developing states as global leaders in high-value sectors of the knowledge economy at the forefront of future opportunities'. An MSR-oriented ISA can enable developing states to take part in bioprospecting and the use of marine genetic resources, in conjunction with the BBNJ Agreement."),
-        tags$p("From a 'blue natural capital' perspective, MSR is central to valuating ecosystem services such as carbon sequestration, fish stocks, and nutrient cycling. Moreover, comprehensive cost-benefit analyses indicate that the negative economic impacts of deep-sea mining likely outweigh its benefits, suggesting that an MSR-focused ISA offers a more economically sustainable path."),
-        tags$p("As an MSR institution, the ISA could figure as a deep-sea institutional node or hub within an expanding network of scientific institutions and collaborative efforts to foster ocean science and data diplomacy across relevant IOs, including the BBNJ-agreement, the IMO, IOC-UNESCO, ICES, the CBD, the FAO and RFMOS.")
+        tags$p("The deep sea is by far the biggest ecosystem on Earth and the most understudied. MSR in the Area has drastically increased in recent years, and the ISA has made efforts to expand its scientific activities. However, despite arguments that the ISA's MSR obligation is separate from that of mineral development, these efforts have to a large extent been tied to mining-related activities (critical or not). By and large, the ISA's scientific initiatives focus on the potential impacts of deep-sea mining, collection of baseline data within contract areas, and informing environmental impact assessments. The DeepData database, the ISA's flagship deep-sea data initiative, consists mostly of data supplied by mining contractors."),
+        tags$p("Many conditions are already in place that would enable the ISA to transform into a marine scientific research institution proper. As an institution with experience in coordinating multilateral action across both public and private sectors, the ISA can be imagined as a coordinator of multi-state scientific missions. ISA-led scientific efforts could have a strong focus on equity and capacity-building, enabling access for developing states to research vessels, technologies, scientific training, and areas that are otherwise inaccessible. Amon, Levin, et al. highlight the possibility of refitting the not-yet-operationalised Enterprise from a mining organ to an MSR vehicle, operating a fleet of research vessels and deep-sea submersibles accessible to all member states."),
+        tags$p("Much of the infrastructure currently connected to mining-related activities can be shifted towards conducting independent research independent from mining activities. The DeepData database could become a leading data repository for deep-sea data. Moving away from contractor-based inputs would not only avoid questions about data quality and independence, but also allow the inclusion of geological and bathymetric data that have so far been kept confidential for commercial reasons. Highly advanced monitoring systems such as the EU-funded TRIDENT project currently under development provide large-scale platforms already fit for a deep-sea environment, potentially able to be directed away from monitoring mining operations and towards broader scientific purposes."),
+        tags$p("An ISA dedicated to coordinating MSR could drive technological innovation and scientific advances through 'mutual learning' and 'technology co-development'. This would benefit both developing and developed countries by expanding access to intellectual capital, skilled workers, and knowledge exchange, and potentially positioning 'developing states as global leaders in high-value sectors of the knowledge economy at the forefront of future opportunities'. An MSR-oriented ISA could enable developing states to take a larger part in bioprospecting and the use of marine genetic resources in conjunction with the BBNJ Agreement."),
+        tags$p("As an MSR institution, the ISA could figure as a deep-sea institutional node within an expanding network of scientific institutions and collaborative efforts to foster ocean science and data diplomacy across relevant international organisations, including the BBNJ Agreement, the IMO, IOC-UNESCO, ICES, the CBD, the FAO and RFMOS.")
       )
     ),
 
     ec = list(
       title = "The ISA as an Environmental Custodian",
       body  = tagList(
-        HTML("<p>As the sole body governing the mineral resources of the Area, the ISA is also the institution mandated to manage non-use of these resources. The ISA would not be the first institution to move from governing the exploitation of a resource to regulating its conservation, as exemplified by the International Whaling Commission. The ISA was established with an obligation to protect the marine environment as outlined in the preamble of UNCLOS<sup>1</sup> and Article 145, stating that the ISA 'shall adopt appropriate rules, regulations and procedures for inter alia: […] (b) the protection and conservation of the natural resources of the Area and the prevention of damage to the flora and fauna of the marine environment.'.</p>"),
-        tags$p("So far, the ISA has established non-use measures in the form of Areas of Particular Environmental Interest (APEIs), in the Clarion Clipperton Zone, where no mining is allowed but MSR activities may be carried out. While these APEIs represent important first steps towards fulfilling the environmental responsibilities of the ISA, their size and placement may not adequately protect deep-sea environments. Other area-based management tools of the ISA, such as impact and preservation reference zones remain tied to specific mining contractor areas, functioning as exploitation guard-rails rather than preservation measures in their own right."),
-        tags$p("An agreement among member states either in Council or Assembly to impose a moratorium or ban on mining in the Area, together with a general environmental policy for the ISA, would provide the strongest legal and political basis for transforming the ISA into an environmental custodian. The ISA could establish extensive marine protected areas, ecological reference zones, and biodiversity conservation corridors across the international seabed. These protected areas would be designed not to accommodate future extraction, but to monitor and preserve deep-sea ecosystems and vulnerable habitats, informed by modern understandings of ecological connectivity, evolutionary processes, and climate resilience."),
-        tags$p("Ecosystem restoration represents another concrete function for the ISA as a custodian. While restoration of deep-sea environments is challenging, the ISA could coordinate research into restoration techniques for mitigating human impacts, such as historical mining tests, bottom trawling and, more broadly, impacts of climate change."),
-        tags$p("Central to the custodian vision is recognizing and operationalizing diverse values of the deep sea beyond mineral resources or even quantifiable ecosystem services. The IPBES Values Assessment framework acknowledges that nature holds intrinsic value independent of human use, alongside relational values rooted in cultural connections and responsibilities. For the ISA, this means incorporating Indigenous and local knowledge systems, traditional relationships with the ocean, and non-Western ontologies that recognize the deep sea as a rights-bearing entity. One proposal consists of establishing a '37th seat' for the deep sea in Council, granting 'legal guardians or proxies the power to speak for deep-sea ecosystems'."),
-        tags$p("Operationalizing these values requires transforming governance structures. The ISA could establish dedicated mechanisms for Indigenous Peoples and local communities to participate meaningfully in decision-making, bringing traditional knowledge and alternative governance models into managing the Area. This can include meaningful Indigenous representation on subsidiary bodies, recognition of existing ocean stewardship practices, and incorporating different value frameworks into area-based management decisions."),
-        HTML("<p>Similarly, the election rules for Council membership could be revised. As it stands, seats in Council are distributed among five groups of states, representing mineral resource consumers, deep-sea mining investors, mineral resource exporters, developing states, and one group to ensure geographical distribution of members.<sup>2</sup> An approach that 'treats the configuration of interests in DSM as largely fixed' and favouring the mining-focused priorities of 1994, when the rules were established. No special group is dedicated to potentially affected coastal states, states whose cultural or economic traditions rely on the deep sea, or states investing in MSR.</p>"),
-        tags$p("From an economic perspective, and similar to the MSR institution vision, the custodian vision aligns with growing evidence that preserving the deep sea generates greater value for humankind than extracting its minerals. The ISA as a custodian would actively maintain this natural capital; the deep sea's contributions to climate regulation, nutrient cycling, carbon sequestration, and genetic diversity that provide benefits in both economic and non-economic terms."),
-        tags$p("Institutional reform, potentially triggered by a second periodic review, could see the ISA establishing a new environmental subsidiary body focused on conservation, restructuring the Legal and Technical Commission (LTC) to prioritize environmental expertise, and developing funding mechanisms for custodian activities independent of mining revenues. Enhanced transparency, meaningful stakeholder participation, and accountability mechanisms would strengthen the legitimacy of the ISA as an institution governing the common heritage of humankind through active environmental stewardship rather than resource extraction."),
-        tags$hr(style = "margin-top: 1.8rem; border-color: #eee;"),
-        HTML("<p style='font-size:0.8rem; color:#888; line-height:1.6;'><sup>1</sup> '[&hellip;] will promote the peaceful uses of the seas and oceans, the equitable and efficient utilization of their resources, the conservation of their living resources, and the study, protection and preservation of the marine environment [&hellip;]'.</p>"),
-        HTML("<p style='font-size:0.8rem; color:#888; line-height:1.6;'><sup>2</sup> Council election rules are complex; the full set of criteria can be found at <a href='https://isa.org.jm/organs/the-council/' target='_blank' style='color:#888;'>isa.org.jm/organs/the-council/</a>.</p>")
+        tags$p("As the sole body governing the mineral resources of the Area, the ISA is also the institution mandated to manage non-use of these resources. An agreement among member states either in Council or Assembly to impose a moratorium or ban on mining in the Area, together with a general environmental policy for the ISA, could provide a strong basis for transforming the ISA into an environmental custodian."),
+        tags$p("So far, the ISA has established non-use measures in the form of Areas of Particular Environmental Interest (APEIs), in the Clarion Clipperton Zone, where no mining is allowed but MSR activities may be carried out. While these APEIs represent important first steps towards fulfilling the environmental obligations of the ISA, their size and placement may not adequately protect deep-sea environments. Other area-based management tools of the ISA, such as impact and preservation reference zones remain tied to specific mining contractor areas, functioning as exploitation guardrails rather than preservation measures in their own right."),
+        tags$p("The ISA could establish extensive marine protected areas and biodiversity conservation corridors across the international seabed. These areas would be designed to monitor and preserve deep-sea ecosystems and vulnerable habitats, informed by understandings of ecological connectivity, evolutionary processes, and climate resilience. Ecosystem restoration represents another concrete function for the ISA as a custodian. While restoration of deep-sea environments is challenging, the ISA could coordinate research into restoration techniques for mitigating human impacts such as historical mining tests, bottom trawling and, more broadly, impacts of climate change."),
+        tags$p("Central to the custodian vision is recognizing and operationalizing diverse values of the deep sea beyond mineral resources or quantifiable ecosystem services. The IPBES Values Assessment framework acknowledges that nature holds intrinsic value independent of human use, alongside relational values rooted in cultural connections and responsibilities. For the ISA, this means incorporating Indigenous and local knowledge systems, traditional relationships with the ocean, and non-Western ontologies that recognize the deep sea as a rights-bearing entity. One proposal consists of establishing a '37th seat' for the deep sea in Council, granting 'legal guardians or proxies the power to speak for deep-sea ecosystems'."),
+        tags$p("Operationalizing these values requires transforming governance structures. The ISA could establish dedicated mechanisms for Indigenous Peoples and local communities to participate meaningfully in decision-making, bringing traditional knowledge and alternative governance models into managing the Area. This can include representation on subsidiary bodies, recognition of existing ocean stewardship practices, and incorporating different value frameworks into area-based management decisions."),
+        tags$p("Similarly, the election rules for Council membership can be reimagined. Seats in Council are distributed among five groups of states representing mineral consumers, deep-sea mining investors, mineral exporters, developing states, and one group to ensure geographical distribution of members – an approach that 'treats the configuration of interests' in deep-sea mining as 'largely fixed' and favouring the mining-focused priorities of 1994. No special group is dedicated to potentially affected coastal states, states whose cultural or economic traditions rely on the deep sea, or states investing in MSR."),
+        tags$p("From an economic perspective, the custodian vision aligns with growing evidence that preserving the deep sea may generate greater value for humankind than extracting its minerals. The ISA as a custodian would actively maintain this natural capital; the deep sea's contributions to climate regulation, nutrient cycling, carbon sequestration, and genetic diversity that provide benefits in both economic and non-economic terms."),
+        tags$p("Institutional reform could see the ISA establishing a new environmental subsidiary body focused on conservation, restructuring the Legal and Technical Commission (LTC) to prioritize environmental expertise, and developing funding mechanisms for custodian activities independent of mining revenues. Incorporating a plurality of knowledge systems, meaningful stakeholder participation, and accountability mechanisms would strengthen the legitimacy of the ISA as an institution governing the common heritage of humankind through active environmental stewardship.")
       )
     )
   )
@@ -1759,9 +1748,15 @@ server <- function(input, output, session) {
     ))
   })
 
-  # Reset view ------------------------------------------------------------------
+  # Reset view (network) --------------------------------------------------------
   observeEvent(input$reset_view, {
     visNetworkProxy("network_plot") %>% visFit(animation = FALSE)
+  })
+
+  # Reset view (map) ------------------------------------------------------------
+  observeEvent(input$reset_map_view, {
+    leafletProxy("finding1_map") %>%
+      setView(lng = 10, lat = 25, zoom = 2)
   })
 
 
@@ -2083,7 +2078,7 @@ server <- function(input, output, session) {
   # ── End comparison module -----------------------------------------------------
 
   # 3D vision-space scatter -----------------------------------------------------
-  output$scatter3d_plot <- renderPlotly({
+  output$scatter3d_plot <- renderPlotly(suppressWarnings({
 
     cluster_cols  <- c("1" = "#CC8A52", "2" = "#8A7ABF",
                        "3" = "#6DB589", "4" = "#5BAAB6")
@@ -2137,9 +2132,9 @@ server <- function(input, output, session) {
     # updated separately via plotlyProxy so actor clicks never reset the camera.
     p <- plot_ly(source = "scatter3d_src")
 
-    # Traces 0-4: one per cluster, always emitted (even if empty after filtering).
+    # Traces 0-3: one per cluster, always emitted (even if empty after filtering).
     # Fixed trace count is required so plotlyProxy restyle can target stable indices.
-    for (cl in c("1", "2", "3", "4", "5")) {
+    for (cl in c("1", "2", "3", "4")) {
       cl_df <- df %>% filter(cluster_key == cl)
       if (nrow(cl_df) == 0) {
         # Empty placeholder — invisible but holds the index
@@ -2235,7 +2230,7 @@ server <- function(input, output, session) {
       font          = list(family = "Lora, serif", color = "#333333")
     ) %>%
     config(displayModeBar = FALSE)
-  })
+  }))
   outputOptions(output, "scatter3d_plot", suspendWhenHidden = FALSE)
 
   # Update 3D comparison highlights via proxy -----------------------------------
@@ -2406,9 +2401,6 @@ server <- function(input, output, session) {
   # Actor scores table ----------------------------------------------------------
   output$actor_table <- renderDT({
     df <- dta_agg
-    if (!is.null(input$actor_filter) && input$actor_filter != "") {
-      df <- df %>% filter(actor == input$actor_filter)
-    }
     df %>%
       select(
         Actor          = actor,
@@ -2478,8 +2470,10 @@ server <- function(input, output, session) {
     if (!is.null(input$gpt_actor) && input$gpt_actor != "") df <- df %>% filter(tolower(actor) == tolower(input$gpt_actor))
     df %>%
       select(
-        ID            = id_statement,
+        id_statement,
         Actor         = actor,
+        Date          = date,
+        Forum         = meeting,
         Statement     = statement,
         `Mining reg.` = mining_regulator,
         `MSR inst.`   = science_institution,
@@ -2497,17 +2491,19 @@ server <- function(input, output, session) {
         search = list(smart = FALSE, caseInsensitive = TRUE),
         columnDefs = list(
           list(className = "dt-left",  targets = "_all"),
-          list(width = "105px",        targets = 0),   # ID
-          list(width = "120px",        targets = 1),   # Actor
-          list(width = "auto",         targets = 2),   # Statement
-          list(width = "85px",         targets = c(3, 4, 5)),
+          list(visible = FALSE,        targets = 0),          # id_statement (hidden, for row lookup)
+          list(width = "110px",        targets = 1),          # Actor
+          list(width = "90px",         targets = 2),          # Date
+          list(width = "130px",        targets = 3),          # Forum
+          list(width = "auto",         targets = 4),          # Statement
+          list(width = "85px",         targets = c(5, 6, 7)), # Scores
           list(
-            targets = c(3, 4, 5),
+            targets = c(5, 6, 7),
             createdCell = JS("function(td, cellData, rowData, row, col) {
               var v = parseFloat(cellData);
               if (!isNaN(v)) {
                 var pct = (Math.max(0, Math.min(1, v)) * 100).toFixed(1);
-                var clr = {3: '#E3BFA0', 4: '#A5D0D7', 5: '#AFD6BE'}[col] || '#d8d8d8';
+                var clr = {5: '#E3BFA0', 6: '#A5D0D7', 7: '#AFD6BE'}[col] || '#d8d8d8';
                 td.style.background = 'linear-gradient(90deg, ' + clr + ' ' + pct + '%, transparent ' + pct + '%)';
                 td.style.backgroundSize = '100% 17px';
                 td.style.backgroundRepeat = 'no-repeat';
@@ -2516,7 +2512,7 @@ server <- function(input, output, session) {
             }")
           ),
           list(
-            targets = 2,
+            targets = 4,
             render = JS("function(data, type, row, meta) {
               if (type !== 'display' || !data) return data;
               var q = new $.fn.dataTable.Api(meta.settings).search();
@@ -2551,13 +2547,22 @@ server <- function(input, output, session) {
   observeEvent(input$gpt_table_rows_selected, {
     req(length(input$gpt_table_rows_selected) > 0)
     sel    <- input$gpt_table_rows_selected
-    row_id <- gpt_view()$ID[sel]
+    row_id <- gpt_view()$id_statement[sel]
     row    <- gpt_results %>% filter(id_statement == row_id)
 
     showModal(modalDialog(
       size = "l", easyClose = TRUE,
       footer = modalButton("Close"),
-      title  = div(class = "stmt-modal-actor", str_to_title(row$actor)),
+      title = tagList(
+        div(class = "stmt-modal-actor", str_to_title(row$actor)),
+        div(class = "stmt-modal-meta",
+          paste0(
+            row$date, " ", row$time, " · ",
+            row$meeting, " · ",
+            row$id_statement
+          )
+        )
+      ),
       tagList(
         div(class = "stmt-modal-text", row$statement),
         div(class = "stmt-modal-scores",
@@ -2579,36 +2584,6 @@ server <- function(input, output, session) {
       )
     ))
   })
-
-  # ── Finding vision toggle state----------------------------------------------
-  f1_vis      <- reactiveVal("mr")
-  f2mora_vis  <- reactiveVal("mr")
-  f2sids_vis  <- reactiveVal("mr")
-  f3_vis      <- reactiveVal("mr")
-  f4_vis      <- reactiveVal("mr")
-
-  # Helper: handle thumbnail click → update reactive val
-  .switch_vis <- function(click, rv) {
-    if (!is.null(click) && isTRUE(click$curveNumber > 0L)) {
-      others <- setdiff(c("mr", "si", "ec"), rv())
-      rv(others[[click$curveNumber]])
-    }
-  }
-
-  observeEvent(event_data("plotly_click", source = "finding1_bars"),
-    .switch_vis(event_data("plotly_click", source = "finding1_bars"), f1_vis))
-
-  observeEvent(event_data("plotly_click", source = "finding2_mora_bars"),
-    .switch_vis(event_data("plotly_click", source = "finding2_mora_bars"), f2mora_vis))
-
-  observeEvent(event_data("plotly_click", source = "finding2_sids_bars"),
-    .switch_vis(event_data("plotly_click", source = "finding2_sids_bars"), f2sids_vis))
-
-  observeEvent(event_data("plotly_click", source = "finding3_bars"),
-    .switch_vis(event_data("plotly_click", source = "finding3_bars"), f3_vis))
-
-  observeEvent(event_data("plotly_click", source = "finding4_bars"),
-    .switch_vis(event_data("plotly_click", source = "finding4_bars"), f4_vis))
 
   # ── Finding 1: development status bars---------------------------------------
   output$finding1_bars <- renderPlotly({

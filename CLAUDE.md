@@ -279,9 +279,29 @@ observeEvent(input$network_info_open, {
 - [x] Findings tab skeleton (lorem ipsum text, floated chart placeholders)
 - [x] Actor comparison module (polar overlay chart, click-to-select, network/3D highlights, responsive layout)
 - [x] Legend overhaul (CSS swatches replacing Unicode symbols)
+- [x] Reset view button on map module (matches network module button, resets to lng=10, lat=25, zoom=2)
+- [x] Statement browser: Date/Time/Forum columns instead of ID; id_statement kept as hidden col for row lookup
+- [x] Statement popup: shows ID, date, time, meeting in title area
+- [x] Actor Scores tab: actor dropdown removed (kept in Statements tab)
 - [ ] World maps tab
 - [ ] Replace lorem ipsum with actual paper content
 - [ ] Wire floated chart placeholders to actual plotly bar charts
+
+### Statement browser column layout (as of 2026-07-16)
+
+| DT col | DOM pos | Column | Width |
+|--------|---------|--------|-------|
+| 0 | hidden | id_statement | — |
+| 1 | 1 | Actor | 110px |
+| 2 | 2 | Date | 90px |
+| 3 | 3 | Time | 75px |
+| 4 | 4 | Forum | 130px |
+| 5 | 5 | Statement | auto |
+| 6 | 6 | Mining reg. | 85px |
+| 7 | 7 | MSR inst. | 85px |
+| 8 | 8 | Env. cust. | 85px |
+
+Date/Time columns styled with muted grey (nth-child 2,3). Score bars use `createdCell` with col indices 6/7/8.
 
 ## Running the App
 
