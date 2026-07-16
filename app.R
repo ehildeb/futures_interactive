@@ -967,7 +967,7 @@ ui <- page_navbar(
     # Intro text in paper column
     div(class = "paper",
       div(class = "paper-header",
-        tags$h1("Negotiating futures: Seeds of alternative visions for the International Seabed Authority"),
+        tags$h1("Negotiating futures: Three visions for the International Seabed Authority"),
         tags$p(class = "subtitle", HTML('Paper by Emil W. Hildebrand and Alice B. M. Vadrot | Published in <em>Geopolitics</em> journal, 2026 | <a href="http://twinpolitics.eu" target="_blank" style="color:inherit;">ERC TwinPolitics project</a>'))
       ),
       tags$p(HTML(
