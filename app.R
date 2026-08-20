@@ -4,6 +4,9 @@ source("global.R")
 
 # ── CSS =======================================================================
 css <- "
+*, *::before, *::after { border-radius: 0 !important; }
+* { font-family: 'Times New Roman', Times, serif !important; }
+html { font-size: 112% !important; }
 body, html { background: #FFFFFF; }
 
 /* Navbar: integrate with paper aesthetic */
@@ -22,7 +25,7 @@ body, html { background: #FFFFFF; }
   padding-bottom: 0.35rem;
 }
 .navbar .nav-link {
-  color: #666 !important;
+  color: #222 !important;
   font-size: 0.95rem;
   letter-spacing: 0.02em;
   padding-left: 1rem;
@@ -59,27 +62,27 @@ body, html { background: #FFFFFF; }
   margin: 0 0 0.3rem;
 }
 .paper-header .subtitle {
-  font-size: 1.05rem;
-  color: #666;
+  font-size: 1.15rem;
+  color: #222;
   font-style: normal;
   margin: 0;
 }
 
 .paper p {
-  font-size: 1rem;
+  font-size: 1.1rem;
   line-height: 1.92;
   color: #222;
   margin: 0 0 0.9rem;
 }
 .paper h2 {
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #1a1a2e;
   margin: 1.6rem 0 0.5rem;
   line-height: 1.35;
 }
 .paper h3 {
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #1a1a2e;
   margin: 1.4rem 0 0.4rem;
@@ -129,7 +132,7 @@ body, html { background: #FFFFFF; }
   font-weight: 800;
   letter-spacing: 0.11em;
   text-transform: uppercase;
-  color: #c8c8c8;
+  color: #222;
   margin: 0.1rem 0 0.3rem;
 }
 .legend-item {
@@ -154,7 +157,7 @@ body, html { background: #FFFFFF; }
   align-items: center;
   gap: 0.45rem;
   font-size: 0.8rem;
-  color: #bbb;
+  color: #444;
   line-height: 1.65;
   padding: 0.04rem 0.15rem;
   font-style: italic;
@@ -180,7 +183,7 @@ body, html { background: #FFFFFF; }
   border-top: 1px solid #f0f0f0;
   border-left: none; border-right: none; border-bottom: none;
   font-size: 0.67rem;
-  color: #ccc;
+  color: #222;
   background: none;
   cursor: pointer;
   text-align: left;
@@ -191,7 +194,7 @@ body, html { background: #FFFFFF; }
   align-items: center;
   gap: 0.3rem;
 }
-.reset-filter-btn:hover { color: #555; }
+.reset-filter-btn:hover { color: #000; }
 .view-btn-group {
   position: absolute;
   top: 0.6rem;
@@ -249,7 +252,7 @@ body, html { background: #FFFFFF; }
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #aaa;
+  color: #222;
   margin-bottom: 0.4rem;
 }
 
@@ -276,7 +279,7 @@ body, html { background: #FFFFFF; }
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: #bbb;
+  color: #222;
   margin: 0 0 0.3rem;
 }
 
@@ -314,9 +317,9 @@ body, html { background: #FFFFFF; }
   border-radius: 3px !important;
   box-shadow: none !important;
   padding: 0.45rem 0.7rem 0.5rem !important;
-  font-family: Lora, serif !important;
+  font-family: 'Times New Roman', Times, serif !important;
   font-size: 0.76rem !important;
-  color: #444 !important;
+  color: #222 !important;
   line-height: 1.5 !important;
 }
 .leaflet-control.info.legend .legend-title {
@@ -324,7 +327,7 @@ body, html { background: #FFFFFF; }
   font-size: 0.68rem !important;
   letter-spacing: 0.09em !important;
   text-transform: uppercase !important;
-  color: #999 !important;
+  color: #444 !important;
   display: block !important;
   margin-bottom: 0.3rem !important;
 }
@@ -379,7 +382,7 @@ body, html { background: #FFFFFF; }
   margin-bottom: 0.25rem;
 }
 .finding h3 {
-  font-size: 1.15rem;
+  font-size: 1.3rem;
   font-weight: 700;
   line-height: 1.45;
   color: #1a1a2e;
@@ -391,28 +394,28 @@ body, html { background: #FFFFFF; }
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 0 2rem;
-  margin: 0.5rem 0 1.5rem;
+  margin: 0.5rem -3rem 1.5rem;
 }
 .vision-card {
-  border-left: 4px solid #ddd;
-  padding: 0.5rem 0 0.5rem 0.9rem;
+  border: 4px solid #ddd;
+  padding: 0.5rem 0.85rem;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
   border-radius: 0 2px 2px 0;
 }
 .vision-card:hover {
-  border-left-color: #1a1a2e;
+  border-color: #1a1a2e;
   background: #f9f9f9;
 }
-.vision-card-mr          { border-left-color: #CC8A52; }
+.vision-card-mr          { border-color: #CC8A52; }
 .vision-card-mr h4       { color: #CC8A52; }
-.vision-card-mr:hover    { border-left-color: #CC8A52; background: rgba(204,138,82,0.07); }
-.vision-card-si          { border-left-color: #5BAAB6; }
+.vision-card-mr:hover    { border-color: #CC8A52; background: rgba(204,138,82,0.07); }
+.vision-card-si          { border-color: #5BAAB6; }
 .vision-card-si h4       { color: #5BAAB6; }
-.vision-card-si:hover    { border-left-color: #5BAAB6; background: rgba(91,170,182,0.07); }
-.vision-card-ec          { border-left-color: #6DB589; }
+.vision-card-si:hover    { border-color: #5BAAB6; background: rgba(91,170,182,0.07); }
+.vision-card-ec          { border-color: #6DB589; }
 .vision-card-ec h4       { color: #6DB589; }
-.vision-card-ec:hover    { border-left-color: #6DB589; background: rgba(109,181,137,0.07); }
+.vision-card-ec:hover    { border-color: #6DB589; background: rgba(109,181,137,0.07); }
 .vision-card h4 {
   font-size: 0.78rem;
   font-weight: 700;
@@ -423,15 +426,15 @@ body, html { background: #FFFFFF; }
 }
 .vision-card .read-more-hint {
   font-size: 0.7rem;
-  color: #bbb;
+  color: #444;
   margin-top: 0.3rem;
   letter-spacing: 0.03em;
 }
-.vision-card:hover .read-more-hint { color: #888; }
+.vision-card:hover .read-more-hint { color: #222; }
 .vision-card p {
   font-size: 0.82rem;
   line-height: 1.65;
-  color: #555;
+  color: #222;
   margin: 0;
 }
 
@@ -444,12 +447,15 @@ body, html { background: #FFFFFF; }
 /* Comparison: fixed right column — row so the collapse tab runs full height */
 .comparison-section { width: 340px; flex-direction: row; }
 /* Inner column: controls stacked above chart, fills remaining width.
-   flex-shrink:0 keeps it at full width when the parent collapses —
-   overflow:hidden on .comparison-section clips the content instead of
-   display:none, so Plotly always has a valid non-zero container. */
+   Explicit width (panel minus the 22px tab) + flex-shrink:0 keeps it at
+   full size when the parent collapses — overflow:hidden on .comparison-section
+   clips the column instead of display:none, so Plotly always has a valid
+   non-zero container. overflow:hidden here clips any child content that
+   would otherwise spill past the right edge of the panel. */
 .comp-inner {
-  flex: 1 0 auto;
-  min-width: 0;
+  width: 318px;   /* 340px panel - 22px tab */
+  flex-shrink: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -460,6 +466,7 @@ body, html { background: #FFFFFF; }
 .comparison-section.is-collapsed { width: 22px; }
 @media (max-width: 1300px) {
   .comparison-section { width: 280px; }
+  .comp-inner { width: 258px; }   /* 280px panel - 22px tab */
 }
 .comp-controls {
   display: flex;
@@ -476,11 +483,11 @@ body, html { background: #FFFFFF; }
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #aaa;
+  color: #222;
 }
 .comp-hint {
   font-size: 0.73rem;
-  color: #c5c5c5;
+  color: #222;
   font-style: italic;
   line-height: 1.4;
   margin-top: -0.2rem;
@@ -548,7 +555,7 @@ body, html { background: #FFFFFF; }
 .comp-scores {
   padding: 0.3rem 0.25rem 0.1rem 0.6rem;
   margin-top: -0.25rem;
-  border-left: 2px solid;
+  border: 2px solid;
   display: flex;
   flex-direction: column;
   gap: 0.18rem;
@@ -565,7 +572,7 @@ body, html { background: #FFFFFF; }
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #ccc;
+  color: #222;
   flex-shrink: 0;
 }
 .comp-score-bar {
@@ -579,7 +586,7 @@ body, html { background: #FFFFFF; }
 .comp-score-val {
   min-width: 2.2rem;
   text-align: right;
-  color: #666;
+  color: #222;
   font-variant-numeric: tabular-nums;
 }
 .comparison-slot-badge {
@@ -633,7 +640,7 @@ body, html { background: #FFFFFF; }
 }
 .data-tab .nav-tabs { border-bottom: 2px solid #1a1a2e; margin-bottom: 1.5rem; }
 .data-tab .nav-tabs .nav-link {
-  color: #666;
+  color: #222;
   font-size: 0.88rem;
   letter-spacing: 0.04em;
   font-weight: 600;
@@ -644,9 +651,13 @@ body, html { background: #FFFFFF; }
   padding: 0.55rem 1rem;
 }
 .data-tab .nav-tabs .nav-link.active {
-  color: #1a1a2e;
-  background: none;
-  border-bottom: 2px solid #1a1a2e;
+  color: #1a1a2e !important;
+  background: none !important;
+  border-color: transparent transparent #1a1a2e !important;
+  border-bottom: 3px solid #1a1a2e !important;
+}
+.data-tab .nav-tabs .nav-link:not(.active) {
+  border-color: transparent !important;
 }
 .data-tab .card {
   border: 1px solid #ddd;
@@ -660,7 +671,7 @@ body, html { background: #FFFFFF; }
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #aaa;
+  color: #222;
   padding: 0.65rem 1rem;
 }
 .data-tab .card-header {
@@ -700,7 +711,7 @@ body, html { background: #FFFFFF; }
   font-weight: normal;
   text-transform: none;
   letter-spacing: normal;
-  color: #888;
+  color: #222;
   margin: 0;
 }
 .dt-hdr-ctrl .dataTables_filter input {
@@ -723,7 +734,7 @@ body, html { background: #FFFFFF; }
   line-height: 1.55;
 }
 /* Date column: nowrap, muted */
-#gpt_table tbody td:nth-child(2) { white-space: nowrap; font-size: 0.75rem; color: #aaa; }
+#gpt_table tbody td:nth-child(2) { white-space: nowrap; font-size: 0.75rem; color: #444; }
 /* Row hover and selection: no dark flash */
 .data-tab table.dataTable tbody tr:hover > td,
 .data-tab table.dataTable tbody tr:hover {
@@ -748,10 +759,10 @@ body, html { background: #FFFFFF; }
 /* Statement modal */
 .stmt-modal-actor {
   font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.1em; color: #aaa; margin-bottom: 0.2rem;
+  letter-spacing: 0.1em; color: #222; margin-bottom: 0.2rem;
 }
 .stmt-modal-meta {
-  font-size: 0.65rem; color: #bbb; letter-spacing: 0.02em;
+  font-size: 0.65rem; color: #444; letter-spacing: 0.02em;
   font-weight: normal; margin-bottom: 0.1rem;
 }
 .stmt-modal-text {
@@ -765,12 +776,12 @@ body, html { background: #FFFFFF; }
 .stmt-modal-score-item { display: flex; flex-direction: column; gap: 0.1rem; }
 .stmt-modal-score-label {
   font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.08em; color: #aaa;
+  letter-spacing: 0.08em; color: #222;
 }
 .stmt-modal-score-val { font-size: 1rem; font-weight: 600; color: #1a1a2e; }
 .stmt-modal-expl-label {
   font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.1em; color: #aaa; margin-bottom: 0.45rem;
+  letter-spacing: 0.1em; color: #222; margin-bottom: 0.45rem;
 }
 .stmt-modal-expl { font-size: 0.9rem; line-height: 1.8; color: #444; }
 /* Reset button for DT tables */
@@ -779,7 +790,7 @@ body, html { background: #FFFFFF; }
   padding: 0.18rem 0.55rem;
   border: 1px solid #ccc;
   background: #fff;
-  color: #888;
+  color: #222;
   border-radius: 2px;
   font-family: inherit;
   cursor: pointer;
@@ -790,6 +801,26 @@ body, html { background: #FFFFFF; }
   transition: color 0.12s, border-color 0.12s;
 }
 .dt-reset-btn:hover { color: #333; border-color: #999; }
+/* Download buttons in DT table headers */
+.dt-dl-btn {
+  font-size: 0.72rem !important;
+  padding: 0.18rem 0.55rem !important;
+  border: 1px solid #ccc !important;
+  background: #fff !important;
+  color: #222 !important;
+  border-radius: 2px !important;
+  font-family: inherit !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  line-height: 1.5 !important;
+  transition: color 0.12s, border-color 0.12s !important;
+  text-decoration: none !important;
+  height: auto !important;
+}
+.dt-dl-btn:hover { color: #333 !important; border-color: #999 !important; }
+.dt-dl-btn i, .dt-dl-btn .fa, .dt-dl-btn .glyphicon { display: none !important; }
 /* Actor selectize filter in statements header */
 .data-tab table.dataTable thead th {
   font-size: 0.78rem;
@@ -807,7 +838,7 @@ body, html { background: #FFFFFF; }
 /* Pagination: override flatly teal — Bootstrap 5 uses .page-link / .page-item */
 .data-tab .dataTables_wrapper .dataTables_info {
   font-size: 0.78rem;
-  color: #aaa;
+  color: #444;
   padding-top: 0.8rem;
 }
 .data-tab .dataTables_wrapper .dataTables_paginate {
@@ -887,7 +918,7 @@ div.vis-tooltip {
   border: 1px solid #ddd !important;
   border-radius: 3px !important;
   box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
-  font-family: 'Lora', Georgia, serif !important;
+  font-family: 'Times New Roman', Times, serif !important;
   font-size: 0.82rem !important;
   color: #222 !important;
   padding: 0.4rem 0.65rem !important;
@@ -898,7 +929,7 @@ div.vis-tooltip {
 /* View-statements link in comp score block */
 .comp-stmts-link {
   font-size: 0.68rem;
-  color: #bbb;
+  color: #222;
   text-decoration: none;
   cursor: pointer;
   border: none;
@@ -913,7 +944,7 @@ div.vis-tooltip {
   margin-top: 0.05rem;
   transition: color 0.12s;
 }
-.comp-stmts-link:hover { color: #555; }
+.comp-stmts-link:hover { color: #000; }
 
 /* Jump-to navigation row */
 .section-nav {
@@ -925,7 +956,7 @@ div.vis-tooltip {
 }
 .section-nav-label {
   font-size: 0.82rem;
-  color: #999;
+  color: #222;
   font-style: normal;
   margin-right: 0.1rem;
 }
@@ -955,14 +986,14 @@ ui <- page_navbar(
   theme = bs_theme(
     bootswatch   = "flatly",
     primary      = "#2C3E6B",
-    base_font    = font_google("Lora"),
-    heading_font = font_google("Lora")
+    base_font    = "Times New Roman",
+    heading_font = "Times New Roman"
   ),
   fillable = FALSE,
   header = tags$head(tags$style(HTML(css))),
 
   # ── Tab 1: Paper =========================================================
-  nav_panel("Paper", icon = bs_icon("file-text"),
+  nav_panel("Paper",
 
     # Intro text in paper column
     div(class = "paper",
@@ -990,8 +1021,10 @@ ui <- page_navbar(
 
       tags$h2(id = "section-background", "Introduction"),
       tags$p(
-        "States at the ISA may need to critically rethink the very ", HTML("<i>raison d'être</i>"), " of the International Seabed Authority (ISA).
-        The ISA, tasked with governing the international seabed ('the Area')
+        "States at the ISA may need to critically rethink the very ", HTML("<i>raison d'être</i>"), " of the International Seabed Authority (ISA)."
+      ),
+      tags$p(
+        "The ISA, tasked with governing the international seabed ('the Area')
         'for the benefit of humankind as a whole', has historically operated as a mining
         regulator. But the prospect of deep-sea mining is facing multiple challenges: over
         40 countries, more than 900 scientists, and major global firms have called for a moratorium
@@ -1079,8 +1112,7 @@ ui <- page_navbar(
       )),
       tags$hr(class = "sec-divider"),
       div(class = "finding",
-        div(class = "finding-label", "Finding 1"),
-        tags$h3("Distribution of discursive seeds among actors"),
+        tags$h3("Finding 1: Distribution of discursive seeds among actors"),
         tags$p(
           "Below is a network mapping state and non-state actors at the ISA negotiations in a semantic space between our three visions
           based on their average score across all statements.
@@ -1435,8 +1467,7 @@ ui <- page_navbar(
 
       # Finding 2: dev status bars below text, interactive leaflet map
       div(class = "finding",
-        div(class = "finding-label", "Finding 2"),
-        tags$h3("Geographic differences and development status do not explain vision scores"),
+        tags$h3("Finding 2: Geographic differences and development status do not explain vision scores"),
         
         div(class = "finding-map-container",
             div(class = "map-toggle",
@@ -1486,8 +1517,7 @@ ui <- page_navbar(
 
       # Finding 3: mora/sponsor + SIDS in equal grid below text
       div(class = "finding",
-        div(class = "finding-label", "Finding 3"),
-        tags$h3("States with vested interests in deep-sea mining are less likely to invoke environmental or MSR visions"),
+        tags$h3("Finding 3: States with vested interests in deep-sea mining are less likely to invoke environmental or MSR visions"),
         tags$p(
           "Deep-sea mining is a brand-new (potential) industry and remains highly speculative. There may be less long-term entrenched
           national interests and predictable geopolitical dynamics in deep-sea mining than in other industries. Thus, we find more
@@ -1511,8 +1541,7 @@ ui <- page_navbar(
 
       # Finding 4: ISA secretariat vs member states
       div(class = "finding",
-        div(class = "finding-label", "Finding 4"),
-        tags$h3("The ISA secretariat differs substantially from the member states it represents"),
+        tags$h3("Finding 4: The ISA secretariat differs substantially from the member states it represents"),
         tags$p(
           "While the discursive seeds of diverse potential futures exist within the negotiation space, they are unevenly distributed
           between different components of the ISA as an institution. We observe a stronger invocation of the mining regulator vision
@@ -1553,24 +1582,25 @@ ui <- page_navbar(
   ),
 
   # ── Tab 3: Data =============================================================
-  nav_panel("Data", icon = bs_icon("database"),
+  nav_panel("Data",
     div(class = "data-tab",
       navset_tab(
 
-        nav_panel("Actor Scores", icon = bs_icon("text-left"),
+        nav_panel("Actor Scores",
           br(),
           card(fill = FALSE,
             card_header(
-              span("Actor-level mean vision scores"),
+              span("Actor mean vision scores"),
               div(class = "dt-hdr-ctrl",
-                div(id = "actor-hdr-ctrl")
+                downloadButton("dl_actor_csv",   "Download CSV",   class = "dt-dl-btn"),
+                downloadButton("dl_actor_excel", "Download Excel", class = "dt-dl-btn")
               )
             ),
             DTOutput("actor_table")
           )
         ),
 
-        nav_panel("Statements", icon = bs_icon("chat-left-text"),
+        nav_panel("Statements",
           br(),
           card(fill = FALSE,
             card_header(
@@ -1586,9 +1616,11 @@ ui <- page_navbar(
                 ),
                 tags$button(
                   class   = "dt-reset-btn",
-                  onclick = "$('#gpt_table').DataTable().search('').draw(); $('#gpt_actor')[0].selectize.setValue('');",
+                  onclick = "$('#gpt_table table').DataTable().search('').draw(); $('#gpt_actor')[0].selectize.setValue('');",
                   bs_icon("arrow-counterclockwise"), "Reset"
-                )
+                ),
+                downloadButton("dl_stmt_csv",   "Download CSV",   class = "dt-dl-btn", style = "margin-left:0.75rem;"),
+                downloadButton("dl_stmt_excel", "Download Excel", class = "dt-dl-btn")
               )
             ),
             DTOutput("gpt_table")
@@ -1599,7 +1631,7 @@ ui <- page_navbar(
   ),
   
   # ── Tab 2: Documentation ====================================================
-  nav_panel("Documentation", icon = bs_icon("book"),
+  nav_panel("Documentation",
 
     div(class = "paper",
 
@@ -2010,7 +2042,7 @@ server <- function(input, output, session) {
 
     if (empty) {
       return(
-        div(class = "comp-scores", style = "border-left-color:#e0e0e0;",
+        div(class = "comp-scores", style = "border-color:#e0e0e0;",
           lapply(c("EC", "MR", "SI"), function(lbl) {
             div(class = "comp-score-row",
               span(class = "comp-score-lbl", style = "color:#ddd;", lbl),
@@ -2032,7 +2064,7 @@ server <- function(input, output, session) {
       list(lbl = "SI", val = round(arow$mean_si2[1], 2))
     )
     div(class = "comp-scores",
-      style = paste0("border-left-color:", border_col, ";"),
+      style = paste0("border-color:", border_col, ";"),
       lapply(scores, function(s) {
         div(class = "comp-score-row",
           span(class = "comp-score-lbl", s$lbl),
@@ -2419,13 +2451,9 @@ server <- function(input, output, session) {
         `Council member` = ifelse(`Council member` == 1, "yes", "no")
       ) %>%
       datatable(
-        rownames = FALSE, extensions = "Buttons",
+        rownames = FALSE,
         options = list(
-          pageLength = 20, dom = "Btip",
-          buttons = list(
-            list(extend = "csv",   text = "Download CSV",   filename = "actor_scores"),
-            list(extend = "excel", text = "Download Excel", filename = "actor_scores")
-          ),
+          pageLength = 20, dom = "tip",
           autoWidth  = FALSE,
           columnDefs = list(
             list(className = "dt-left", targets = "_all"),
@@ -2454,12 +2482,7 @@ server <- function(input, output, session) {
               }")
             )
           ),
-          initComplete = JS("function(settings, json) {
-            var $ctrl = $('#actor-hdr-ctrl');
-            $ctrl.find('.dt-buttons').remove();
-            var $wrap = $(this.api().table().container());
-            $ctrl.append($wrap.find('.dt-buttons').detach());
-          }")
+          scrollX = FALSE
         )
       )
   })
@@ -2535,14 +2558,69 @@ server <- function(input, output, session) {
           )
         ),
         initComplete = JS("function(settings, json) {
-          var $ctrl = $('#gpt-hdr-ctrl');
-          $ctrl.find('.dataTables_filter').remove();
           var $wrap = $(this.api().table().container());
-          $ctrl.append($wrap.find('.dataTables_filter').detach());
+          var $hdr = $('#gpt-hdr-ctrl');
+          $hdr.find('.dataTables_filter').remove();
+          $hdr.append($wrap.find('.dataTables_filter').detach());
         }")
       )
     )
   })
+
+  # Download handlers — actor scores -----------------------------------------------
+  actor_dl_data <- reactive({
+    dta_agg %>%
+      select(
+        Actor          = actor,
+        Type           = actor_type_eh2,
+        Statements     = n_statements,
+        `Mining reg.`  = mean_mr2,
+        `MSR inst.`    = mean_si2,
+        `Env. cust.`   = mean_ec2,
+        `Moratorium/PP/Sponsor` = morasponsor,
+        `Council member` = council_member,
+        Region         = regional_group
+      ) %>%
+      mutate(
+        Actor = str_to_title(Actor),
+        across(c(`Mining reg.`, `MSR inst.`, `Env. cust.`), ~ round(.x, 3)),
+        `Council member` = ifelse(`Council member` == 1, "yes", "no")
+      )
+  })
+
+  output$dl_actor_csv <- downloadHandler(
+    filename = "actor_scores.csv",
+    content  = function(file) write.csv(actor_dl_data(), file, row.names = FALSE)
+  )
+  output$dl_actor_excel <- downloadHandler(
+    filename = "actor_scores.xlsx",
+    content  = function(file) writexl::write_xlsx(actor_dl_data(), file)
+  )
+
+  # Download handlers — statements --------------------------------------------------
+  stmt_dl_data <- reactive({
+    gpt_results %>%
+      select(
+        Actor         = actor,
+        Date          = date,
+        Forum         = meeting,
+        Statement     = statement,
+        `Mining reg.` = mining_regulator,
+        `MSR inst.`   = science_institution,
+        `Env. cust.`  = environmental_custodian,
+        Explanation   = explanation
+      ) %>%
+      mutate(across(c(`Mining reg.`, `MSR inst.`, `Env. cust.`), ~ round(.x, 3)))
+  })
+
+  output$dl_stmt_csv <- downloadHandler(
+    filename = "statements.csv",
+    content  = function(file) write.csv(stmt_dl_data(), file, row.names = FALSE)
+  )
+  output$dl_stmt_excel <- downloadHandler(
+    filename = "statements.xlsx",
+    content  = function(file) writexl::write_xlsx(stmt_dl_data(), file)
+  )
 
   observeEvent(input$gpt_table_rows_selected, {
     req(length(input$gpt_table_rows_selected) > 0)

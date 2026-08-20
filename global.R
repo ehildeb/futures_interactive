@@ -1,5 +1,6 @@
 library(tidyverse)
 library(readxl)
+library(writexl)
 library(DT)
 library(plotly)
 library(visNetwork)
@@ -234,6 +235,12 @@ gpt_results <- read_csv(
       TRUE                               ~ str_to_title(meeting)
     )
   )
+
+# Recompute n_statements from current gpt_results (overrides stale CSV value)
+stmt_counts <- gpt_results %>% count(actor, name = "n_live")
+dta_agg <- dta_agg %>%
+  mutate(n_statements = stmt_counts$n_live[match(str_to_title(actor), stmt_counts$actor)]) %>%
+  mutate(n_statements = replace_na(n_statements, 0L))
 
 # Scale and vision definitions
 understandings <- read_excel(file.path(data_dir, "understandings.xlsx"))
