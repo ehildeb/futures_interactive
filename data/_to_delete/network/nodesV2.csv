@@ -1,0 +1,95 @@
+id,label,type,cluster5
+mr,Mining Regulator,vision,NA
+si,Scientific Institution,vision,NA
+ec,Environmental Custodian,vision,NA
+advisory_committee_on_the_protection_of_the_sea,Advisory Committee on the Protection of the Sea,actor,4
+african_group,African Group,actor,2
+antigua_and_barbuda,Antigua and Barbuda,actor,2
+argentina,Argentina,actor,1
+australia,Australia,actor,4
+austria,Austria,actor,4
+bahamas,Bahamas,actor,2
+bangladesh,Bangladesh,actor,2
+barbados,Barbados,actor,2
+belgium,Belgium,actor,1
+brazil,Brazil,actor,2
+cameroon,Cameroon,actor,1
+canada,Canada,actor,2
+centre_for_community_and_oceanic_law,Centre For Community and Oceanic Law,actor,1
+chair_legal_and_technical_commission,Chair Legal and Technical Commission,actor,2
+chile,Chile,actor,2
+china,China,actor,1
+costa_rica,Costa Rica,actor,4
+council_president,Council President,actor,1
+croatia,Croatia,actor,3
+cuba,Cuba,actor,4
+dosi,DOSI,actor,3
+dscc,DSCC,actor,3
+ecuador,Ecuador,actor,3
+federated_states_of_micronesia,Federated States of Micronesia,actor,4
+fiji,Fiji,actor,2
+france,France,actor,4
+germany,Germany,actor,4
+ghana,Ghana,actor,1
+greece,Greece,actor,3
+greenpeace,Greenpeace,actor,3
+india,India,actor,2
+interim_director_general_of_the_enterprise,Interim Director General of the Enterprise,actor,1
+international_telecommunication_union,International Telecommunication Union,actor,4
+ireland,Ireland,actor,1
+italy,Italy,actor,4
+iucn,IUCN,actor,3
+ivory_coast,Ivory Coast,actor,4
+jamaica,Jamaica,actor,1
+japan,Japan,actor,1
+kenya,Kenya,actor,2
+madagascar,Madagascar,actor,4
+malta,Malta,actor,2
+marshall_islands,Marshall Islands,actor,3
+mexico,Mexico,actor,1
+monaco,Monaco,actor,3
+morocco,Morocco,actor,2
+mozambique,Mozambique,actor,4
+nauru,Nauru,actor,1
+netherlands,Netherlands,actor,2
+new_zealand,New Zealand,actor,2
+nigeria,Nigeria,actor,2
+norway,Norway,actor,4
+oceans_north,Oceans North,actor,3
+opes_oceani_foundation,Opes Oceani Foundation,actor,1
+pakistan,Pakistan,actor,4
+palau,Palau,actor,3
+panama,Panama,actor,3
+pew,Pew,actor,4
+philippines,Philippines,actor,4
+poland,Poland,actor,1
+portugal,Portugal,actor,2
+qatar,Qatar,actor,2
+republic_of_korea,Republic of Korea,actor,3
+russia,Russia,actor,2
+samoa,Samoa,actor,4
+saudi_arabia,Saudi Arabia,actor,1
+secretary_general,Secretary General,actor,2
+senegal,Senegal,actor,2
+sierra_leone,Sierra Leone,actor,2
+singapore,Singapore,actor,2
+slovenia,Slovenia,actor,3
+south_africa,South Africa,actor,2
+spain,Spain,actor,4
+sri_lanka,Sri Lanka,actor,3
+sustainable_ocean_alliance,Sustainable Ocean Alliance,actor,3
+switzerland,Switzerland,actor,4
+tanzania,Tanzania,actor,2
+te_ipukarea_society,Te Ipukarea Society,actor,3
+tetiaroa_society,Tetiaroa Society,actor,3
+the_ocean_and_us,the Ocean and Us,actor,3
+tonga,Tonga,actor,2
+trinidad_and_tobago,Trinidad and Tobago,actor,1
+tuvalu,Tuvalu,actor,3
+uganda,Uganda,actor,1
+uk,UK,actor,2
+usa,USA,actor,1
+viet_nam,Viet Nam,actor,2
+wwf,WWF,actor,3
+zambia,Zambia,actor,4
+zimbabwe,Zimbabwe,actor,2

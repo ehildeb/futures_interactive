@@ -10,9 +10,7 @@ library(rlang)
 library(leaflet)
 
 # Paths
-data_dir  <- file.path("data", "working_data")
-network_dir <- file.path("data", "network")
-gpt_dir   <- file.path("data", "gpt_results")
+data_dir <- "data"
 
 # Actor aggregate data
 dta_agg <- read_csv(
@@ -60,8 +58,8 @@ un_countries <- read_csv(
 dta_agg <- dta_agg %>% left_join(un_countries, by = "actor")
 
 # Network data
-raw_nodes <- read_csv(file.path(network_dir, "nodes.csv"), show_col_types = FALSE)
-raw_edges <- read_csv(file.path(network_dir, "edges.csv"), show_col_types = FALSE)
+raw_nodes <- read_csv(file.path(data_dir, "nodesV2.csv"), show_col_types = FALSE)
+raw_edges <- read_csv(file.path(data_dir, "edgesV2.csv"), show_col_types = FALSE)
 
 # Correctly-cased display names from Gephi labels (WWF, DSCC, IUCN, etc.)
 # Used in all four actor selectize dropdowns.
@@ -216,18 +214,19 @@ net_edges <- raw_edges %>%
     color = "rgba(0,0,0,0.07)"
   )
 
-# Statement metadata: date, time, meeting (forum) from raw observation data
-stmt_meta <- read_csv(
-  file.path(data_dir, "working_data_clean_ISA.csv"),
-  col_types = cols_only(
-    id_statement = col_character(),
-    date         = col_character(),
-    time         = col_character(),
-    meeting      = col_character()
-  )
+# GPT model output (dta_resultsV2 already contains date, time, meeting)
+gpt_results <- read_csv(
+  file.path(data_dir, "dta_resultsV2.csv"),
+  show_col_types = FALSE
 ) %>%
-  distinct(id_statement, .keep_all = TRUE) %>%
+  filter(actor %in% dta_agg$actor) %>%
+  filter(!(mining_regulator == 0 & science_institution == 0 & environmental_custodian == 0)) %>%
+  select(id_statement, actor,
+         statement    = comment_obs,
+         mining_regulator, science_institution, environmental_custodian,
+         explanation, date, time, meeting) %>%
   mutate(
+    actor = str_to_title(actor),
     meeting = case_when(
       meeting == "30th part i council"   ~ "Council (30th Session Part I)",
       meeting == "30th part ii council"  ~ "Council (30th Session Part II)",
@@ -236,20 +235,8 @@ stmt_meta <- read_csv(
     )
   )
 
-# GPT model output
-gpt_results <- read_csv(
-  file.path(gpt_dir, "results_parsed_20251124_145506.csv"),
-  show_col_types = FALSE
-) %>%
-  filter(actor %in% dta_agg$actor) %>%
-  filter(!(mining_regulator == 0 & science_institution == 0 & environmental_custodian == 0)) %>%
-  select(id_statement, actor, statement, mining_regulator, science_institution,
-         environmental_custodian, explanation) %>%
-  mutate(actor = str_to_title(actor)) %>%
-  left_join(stmt_meta, by = "id_statement")
-
 # Scale and vision definitions
-understandings <- read_excel(file.path(gpt_dir, "understandings.xlsx"))
+understandings <- read_excel(file.path(data_dir, "understandings.xlsx"))
 scale_text      <- understandings$scale_understanding[1]
 vision_text     <- understandings$vision_understanding[1]
 
