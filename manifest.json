@@ -4041,6 +4041,34 @@
         "Archs": "x64"
       }
     },
+    "writexl": {
+      "Source": "CRAN",
+      "Repository": "https://cran.rstudio.com",
+      "description": {
+        "Package": "writexl",
+        "Type": "Package",
+        "Title": "Export Data Frames to Excel 'xlsx' Format",
+        "Version": "1.5.4",
+        "Authors@R": "c(\n    person(\"Jeroen\", \"Ooms\", ,\"jeroenooms@gmail.com\", role = c(\"aut\", \"cre\"),\n      comment = c(ORCID = \"0000-0002-4035-0289\")),\n    person(\"John McNamara\", role = \"cph\",\n      comment = \"Author of libxlsxwriter (see AUTHORS and COPYRIGHT files for details)\"))",
+        "Description": "Zero-dependency data frame to xlsx exporter based on 'libxlsxwriter'\n    <https://libxlsxwriter.github.io>. Fast and no Java or Excel required.",
+        "License": "BSD_2_clause + file LICENSE",
+        "Encoding": "UTF-8",
+        "URL": "https://ropensci.r-universe.dev/writexl\nhttps://docs.ropensci.org/writexl/",
+        "BugReports": "https://github.com/ropensci/writexl/issues",
+        "RoxygenNote": "7.0.2",
+        "Suggests": "spelling, readxl, nycflights13, testthat, bit64",
+        "Language": "en-US",
+        "SystemRequirements": "zlib",
+        "NeedsCompilation": "yes",
+        "Packaged": "2025-04-15 13:34:41 UTC; jeroen",
+        "Author": "Jeroen Ooms [aut, cre] (<https://orcid.org/0000-0002-4035-0289>),\n  John McNamara [cph] (Author of libxlsxwriter (see AUTHORS and COPYRIGHT\n    files for details))",
+        "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
+        "Repository": "CRAN",
+        "Date/Publication": "2025-04-15 14:40:03 UTC",
+        "Built": "R 4.4.3; x86_64-w64-mingw32; 2025-04-26 00:33:29 UTC; windows",
+        "Archs": "x64"
+      }
+    },
     "xfun": {
       "Source": "CRAN",
       "Repository": "https://cran.rstudio.com",
@@ -4189,49 +4217,76 @@
       "checksum": "a9b95219153c51928e857901c7639d7b"
     },
     "app.R": {
-      "checksum": "36dfff623d2cc537b858d1b9e8bfcc8c"
+      "checksum": "b3877a4021ae01e9479b1bafcb779728"
     },
     "CLAUDE.md": {
-      "checksum": "cd0d28d083d945a323065d1827e4fb2c"
+      "checksum": "fddae4a4ac7c349e725a70c209947be6"
     },
-    "data/gpt_results/results_parsed_20251124_145506.csv": {
+    "data/_to_delete/gpt_results/dta_resultsV2.csv": {
+      "checksum": "4a66d31d29cbecff7ba1de64b5e66075"
+    },
+    "data/_to_delete/gpt_results/results_parsed_20251124_145506.csv": {
       "checksum": "464c0ed7daf8bc8082f5bab6e190ed41"
     },
-    "data/gpt_results/results_parsed_20251128_212532.csv": {
+    "data/_to_delete/gpt_results/results_parsed_20251128_212532.csv": {
       "checksum": "21aaf1eb64f99c2f685164fa63e541c9"
     },
-    "data/gpt_results/understandings.xlsx": {
+    "data/_to_delete/gpt_results/understandings.xlsx": {
       "checksum": "fb664da82a39be1199bbbcc2a81d0132"
     },
-    "data/network/edges.csv": {
+    "data/_to_delete/network/edges.csv": {
       "checksum": "cf0db720c4ee833e7ae3d605c61dcdec"
     },
-    "data/network/km5_centers.xlsx": {
+    "data/_to_delete/network/edgesV2.csv": {
+      "checksum": "2cc6796d431280a6c4b82594c443053d"
+    },
+    "data/_to_delete/network/km5_centers.xlsx": {
       "checksum": "ae5712819f658b84ba6100ade61ba3e5"
     },
-    "data/network/nodes.csv": {
+    "data/_to_delete/network/nodes.csv": {
       "checksum": "036da7c8f8eda51ece3b617f0cac95a4"
     },
-    "data/working_data/dta_agg.csv": {
+    "data/_to_delete/network/nodesV2.csv": {
+      "checksum": "ae0c0929bcd18359bc6ede0a0fd98623"
+    },
+    "data/_to_delete/working_data/dta_agg.csv": {
       "checksum": "813ac986e4e611b0c83bddc7fcb995a8"
     },
-    "data/working_data/dta_agg_SUBMITTED.csv": {
+    "data/_to_delete/working_data/dta_agg_SUBMITTED.csv": {
       "checksum": "07b58ec645b2ec8cd20a041ae8ed920e"
     },
-    "data/working_data/un_countries.csv": {
+    "data/_to_delete/working_data/un_countries.csv": {
       "checksum": "f025c6c84df4386dabc8bb15782ea167"
     },
+    "data/_to_delete/working_data/working_data_clean_ISA.csv": {
+      "checksum": "0f799f6096b5c36bb3c052c66036ca12"
+    },
+    "data/dta_agg.csv": {
+      "checksum": "813ac986e4e611b0c83bddc7fcb995a8"
+    },
+    "data/dta_resultsV2.csv": {
+      "checksum": "4a66d31d29cbecff7ba1de64b5e66075"
+    },
+    "data/edgesV2.csv": {
+      "checksum": "2cc6796d431280a6c4b82594c443053d"
+    },
+    "data/nodesV2.csv": {
+      "checksum": "ae0c0929bcd18359bc6ede0a0fd98623"
+    },
+    "data/un_countries.csv": {
+      "checksum": "f025c6c84df4386dabc8bb15782ea167"
+    },
+    "data/understandings.xlsx": {
+      "checksum": "fb664da82a39be1199bbbcc2a81d0132"
+    },
     "global.R": {
-      "checksum": "8e6bb48dd3469e54e3563d186b3e6a4c"
+      "checksum": "d475ff392eab79fc8d9bb7f91075bf20"
     },
     "node_editor.R": {
       "checksum": "db20315c7fda1f7b13d5cd66c7242a45"
     },
     "node_positions_manual.csv": {
       "checksum": "0fbf75efff0d5394722fd3b17cf3ce41"
-    },
-    "node_positions_manual_1.csv": {
-      "checksum": "5d6b8bba00592ab872e46cb54da4d4a1"
     }
   },
   "users": null
