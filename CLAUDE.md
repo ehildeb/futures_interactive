@@ -50,12 +50,43 @@ The paper combines a **futuring approach** with **discursive institutionalism** 
 
 ---
 
+## Performance and caching
+
+`global.R` is restructured into two phases:
+1. **Constants and functions** (always runs, instant): colour constants, `pole_coords`, `map_pal_cfg`, and all function definitions (`nudge_apart`, `make_group_data`, `plot_all_visions`, `make_vision_plotly`, `make_vision_toggle`).
+2. **Data** (cache-gated): all I/O and computation is skipped if `data/globals_cache.rds` exists.
+
+### Rebuilding the cache
+
+Run this once from the `futures_interactive/` directory whenever source data or processing logic changes:
+
+```r
+Rscript build_cache.R
+```
+
+Then commit `data/globals_cache.rds` to git. Posit Connect picks it up at the next deploy and skips all startup processing (target: under 1s vs. several seconds cold).
+
+`data/globals_cache.rds` is **not** in `.gitignore` and must be committed. The app falls back to full processing if the file is missing.
+
+### What the cache contains
+
+`dta_agg`, `actor_label_lookup`, `actor_choices`, `net_nodes`, `net_edges`, `gpt_results`, `stmt_counts`, `understandings`, `scale_text`, `vision_text`, `world_map_sf`, `map_color_fns`, `map_labels`, `bar_dev_data`, `bar_morasponsor_data`, `bar_sids_data`, `bar_type_data`, `bar_council_data`.
+
+### Other optimisations applied
+
+- `dta_resultsV2.csv` (4 MB, 49 cols): only the 10 needed columns are parsed via `col_select` in `read_csv` -- the `gpt_prompt` column (most of the file size) is never read.
+- `map_labels`: vectorised with `mapply` instead of row-by-row `lapply(seq_len(nrow(...)))`.
+- `un_countries` intermediate tibble is `rm()`d after the join.
+
+---
+
 ## App Structure
 
 ```
 futures_interactive/
   app.R        # UI + server (all CSS inline as `css` string at top)
-  global.R     # data loading, network layout, make_group_data()
+  global.R     # constants, functions, then cache-gated data loading
+  build_cache.R  # run locally to regenerate data/globals_cache.rds
   CLAUDE.md    # this file
 ```
 
@@ -284,9 +315,11 @@ observeEvent(input$network_info_open, {
 - [x] Statement browser: Date/Time/Forum columns instead of ID; id_statement kept as hidden col for row lookup
 - [x] Statement popup: shows ID, date, time, meeting in title area
 - [x] Actor Scores tab: actor dropdown removed (kept in Statements tab)
-- [ ] World maps tab
-- [ ] Replace lorem ipsum with actual paper content
-- [ ] Wire floated chart placeholders to actual plotly bar charts
+- [x] World map (choropleth Leaflet, embedded in Finding 2, vision toggle + reset view)
+- [x] Replace lorem ipsum with actual paper content (Introduction, Visions, Findings, Implications all written)
+- [x] Wire bar chart placeholders to plotly (finding1_bars, finding2_mora_bars, finding2_sids_bars, finding3_bars)
+- [x] Documentation tab with full methods section
+- [x] Dead code removed: make_group_data(), plot_all_visions(), theme_bar, make_vision_toggle(), output$finding4_bars, bar_council_data (all unused — none referenced in UI or called from server)
 
 ### Statement browser column layout (as of 2026-07-16)
 

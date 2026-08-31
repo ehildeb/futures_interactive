@@ -999,14 +999,14 @@ ui <- page_navbar(
     div(class = "paper",
       div(class = "paper-header",
         tags$h1("Negotiating futures: Three visions for the International Seabed Authority"),
-        tags$p(class = "subtitle", HTML('Paper by Emil W. Hildebrand and Alice B. M. Vadrot | Published in <em>Geopolitics</em> journal, 2026 | <a href="http://twinpolitics.eu" target="_blank" style="color:inherit;">ERC TwinPolitics project</a>'))
+        tags$p(class = "subtitle", HTML('Paper by Emil W. Hildebrand and Alice B. M. Vadrot | Published in Geopolitics, 2026 | <a href="http://twinpolitics.eu" target="_blank" style="color:inherit;">ERC TwinPolitics project</a>'))
       ),
       tags$p(HTML(
-        'You are looking at the condensed interactive web version of our paper <strong>Negotiating futures: Seeds of alternative visions for the International Seabed Authority</strong>.
+        'You are looking at the condensed interactive web version of our paper <strong>Negotiating futures: Three visions for the International Seabed Authority</strong>.
         The full published version of it, including references, can be <a href="https://doi.org" target="_blank">found here</a>.
         Read about the visions by clicking their cards below, use the visualisations to explore our main findings, and visit
         <a href="#" onclick="document.querySelector(\'[data-bs-toggle=tab][data-value=Data]\').click(); return false;">the data tab</a>
-        to browse the underlying data. For questions or feedback, please contact [Emil W. Hildebrand].'
+        to browse the underlying data. For questions or feedback, please contact <a href="mailto:emil.wieringa.hildebrand@univie.ac.at" style="color:inherit;">Emil W. Hildebrand</a>.'
       )),
       
       div(class = "section-nav",
@@ -1120,7 +1120,8 @@ ui <- page_navbar(
           Hover over an actor to see their scores, or click two actors to compare their score profile in the actor comparison module.
           Filter actor types and clusters by clicking their labels in the legend. A 3D version of the semantic space is also available
           by clicking the top right button."
-        )
+        ),
+        tags$p("Please note that, while the overall patterns are robust, caution should be used when interpreting the exact position of specific actors. Especially for actors delivering only a few or very short statements, small differences in the model's interpretation may lead to some variations in the exact vision scores."),
       ),
     ),
 
@@ -1562,23 +1563,32 @@ ui <- page_navbar(
       tags$hr(class = "sec-divider"),
 
       tags$h2(id = "section-implications", "Implications"),
-      tags$p(
-        "The ISA and its member states may do well in remembering the ‘potentiality in a regime that continues to be in the making”.
+      
+      tags$p("On a broader level, we raise the question of whether the ISA can move beyond its mining regulator orientation.
+             From the perspective of discursive institutionalism, actors can persuade other actors to adopt alternative views,
+             creating opportunities to reorient the ISA towards MSR and environmental custodianship as other legitimate
+             operationalisations of the common heritage principle – not to mention the myriad of other possible visions for
+             the ISA that we have not engaged with here. Such change requires actors within the ISA negotiations to openly
+             discuss alternative visions for the future. While there are examples of explicit imaginations of alternative
+             futures within the negotiations – France, for example, wishing to make ‘Kingston and the Authority
+             the beating heart of oceanic science on the deep seabed’ – most visions remain implicit."),
+      
+      tags$p("The ISA indeed has an arena where such discussions should be possible: The Assembly has an explicit mandate to
+             discuss overarching policies for the ISA and to initiate a periodic review every five years –
+             both of which would provide room for actors to actively and explicitly discuss their visions for the ISA.
+             The insistent focus on the Mining Code and its use as a reason for deferring processes also in Assembly, however,
+             marginalises explicit discussions on alternative futures. This inherently favours a status quo-oriented path forward."),
+      
+      tags$p("The ISA and its member states may do well in remembering the ‘potentiality in a regime that continues to be in the making”.
         Deep-sea mining remains, after all, a potential industry and its commencement is not inevitable.
         Thus, the future of the ISA is not fixed to one path but remains dependent on the political will of the actors negotiating
-        its role and their visions for its future." 
-      ),
-      tags$p(
-        "From the perspective of discursive institutionalism, actors can persuade other actors to adopt alternative views, creating
-        opportunities to reorient the ISA towards other legitimate operationalisations of the common heritage principle. Such change
-        requires actors within the ISA negotiations to openly discuss alternative visions for the future of the ISA."
-      ),
-      tags$p(
-        "Ultimately, the legitimacy of the ISA does not rest on its capacity to initiate mineral exploitation, but on its ability to govern
+        its role and their visions for its future."),
+    
+      tags$p("Time will tell whether the alternative visions imagined in this paper – or completely new ones – come to pass in some form or another.
+        Ultimately, the legitimacy of the ISA does not rest on its capacity to initiate mineral exploitation, but on its ability to govern
         the Area in a way that reflects the common heritage principle. As the ISA enters its fourth decade of operations and under new
         leadership, the organisation and its member states may take this critical moment to explicitly reflect on the ISA’s role as a steward
-        of the common heritage of humankind and its way forward."
-      )
+        of the common heritage of humankind and its way forward."),
     )
   ),
 
@@ -1591,9 +1601,21 @@ ui <- page_navbar(
           br(),
           card(fill = FALSE,
             card_header(
-              span("Actor mean vision scores"),
+              span("Mean vision scores per actor"),
               div(class = "dt-hdr-ctrl",
-                downloadButton("dl_actor_csv",   "Download CSV",   class = "dt-dl-btn"),
+                div(class = "actor-select", style = "width:200px;",
+                  selectizeInput("actor_table_actor", NULL,
+                    choices  = actor_choices,
+                    selected = "", width = "100%",
+                    options  = list(placeholder = "Select actor")
+                  )
+                ),
+                tags$button(
+                  class   = "dt-reset-btn",
+                  onclick = "$('#actor_table_actor')[0].selectize.setValue('');",
+                  bs_icon("arrow-counterclockwise"), "Reset"
+                ),
+                downloadButton("dl_actor_csv",   "Download CSV",   class = "dt-dl-btn", style = "margin-left:0.75rem;"),
                 downloadButton("dl_actor_excel", "Download Excel", class = "dt-dl-btn")
               )
             ),
@@ -1605,7 +1627,7 @@ ui <- page_navbar(
           br(),
           card(fill = FALSE,
             card_header(
-              span("Statements — click any row to view the full text and model explanation"),
+              span("Click any row to view the full text and model explanation"),
               div(class = "dt-hdr-ctrl",
                 div(id = "gpt-hdr-ctrl"),
                 div(class = "actor-select", style = "width:200px;",
@@ -1640,55 +1662,41 @@ ui <- page_navbar(
         tags$h1("Documentation")
       ),
 
-      tags$h2("Links"),
-      tags$ul(
-        tags$li(tags$a(href = "https://doi.org", target = "_blank", "Published paper")),
-        tags$li(tags$a(href = "https://github.com", target = "_blank", "GitHub repository")),
-        tags$li(tags$a(href = "https://twinpolitics.eu", target = "_blank", "TwinPolitics project page"))
-      ),
+      tags$h2("Notes"),
+      
+      tags$p(HTML("This interactive version of our paper is a condensed version of the original published version, which can be <a href=\"https://dx.doi.org/10.1080/14650045.2026.2721460\" target=\"_blank\">found here</a>. The data, methods, and analysis are identical to the original, with the exception of a stricter filtering applied to the statements resulting in a lower number of statements (362 instead of 505) and actors (91 instead of 97). The patterns and findings remain robust.")),
+      
+      tags$p(HTML("This paper is part of the <a href=\"https://twinpolitics.eu\" target=\"_blank\">TwinPolitics project</a> at the University of Vienna, led by Prof. Alice Vadrot and funded by the European Research Council (grant No 101124903 – TwinPolitics – ERC-2023-CoG). The interactive version is an R shiny application built on the original paper code and developed into a working web version with the help of Claude Code. The full code for the interactive version can be <a href=\"https://github.com/ehildeb/futures_interactive\" target=\"_blank\">found here</a>.")),
 
       tags$hr(class = "sec-divider"),
 
-      tags$h2("Methods"),
-      tags$p(class = "subtitle-methods", "Identifying visions in ISA negotiations: collecting and analysing statement data"),
+      tags$h2("Method"),
+      
+      tags$p("Please refer to the published version for the full overview of the method."),
 
       tags$h3("Data collection and processing"),
 
       tags$p("The statement data used in this analysis was collected using Collaborative Event Ethnography and covers a full year of ISA negotiations, online and on-site in Kingston, including the Council meeting in Part I of the ISA’s 30th Session from March 17-28, 2025, and the Council and Assembly meetings in Part II of the 30th Session from July 7-25, 2025. A transcript of every statement made during the negotiations was collected in a database together with the actor, time and date, negotiation setting (informal or formal), as well as personal notes from the researcher. The statements were automatically transcribed from the ISA’s publicly available livestream."),
 
-      tags$p("This represents a unique data set in the ISA context. No publicly available records of the negotiations exist apart from ENB reports (IISD Earth Negotiations Bulletin, n.d.) and ad-hoc uploads of statements from individual actors to the ISA website. The lack of official meeting records has been criticised as ‘concerning from the perspective of accountability and democratic participation’."),
-
-      tags$p("Only statements made in a formal negotiation setting are included in the analysis. This means that the formal parts of Council and all of Assembly are in the final data set, but negotiations on the Mining Code itself are not. Mining Code negotiations are text-bound and leaves less room for actors to choose their own topics and emphasis, making them less suitable for identifying discursive seeds. Most of the statements in our analysis consist of general opening remarks and responses to reports from various ISA bodies such as the LTC, Finance Committee, and the Secretary-General, as well as special agenda points such as the celebration of the ISA’s 30th birthday."),
-
-      tags$p("The data was further filtered to only include statements made by states, NGOs, IGOs, and ISA representatives. The data used in the analysis consists of 799 negotiation statements made by 110 actors. After filtering for statements of a substantive nature (i.e. discarding statements marked as purely procedural during the analysis), the final sample contains 505 statements across 97 actors."),
+      tags$p("Only statements made in a formal negotiation setting are included in the analysis. The data was further filtered to only include statements made by states, NGOs, IGOs, and ISA representatives. After filtering for statements of a substantive nature (i.e. discarding statements marked as purely procedural during the analysis), the final sample contains 362 statements across 91 actors."),
 
       tags$h3("Analysing negotiation data using an LLM approach"),
 
       tags$p("Our analysis consists of scoring every negotiation statement on a 0-1 scale indicating how strongly it contains discursive seeds of the three visions, using the large language model GPT-5 Mini."),
 
-      tags$p("While human qualitative coding remains the traditional gold standard for handling natural language, contextual complexity, and nuance, the number and length of statements in our dataset makes manual coding impractical due to constraints of time, resources, and the risk of coder fatigue. The LLM-based approach we adopted offers an alternative that maintains sensitivity to context and nuance while allowing systematic analysis across the entire data set."),
-
       tags$h4("Prompt building and validation"),
 
-      tags$p("The ‘black-box’ nature of LLMs makes evaluation and prompt validation a crucial task. In line with academic best practices, the model prompt was constructed, evaluated, and reconstructed in an iterative process to ensure validity and consistency following a five-step approach (Appendix B). The final prompt can be found in Appendix C."),
+      tags$p("The ‘black-box’ nature of LLMs makes evaluation and prompt validation a crucial task. In line with academic best practices, the model prompt was constructed, evaluated, and reconstructed in an iterative process to ensure validity and consistency following a five-step approach. The final prompt can be found in Appendix C of the published paper."),
 
-      tags$h4("Model performance and robustness checks"),
+      tags$h4("Model limitations and robustness checks"),
 
-      tags$p("The model handled the data well from the outset. It understood the natural language and the sometimes less-than-perfect transcriptions of the statements; it managed the highly specific context of multilateral deep-sea mining negotiations and distinguished effectively between procedural and substantial content; and it mostly provided well-founded reasons for its scoring. Although the prompt went through many iterations, most of the changes were small and the model’s misconceptions minor."),
+      tags$p("A limitation of the model is that it functions best with longer statements, such as general opening statements where countries present their broad positions. For shorter statements, the model sometimes looks for evidence where a human coder might question its inclusion for lack of substantive amounts of text. This was particularly the case for shorter statements addressing practical or regulatory matters. The model tends to score these statements higher on the mining regulator vision, leading to an inflation of this score for certain particularly active actors. In a traditional research design, such statements would likely be marked by the coder and discussed within the research team. This lack of flagging and discussion must be acknowledged as a weakness of using an LLM-based approach compared to human coders."),
 
-      tags$p("The model performed particularly well in its handling of contextual nuances. For instance, the model was able to identify when one vision was subjugated another within a statement:"),
-
-      tags$blockquote("[…] Environmental custodian: 0.42 – The speaker affirms the duty to 'protect and preserve the marine environment' and supports a general environmental policy, but treats it as complementary and subordinate to exploitation regulations and rejects it guiding those regulations, indicating an environmental concern that is present but secondary to a regulatory/mining orientation."),
-
-      tags$p("The original statement is lengthy, and picking up this nuance requires a high level of contextual understanding."),
-
-      tags$p("A limitation of the model is that it functions best with longer statements, such as general opening statements where countries present their broad positions. For shorter statements, the model sometimes looks for evidence where a human coder might question its inclusion for lack of substantive amounts of text. Positively, the model only assigns moderate scores in such cases, thus not overstating the vision fit. In a traditional research design, the statement would likely be marked by the coder and discussed within the research team. This lack of flagging and discussion must be acknowledged as a weakness of using an LLM-based approach compared to human coders."),
-
-      tags$p("To validate the model’s understanding of the three visions and the 0-1 scale, it was asked to provide its own explanation based on the original prompt. The explanation is consistent with the understanding of the researchers. A stochasticity test shows an average standard deviation of 0.319 across five separate runs of the analysis. On a 0-1 scale this is high. An intraclass correlation coefficient test (ICC), however, reveals that the relative scoring of each statement is highly consistent across runs (two-way mixed effects model, ‘consistency’ definition, ICC > 0.9 for all three visions = ‘excellent reliability’). In other words, any observed patterns between actors remain highly robust across multiple runs."),
+      tags$p("To validate the model’s understanding of the three visions and the 0-1 scale, it was asked to provide its own explanation based on the original prompt. The explanation is consistent with the understanding of the researchers (see Appendices D and E in the published paper). A stochasticity test shows an average standard deviation of 0.319 across five separate runs of the analysis. On a 0-1 scale this is high. An intraclass correlation coefficient test (ICC), however, reveals that the relative scoring of each statement is highly consistent across runs (two-way mixed effects model, ‘consistency’ definition, ICC > 0.9 for all three visions = ‘excellent reliability’). In other words, any observed patterns between actors remain highly robust across multiple runs."),
 
       tags$h4("LLM bias and model choice"),
 
-      tags$p("The model does not solely rely on the system prompt when analysing each statement. Like a human coder, it brings with it an existing ‘understanding’ of the ISA and deep-sea mining, in this case based on the model’s training data. Interestingly, the model seems to harbour some of the bias towards the ISA as a mining regulator that we expect to see in the negotiations themselves. This became clear in its scoring of statements on the mining regulator vision based on certain words such as ‘activities’, ‘common heritage’, ‘benefit-sharing’, and ‘capacity building’, even when it was not immediately clear whether the actor was referring to mining or mining regulation. For the sake of validity, the model was instructed to read such terms in context and only score them when it was clear what sort of vision they invoked. Despite this, the model sometimes gave scores based on these terms even when their context was not explicitly mentioned. LLM bias in ocean governance has already been identified by others and should be kept in mind when interpreting the results."),
+      tags$p("The model does not solely rely on the system prompt when analysing each statement. Like a human coder, it brings with it an existing ‘understanding’ of the ISA and deep-sea mining, in this case based on the model’s training data. The model seems to harbour some bias towards the ISA as a mining regulator. The bias became clear in the model's scoring of statements on the mining regulator vision based on certain words such as ‘activities’, ‘common heritage’, ‘benefit-sharing’, and ‘capacity building’, even when it was not immediately clear whether the actor was referring to mining or mining regulation. For the sake of validity, the model was instructed to read such terms in context and only score them when it was clear what sort of vision they invoked. Despite this, the model sometimes gave scores based on these terms even when their context was not explicitly mentioned."),
 
       tags$p("It is generally considered best practice to use open-source models when conducting an LLM-based analyses. Our choice of OpenAI’s GPT-5 Mini, however, is motivated by its sophistication and large knowledge base. Given the high specificity of the negotiations and the multilateral setting in which the statements are made, the model must be able to handle highly specialised content. By conducting robustness, bias, and stochasticity tests as outlined above, following a rigorous prompt validation process, and being transparent about the prompt and model parameters used (Appendices A-D), we have sought to minimise potential issues of using a commercial model."),
 
@@ -1698,7 +1706,7 @@ ui <- page_navbar(
 
       tags$p("The final scores represent how strongly discursive seeds of the three visions appear in an actor’s statements on average throughout the negotiations. The scores do not mean that an actor explicitly supports any vision in their statement, neither should the scores be read as direct proxies for an actor’s stance on deep-sea mining. This particularly applies to the mining regulator vision, as actors may favour both lenient and strict regulations and still score high on the regulator vision. The scores do indicate, however, when an actor expresses ideas that correspond with such understandings of the role of the ISA or its future."),
 
-      tags$p("Finally, our data covers one year of negotiations, with its specific agenda points and topics. Different agenda points may have brought different emphases and topics. However, all actors have the same opportunity to speak on the same agenda points, meaning that we can still analyse the relative differences between actors in our data."),
+      tags$p("Finally, our data covers one year of negotiations, with its specific agenda points and topics. Different agenda points may have brought different emphases and topics. However, all actors have the same opportunity to speak on the same agenda points, meaning that we can meaningfully analyse the relative differences between the actors in our data."),
 
     )
   ),
@@ -2415,9 +2423,17 @@ server <- function(input, output, session) {
   # Actor scores table ----------------------------------------------------------
   output$actor_table <- renderDT({
     df <- dta_agg
+    if (!is.null(input$actor_table_actor) && input$actor_table_actor != "") {
+      df <- df %>% filter(actor == input$actor_table_actor)
+    }
     df %>%
+      mutate(
+        Actor = { lkp <- actor_label_lookup[actor]; ifelse(!is.na(lkp), unname(lkp), str_to_title(actor)) },
+        across(c(mean_mr2, mean_si2, mean_ec2), ~ round(.x, 3)),
+        council_member = ifelse(council_member == 1, "yes", "no")
+      ) %>%
       select(
-        Actor          = actor,
+        Actor,
         Type           = actor_type_eh2,
         Statements     = n_statements,
         `Mining reg.`  = mean_mr2,
@@ -2426,11 +2442,6 @@ server <- function(input, output, session) {
         `Moratorium/PP/Sponsor` = morasponsor,
         `Council member` = council_member,
         Region         = regional_group
-      ) %>%
-      mutate(
-        Actor = str_to_title(Actor),
-        across(c(`Mining reg.`, `MSR inst.`, `Env. cust.`), ~ round(.x, 3)),
-        `Council member` = ifelse(`Council member` == 1, "yes", "no")
       ) %>%
       datatable(
         rownames = FALSE,
@@ -2484,7 +2495,10 @@ server <- function(input, output, session) {
         `MSR inst.`   = science_institution,
         `Env. cust.`  = environmental_custodian
       ) %>%
-      mutate(across(c(`Mining reg.`, `MSR inst.`, `Env. cust.`), ~ round(.x, 3)))
+      mutate(
+        Actor = { lkp <- actor_label_lookup[tolower(Actor)]; ifelse(!is.na(lkp), unname(lkp), Actor) },
+        across(c(`Mining reg.`, `MSR inst.`, `Env. cust.`), ~ round(.x, 3))
+      )
   })
 
   output$gpt_table <- renderDT({
@@ -2701,11 +2715,6 @@ server <- function(input, output, session) {
   # ── Finding 3: actor type bars-----------------------------------------------
   output$finding3_bars <- renderPlotly({
     make_vision_plotly(bar_type_data, "actor_type_eh2")
-  })
-
-  # ── Finding 4: council membership bars---------------------------------------
-  output$finding4_bars <- renderPlotly({
-    make_vision_plotly(bar_council_data, "council_member")
   })
 }
 

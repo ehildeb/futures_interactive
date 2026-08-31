@@ -5,3 +5,5 @@
 .DS_Store
 .quarto
 node_editor.R
+CLAUDE.md
+.claude/
