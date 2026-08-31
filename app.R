@@ -88,6 +88,14 @@ body, html { background: #FFFFFF; }
   margin: 1.4rem 0 0.4rem;
   line-height: 1.4;
 }
+.paper h4 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-style: italic;
+  color: #1a1a2e;
+  margin: 1.4rem 0 0.4rem;
+  line-height: 1.4;
+}
 
 /* Network: full-width outer container (slight side margins), responsive flex */
 .network-section {
