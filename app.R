@@ -1105,11 +1105,12 @@ ui <- page_navbar(
         – collected across more than 150 hours of negotiations – we score each actor from 0-1 based on how strongly
         the discursive seeds of each vision appear in their statements."
       ),
-      tags$p(HTML(
-        'Each statement made in a formal setting during the 30th Session of the ISA’s Council and Assembly is
-        included in the analysis. After filtering, a total of <a href="#" onclick="event.preventDefault(); gotoStatements();">798 statements</a> by
-        <a href="#" onclick="event.preventDefault(); gotoActorScores();">97 actors</a> are included.'
-      )),
+      tags$p(HTML(sprintf(
+        "Each statement made in a formal setting during the 30th Session of the ISA’s Council and Assembly is included in the analysis.
+        After filtering for relevant and substantive statements, a total of <a href=\"#\" onclick=\"event.preventDefault(); gotoStatements()\">%d statements</a> by <a href=\"#\" onclick=\"event.preventDefault(); gotoActorScores()\">%d actors</a> are included.
+        Note that this interactive version of the paper uses updated filtering criteria to better account for biases in the LLM model, resulting in a lower number of statements than in the original published paper. The overall findings remain robust.",
+        nrow(gpt_results), nrow(dta_agg)
+      ))),
       tags$hr(class = "sec-divider"),
       div(class = "finding",
         tags$h3("Finding 1: Distribution of discursive seeds among actors"),
@@ -1639,7 +1640,6 @@ ui <- page_navbar(
         tags$h1("Documentation")
       ),
 
-      # Links
       tags$h2("Links"),
       tags$ul(
         tags$li(tags$a(href = "https://doi.org", target = "_blank", "Published paper")),
@@ -1649,74 +1649,56 @@ ui <- page_navbar(
 
       tags$hr(class = "sec-divider"),
 
-      # Methods
       tags$h2("Methods"),
+      tags$p(class = "subtitle-methods", "Identifying visions in ISA negotiations: collecting and analysing statement data"),
 
       tags$h3("Data collection and processing"),
-      tags$p(
-        "The statement data was collected using Collaborative Event Ethnography and covers a full year of ISA
-        negotiations, online and on-site in Kingston. Statements were collected during the Council meeting in
-        Part I of the ISA's 30th Session (March 17-28, 2025), and the Council and Assembly meetings in Part II
-        (July 7-25, 2025). A transcript of every statement was collected in a database together with the actor,
-        time and date, and negotiation setting."
-      ),
-      tags$p(
-        "Only statements made in a formal negotiation setting are included. Mining Code negotiations are
-        text-bound and leave less room for actors to choose their own topics and emphasis, making them less
-        suitable for identifying vision invocations. The data set consists of 799 statements made by 110
-        actors, comprising more than 280,000 words. After filtering for substantive statements, the final
-        sample contains 505 statements across 97 actors."
-      ),
+
+      tags$p("The statement data used in this analysis was collected using Collaborative Event Ethnography and covers a full year of ISA negotiations, online and on-site in Kingston, including the Council meeting in Part I of the ISA’s 30th Session from March 17-28, 2025, and the Council and Assembly meetings in Part II of the 30th Session from July 7-25, 2025. A transcript of every statement made during the negotiations was collected in a database together with the actor, time and date, negotiation setting (informal or formal), as well as personal notes from the researcher. The statements were automatically transcribed from the ISA’s publicly available livestream."),
+
+      tags$p("This represents a unique data set in the ISA context. No publicly available records of the negotiations exist apart from ENB reports (IISD Earth Negotiations Bulletin, n.d.) and ad-hoc uploads of statements from individual actors to the ISA website. The lack of official meeting records has been criticised as ‘concerning from the perspective of accountability and democratic participation’."),
+
+      tags$p("Only statements made in a formal negotiation setting are included in the analysis. This means that the formal parts of Council and all of Assembly are in the final data set, but negotiations on the Mining Code itself are not. Mining Code negotiations are text-bound and leaves less room for actors to choose their own topics and emphasis, making them less suitable for identifying discursive seeds. Most of the statements in our analysis consist of general opening remarks and responses to reports from various ISA bodies such as the LTC, Finance Committee, and the Secretary-General, as well as special agenda points such as the celebration of the ISA’s 30th birthday."),
+
+      tags$p("The data was further filtered to only include statements made by states, NGOs, IGOs, and ISA representatives. The data used in the analysis consists of 799 negotiation statements made by 110 actors. After filtering for statements of a substantive nature (i.e. discarding statements marked as purely procedural during the analysis), the final sample contains 505 statements across 97 actors."),
 
       tags$h3("Analysing negotiation data using an LLM approach"),
-      tags$p(
-        "Our analysis consists of scoring every negotiation statement on a 0-1 scale indicating how strongly
-        it invokes each of the three visions, using GPT-5 Mini. The number and length of statements makes
-        manual coding impractical due to constraints of time, resources, and the risk of coder fatigue. The
-        LLM-based approach maintains sensitivity to context and nuance while allowing systematic analysis
-        across the entire data set."
-      ),
-      tags$p(
-        "The model prompt was constructed, evaluated, and reconstructed in an iterative process to ensure
-        validity and consistency following a five-step approach. The model handled the data well from the
-        outset: it understood natural language and imperfect transcriptions, managed the highly specific
-        context of deep-sea mining negotiations, and almost always provided well-founded reasons for its
-        scoring. The model performed particularly well in its handling of contextual nuances -- for instance,
-        identifying when one vision was subjugated to another within a statement."
-      ),
-      tags$p(
-        "A limitation is that the model functions best with longer statements. For shorter statements, the
-        model sometimes looks for evidence where a human coder might question its inclusion. Positively, the
-        model only assigns moderate scores in such cases. A stochasticity test shows an average standard
-        deviation of 0.319 across five separate runs. An intraclass correlation coefficient (ICC) test,
-        however, reveals highly consistent relative scoring across runs (ICC > 0.9 for all three visions =
-        'excellent reliability'). Any patterns between actors remain highly robust across multiple runs."
-      ),
-      tags$p(
-        "The model seems to harbour some bias towards the ISA as a mining regulator, scoring statements as
-        invoking this vision based on certain words even when context was ambiguous. The model was instructed
-        to read such terms in context, though some bias persisted. Our choice of GPT-5 Mini over open-source
-        models is motivated by the high specificity of the negotiations; by conducting robustness, bias, and
-        stochasticity tests and being transparent about the prompt and model parameters used, we have sought
-        to minimise potential issues."
-      ),
+
+      tags$p("Our analysis consists of scoring every negotiation statement on a 0-1 scale indicating how strongly it contains discursive seeds of the three visions, using the large language model GPT-5 Mini."),
+
+      tags$p("While human qualitative coding remains the traditional gold standard for handling natural language, contextual complexity, and nuance, the number and length of statements in our dataset makes manual coding impractical due to constraints of time, resources, and the risk of coder fatigue. The LLM-based approach we adopted offers an alternative that maintains sensitivity to context and nuance while allowing systematic analysis across the entire data set."),
+
+      tags$h4("Prompt building and validation"),
+
+      tags$p("The ‘black-box’ nature of LLMs makes evaluation and prompt validation a crucial task. In line with academic best practices, the model prompt was constructed, evaluated, and reconstructed in an iterative process to ensure validity and consistency following a five-step approach (Appendix B). The final prompt can be found in Appendix C."),
+
+      tags$h4("Model performance and robustness checks"),
+
+      tags$p("The model handled the data well from the outset. It understood the natural language and the sometimes less-than-perfect transcriptions of the statements; it managed the highly specific context of multilateral deep-sea mining negotiations and distinguished effectively between procedural and substantial content; and it mostly provided well-founded reasons for its scoring. Although the prompt went through many iterations, most of the changes were small and the model’s misconceptions minor."),
+
+      tags$p("The model performed particularly well in its handling of contextual nuances. For instance, the model was able to identify when one vision was subjugated another within a statement:"),
+
+      tags$blockquote("[…] Environmental custodian: 0.42 – The speaker affirms the duty to 'protect and preserve the marine environment' and supports a general environmental policy, but treats it as complementary and subordinate to exploitation regulations and rejects it guiding those regulations, indicating an environmental concern that is present but secondary to a regulatory/mining orientation."),
+
+      tags$p("The original statement is lengthy, and picking up this nuance requires a high level of contextual understanding."),
+
+      tags$p("A limitation of the model is that it functions best with longer statements, such as general opening statements where countries present their broad positions. For shorter statements, the model sometimes looks for evidence where a human coder might question its inclusion for lack of substantive amounts of text. Positively, the model only assigns moderate scores in such cases, thus not overstating the vision fit. In a traditional research design, the statement would likely be marked by the coder and discussed within the research team. This lack of flagging and discussion must be acknowledged as a weakness of using an LLM-based approach compared to human coders."),
+
+      tags$p("To validate the model’s understanding of the three visions and the 0-1 scale, it was asked to provide its own explanation based on the original prompt. The explanation is consistent with the understanding of the researchers. A stochasticity test shows an average standard deviation of 0.319 across five separate runs of the analysis. On a 0-1 scale this is high. An intraclass correlation coefficient test (ICC), however, reveals that the relative scoring of each statement is highly consistent across runs (two-way mixed effects model, ‘consistency’ definition, ICC > 0.9 for all three visions = ‘excellent reliability’). In other words, any observed patterns between actors remain highly robust across multiple runs."),
+
+      tags$h4("LLM bias and model choice"),
+
+      tags$p("The model does not solely rely on the system prompt when analysing each statement. Like a human coder, it brings with it an existing ‘understanding’ of the ISA and deep-sea mining, in this case based on the model’s training data. Interestingly, the model seems to harbour some of the bias towards the ISA as a mining regulator that we expect to see in the negotiations themselves. This became clear in its scoring of statements on the mining regulator vision based on certain words such as ‘activities’, ‘common heritage’, ‘benefit-sharing’, and ‘capacity building’, even when it was not immediately clear whether the actor was referring to mining or mining regulation. For the sake of validity, the model was instructed to read such terms in context and only score them when it was clear what sort of vision they invoked. Despite this, the model sometimes gave scores based on these terms even when their context was not explicitly mentioned. LLM bias in ocean governance has already been identified by others and should be kept in mind when interpreting the results."),
+
+      tags$p("It is generally considered best practice to use open-source models when conducting an LLM-based analyses. Our choice of OpenAI’s GPT-5 Mini, however, is motivated by its sophistication and large knowledge base. Given the high specificity of the negotiations and the multilateral setting in which the statements are made, the model must be able to handle highly specialised content. By conducting robustness, bias, and stochasticity tests as outlined above, following a rigorous prompt validation process, and being transparent about the prompt and model parameters used (Appendices A-D), we have sought to minimise potential issues of using a commercial model."),
 
       tags$h3("Computing and interpreting final scores"),
-      tags$p(
-        "Final scores were computed by taking the average of the statements from each actor for each vision.
-        The scores are independent of each other, meaning that an actor can score high on all three visions,
-        low on all three, or a mix. Zero-values were excluded when calculating means to prevent statements
-        that did not address a vision from pulling averages down. African countries speaking as a group are
-        assigned the mean score of the group; those that additionally delivered statements unilaterally
-        receive a combined mean."
-      ),
-      tags$p(
-        "The final scores represent how strongly an actor invokes each vision on average throughout the
-        negotiations. The scores do not mean that an actor explicitly supports any vision, nor are they
-        direct proxies for an actor's stance on deep-sea mining. They indicate when an actor expresses ideas
-        that correspond with a given understanding of the ISA's role. The scores are relative: they can only
-        be compared between actors."
-      )
+
+      tags$p("Final scores were computed by taking the average of the statements from each actor for each vision. The scores are independent of each other, meaning that an actor can score high on all three visions, low on all three, or a mix. To prevent statements that did not address a vision at all from artificially pulling the averages down, zero-values were excluded when calculating the means. The African countries, who usually speak as one group, are assigned the mean score of the group. For those African countries that in addition chose to deliver statements unilaterally, their final score is the combined mean of their own and that of the group."),
+
+      tags$p("The final scores represent how strongly discursive seeds of the three visions appear in an actor’s statements on average throughout the negotiations. The scores do not mean that an actor explicitly supports any vision in their statement, neither should the scores be read as direct proxies for an actor’s stance on deep-sea mining. This particularly applies to the mining regulator vision, as actors may favour both lenient and strict regulations and still score high on the regulator vision. The scores do indicate, however, when an actor expresses ideas that correspond with such understandings of the role of the ISA or its future."),
+
+      tags$p("Finally, our data covers one year of negotiations, with its specific agenda points and topics. Different agenda points may have brought different emphases and topics. However, all actors have the same opportunity to speak on the same agenda points, meaning that we can still analyse the relative differences between actors in our data."),
 
     )
   ),

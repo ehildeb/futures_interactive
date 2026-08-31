@@ -15,7 +15,7 @@ data_dir <- "data"
 
 # Actor aggregate data
 dta_agg <- read_csv(
-  file.path(data_dir, "dta_agg.csv"),
+  file.path(data_dir, "dta_aggV2.csv"),
   show_col_types = FALSE
 ) %>%
   select(-1)

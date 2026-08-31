@@ -39,7 +39,8 @@ The paper combines a **futuring approach** with **discursive institutionalism** 
 
 **Dataset (RR1):**
 - Source: ISA 30th Session (2025) — Part I Council (March 17-28) + Part II Council and Assembly (July 7-25)
-- 799 raw statements by 110 actors; filtered to **505 substantive statements across 97 actors**
+- Dataset is a **post-RR1 version** (V2 files); exact raw statement counts may differ from the submission
+- **91 actors** in dta_aggV2.csv; 94 rows in nodesV2.csv (91 actor nodes + 3 vision pole nodes)
 - Formal settings only (not Mining Code text negotiations)
 - LLM scoring model: **GPT-5 Mini**
 - Vision scores are 0-1; zero-values excluded from actor means to avoid pulling averages down
@@ -95,7 +96,7 @@ No modules/ directory. Everything is in two files.
 
 Each actor plotted at `(mean_mr2, mean_si2, mean_ec2)`. Built as **one trace per cluster** so the legend cleanly shows cluster colour entries. Symbol (shape) is set per-point from actor type.
 
-**IMPORTANT (RR1):** Clusters changed from k=5 to k=4. Update `cluster5` join to `cluster4` in the data and reduce traces from 5 clusters to 4. The trace count in the fixed-order scheme (currently 11 traces) needs adjustment.
+**IMPORTANT:** Clusters are k=4. The column in nodesV2.csv is still named `cluster5` but contains values 1-4 (k=4 data, not k=5). The join in the app uses `cluster5` — the column name is correct as-is, just misleading. Reduce traces from 5 clusters to 4 if not already done (trace count in the fixed-order scheme needs adjustment).
 
 **Previous 5-cluster colours (for reference only — now superseded):**
 | Cluster | Colour | Hex |
