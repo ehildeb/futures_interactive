@@ -301,6 +301,10 @@ body, html { background: #FFFFFF; }
   /* no overflow:hidden — it clips Leaflet tile loading and label tooltips */
 }
 
+/* Ensure polygon hover events are never blocked by inherited CSS (macOS/WebKit) */
+.leaflet-overlay-pane svg { pointer-events: auto !important; }
+.leaflet-interactive         { pointer-events: auto !important; }
+
 /* White ocean background */
 .leaflet-container { background: #ffffff !important; }
 
@@ -1145,10 +1149,10 @@ ui <- page_navbar(
             tags$button(id = "view-toggle-btn", class = "view-toggle-btn", title = "Switch view", "Switch to 3D")
           ),
           div(id = "net-plot-wrap",
-            visNetworkOutput("network_plot", height = "600px")
+            withSpinner(visNetworkOutput("network_plot", height = "600px"), type = 7, color = "#1a1a2e")
           ),
           div(id = "sc3-plot-wrap", style = "display:none;",
-            plotlyOutput("scatter3d_plot", height = "600px")
+            withSpinner(plotlyOutput("scatter3d_plot", height = "600px"), type = 7, color = "#1a1a2e")
           ),
         ),
 
@@ -1268,7 +1272,7 @@ ui <- page_navbar(
 
         # Chart
         div(class = "comp-chart-area",
-          plotlyOutput("comp_plot_combined", height = "300px")
+          withSpinner(plotlyOutput("comp_plot_combined", height = "300px"), type = 7, color = "#1a1a2e")
         )
         ) # end comp-inner
       )
@@ -1521,7 +1525,7 @@ ui <- page_navbar(
           that shape other multilateral environmental forums."
         ),
         
-        div(class = "finding-chart-wrap", plotlyOutput("finding1_bars", height = "500px"))
+        div(class = "finding-chart-wrap", withSpinner(plotlyOutput("finding1_bars", height = "500px"), type = 7, color = "#1a1a2e"))
       ),
 
       tags$hr(class = "sec-divider"),
@@ -1536,7 +1540,7 @@ ui <- page_navbar(
           and invested in the idea of deep-sea mining as a profitable endeavour and the latter signalling a degree of doubt towards the
           (current) economic or environmental sustainability of it."
         ),
-        div(class = "finding-chart-wrap", plotlyOutput("finding2_mora_bars", height = "500px")),
+        div(class = "finding-chart-wrap", withSpinner(plotlyOutput("finding2_mora_bars", height = "500px"), type = 7, color = "#1a1a2e")),
         tags$p(
           "A stark example of this can be found within the SIDS group, where some states count among the most ardent opponents of
           deep-sea mining (for example Palau, Samoa, Tuvalu), whereas others sponsor exploration contracts
@@ -1545,7 +1549,7 @@ ui <- page_navbar(
           states to do the same. In such a context, where vested interests are in flux, the ideational abilities of actors
           may carry particular weight in determining the ISA's future."
         ),
-        div(class = "finding-chart-wrap", plotlyOutput("finding2_sids_bars", height = "500px"))
+        div(class = "finding-chart-wrap", withSpinner(plotlyOutput("finding2_sids_bars", height = "500px"), type = 7, color = "#1a1a2e"))
       ),
 
       tags$hr(class = "sec-divider"),
@@ -1560,7 +1564,7 @@ ui <- page_navbar(
           the environmental custodian vision. In other words, there are differences between the ISA as a bureaucracy and the ISA as a
           multilateral forum."
         ),
-        div(class = "finding-chart-wrap", plotlyOutput("finding3_bars", height = "500px")),
+        div(class = "finding-chart-wrap", withSpinner(plotlyOutput("finding3_bars", height = "500px"), type = 7, color = "#1a1a2e")),
         tags$p(
           "If the ISA’s secretariat is to represent its member states evenly and manage the Area on behalf of its
           negotiating parties, our findings suggest a necessary shift towards a stronger environmental custodian role.
@@ -2678,7 +2682,7 @@ server <- function(input, output, session) {
     req(!is.null(world_map_sf))
     lo <- labelOptions(
       style     = list("border" = "none", "padding" = "4px 8px", "box-shadow" = "none"),
-      direction = "auto", sticky = TRUE
+      direction = "auto", sticky = FALSE, offset = c(10, 0)
     )
     hi <- highlightOptions(weight = 2, color = "#333", fillOpacity = 0.95, bringToFront = TRUE)
     m <- leaflet(world_map_sf, options = leafletOptions(minZoom = 2, worldCopyJump = TRUE)) %>%
@@ -2695,13 +2699,24 @@ server <- function(input, output, session) {
         label          = map_labels,
         labelOptions   = lo,
         highlightOptions = hi,
+        options        = pathOptions(interactive = TRUE),
         group          = vis
       )
     }
     m %>%
       hideGroup("si") %>%
       hideGroup("ec") %>%
-      htmlwidgets::onRender("function(el,x){var m=this;[100,400,900].forEach(function(d){setTimeout(function(){m.invalidateSize(false);},d);});}")
+      htmlwidgets::onRender(
+        "function(el,x){
+          var m = this;
+          [100,400,900,2000,4000].forEach(function(d){
+            setTimeout(function(){ m.invalidateSize(false); }, d);
+          });
+          if (window.ResizeObserver) {
+            new ResizeObserver(function(){ m.invalidateSize(false); }).observe(el);
+          }
+        }"
+      )
   })
 
   observeEvent(input$map_vision, {
