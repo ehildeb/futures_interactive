@@ -1043,7 +1043,8 @@ ui <- page_navbar(
         "We argue that this moment offers an opportunity to imagine ", HTML("<strong>radically different futures</strong>"), " for the ISA as an institution."
       ),
       tags$p(
-        "Our contribution in this paper is twofold. First, we construct three visions for the future,
+        "Our contribution in this paper is twofold. First, we construct three visions for the future:
+        one favouring the current direction of the ISA and two alternative visions
         asking what the ISA could become if it turned away from deep-sea mining and rebuilt its purpose
         around different parts of its UNCLOS mandate: the ISA as a ", HTML("<strong style='color:#CC8A52;'>Mining Regulator</strong>,"), " a ",
         HTML("<strong style='color:#5BAAB6;'>Marine Scientific Research (MSR) Institution</strong>,"), " and an
