@@ -463,12 +463,13 @@ body, html { background: #FFFFFF; }
 .comp-inner {
   width: 318px;   /* 340px panel - 22px tab */
   flex-shrink: 0;
-  overflow: hidden;
+  /* overflow:hidden removed — collapse is clipped by .comparison-section; hidden here was clipping the radar chart */
   display: flex;
   flex-direction: column;
 }
 .comp-controls { border-bottom: 1px solid #eee; flex-shrink: 0; }
-.comp-chart-area { flex: 1; min-height: 0; }
+.comp-chart-area { flex: 1; min-height: 0; overflow: visible; }
+.comp-chart-area .plotly, .comp-chart-area .html-widget-output { overflow: visible !important; }
 /* Collapsed: shrink section to just the tab and clip the inner column */
 .comparison-section { overflow: hidden; }
 .comparison-section.is-collapsed { width: 22px; }
