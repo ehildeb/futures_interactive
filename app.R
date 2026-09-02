@@ -1273,7 +1273,7 @@ ui <- page_navbar(
 
         # Chart
         div(class = "comp-chart-area",
-          withSpinner(plotlyOutput("comp_plot_combined", height = "300px"), type = 7, color = "#1a1a2e")
+          withSpinner(plotlyOutput("comp_plot_combined", height = "290px"), type = 7, color = "#1a1a2e")
         )
         ) # end comp-inner
       )
@@ -1473,6 +1473,17 @@ ui <- page_navbar(
             updateNetworkHeight();
           }).observe(compSectionEl);
         }
+
+        // Resize the comp radar chart after each Shiny render so Plotly measures
+        // the flex container AFTER layout has settled (avoids the default-width ghost render).
+        $(document).on('shiny:value', function(e) {
+          if (e.name === 'comp_plot_combined') {
+            setTimeout(function() {
+              var el = document.getElementById('comp_plot_combined');
+              if (el && window.Plotly) Plotly.Plots.resize(el);
+            }, 50);
+          }
+        });
 
       });
     ")),
@@ -2013,10 +2024,11 @@ server <- function(input, output, session) {
     # Layout and styling
     p %>% layout(
       polar = list(
+        domain      = list(x = c(0.12, 0.88), y = c(0.04, 0.94)),
         radialaxis  = list(range = c(0, 1), visible = TRUE, gridcolor = "#eeeeee", showticklabels = TRUE,
                            tickfont = list(size = 9, color = "#cccccc"), tickcolor = "#cccccc", linecolor = "#eeeeee"),
         angularaxis = list(
-          tickfont  = list(size = 11, family = "Lora, serif", color = "#333333"),
+          tickfont  = list(size = 10, family = "Lora, serif", color = "#333333"),
           linecolor = "#cccccc",
           gridcolor = "#eeeeee",
           direction = "clockwise",
@@ -2026,7 +2038,10 @@ server <- function(input, output, session) {
       ),
       showlegend    = FALSE,
       dragmode      = FALSE,
-      margin        = list(l = 55, r = 58, t = 15, b = 5),
+      autosize      = FALSE,
+      width         = 310,
+      height        = 290,
+      margin        = list(l = 20, r = 20, t = 15, b = 5),
       paper_bgcolor = "rgba(0,0,0,0)",
       plot_bgcolor  = "rgba(0,0,0,0)",
       font          = list(family = "Lora, serif", size = 10, color = "#333333")
