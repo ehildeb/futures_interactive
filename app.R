@@ -1016,7 +1016,7 @@ ui <- page_navbar(
       ),
       tags$p(HTML(
         'You are looking at the condensed interactive web version of our paper <strong>Negotiating futures: Three visions for the International Seabed Authority</strong>.
-        The full published version of it, including references, can be <a href="https://doi.org" target="_blank">found here</a>.
+        The full published version of it, including references, can be <a href="https://dx.doi.org/10.1080/14650045.2026.2721460" target="_blank">found here</a>.
         Read about the visions by clicking their cards below, use the visualisations to explore our main findings, and visit
         <a href="#" onclick="document.querySelector(\'[data-bs-toggle=tab][data-value=Data]\').click(); return false;">the data tab</a>
         to browse the underlying data. For questions or feedback, please contact <a href="mailto:emil.wieringa.hildebrand@univie.ac.at" style="color:inherit;">Emil W. Hildebrand</a>.'
