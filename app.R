@@ -2698,7 +2698,7 @@ server <- function(input, output, session) {
     req(!is.null(world_map_sf))
     lo <- labelOptions(
       style     = list("border" = "none", "padding" = "4px 8px", "box-shadow" = "none"),
-      direction = "auto", sticky = FALSE, offset = c(10, 0)
+      direction = "auto", sticky = TRUE, offset = c(12, 0)
     )
     hi <- highlightOptions(weight = 2, color = "#333", fillOpacity = 0.95, bringToFront = TRUE)
     m <- leaflet(world_map_sf, options = leafletOptions(minZoom = 2, worldCopyJump = TRUE)) %>%
