@@ -21,3 +21,4 @@ source("global.R")
 
 elapsed <- (proc.time() - t0)[["elapsed"]]
 message(sprintf("build_cache.R: done in %.1fs -- commit data/globals_cache.rds to git", elapsed))
+

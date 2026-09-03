@@ -301,9 +301,11 @@ body, html { background: #FFFFFF; }
   /* no overflow:hidden — it clips Leaflet tile loading and label tooltips */
 }
 
-/* Ensure polygon hover events are never blocked by inherited CSS (macOS/WebKit) */
-.leaflet-overlay-pane svg { pointer-events: auto !important; }
-.leaflet-interactive         { pointer-events: auto !important; }
+/* Ensure polygon hover events are never blocked by inherited CSS (macOS/WebKit).
+   Only target individual interactive paths — NOT the SVG root element.
+   Leaflet sets pointer-events:none on the SVG root intentionally; overriding it
+   makes the SVG container fire spurious mouseout events that close tooltips. */
+.leaflet-interactive { pointer-events: visiblePainted !important; }
 
 /* White ocean background */
 .leaflet-container { background: #ffffff !important; }
@@ -2696,9 +2698,29 @@ server <- function(input, output, session) {
   # ── Finding 1: geography map (Leaflet choropleth, group-based vision switch)-
   output$finding1_map <- renderLeaflet({
     req(!is.null(world_map_sf))
+    # Build labels fresh: htmltools::HTML() class is not reliably preserved
+    # through RDS serialisation, so the cached map_labels silently fails.
+    .fmt_lbl <- function(x) ifelse(is.na(x), "n/a", sprintf("%.3f", x))
+    .map_labels <- mapply(
+      function(name, mr, si, ec) {
+        htmltools::HTML(paste0(
+          "<div style='font-family:Lora,serif;line-height:1.75;font-size:12px'>",
+          "<b>", name, "</b><br>",
+          "Mining reg.: <b>", .fmt_lbl(mr), "</b><br>",
+          "MSR inst.:&nbsp;&nbsp; <b>", .fmt_lbl(si), "</b><br>",
+          "Env. cust.:&nbsp;&nbsp; <b>", .fmt_lbl(ec), "</b>",
+          "</div>"
+        ))
+      },
+      world_map_sf$sovereignt,
+      world_map_sf$mean_mr2,
+      world_map_sf$mean_si2,
+      world_map_sf$mean_ec2,
+      SIMPLIFY = FALSE
+    )
     lo <- labelOptions(
       style     = list("border" = "none", "padding" = "4px 8px", "box-shadow" = "none"),
-      direction = "auto", sticky = TRUE, offset = c(12, 0)
+      direction = "auto", sticky = FALSE, offset = c(12, 0)
     )
     hi <- highlightOptions(weight = 2, color = "#333", fillOpacity = 0.95, bringToFront = TRUE)
     m <- leaflet(world_map_sf, options = leafletOptions(minZoom = 2, worldCopyJump = TRUE)) %>%
@@ -2712,7 +2734,7 @@ server <- function(input, output, session) {
         color          = "white",
         weight         = 0.5,
         smoothFactor   = 1.5,
-        label          = map_labels,
+        label          = unname(.map_labels),
         labelOptions   = lo,
         highlightOptions = hi,
         options        = pathOptions(interactive = TRUE),
@@ -2731,6 +2753,14 @@ server <- function(input, output, session) {
           if (window.ResizeObserver) {
             new ResizeObserver(function(){ m.invalidateSize(false); }).observe(el);
           }
+          var _tip = null;
+          m.on('tooltipopen', function(e) {
+            if (_tip && _tip !== e.tooltip) { m.closeTooltip(_tip); }
+            _tip = e.tooltip;
+          });
+          m.on('tooltipclose', function(e) {
+            if (_tip === e.tooltip) { _tip = null; }
+          });
         }"
       )
   })
